@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odontograma — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --green-light: #E8F5EE;
+    --amber: #7A4A00; --amber-light: #FFF4E0;
+    --red: #8B1A1A; --red-light: #FDEAEA;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; overflow-x: auto; }
+  .tab-btn { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text-3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .tab-btn:hover { color: var(--text-2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .snum { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-right: 5px; color: var(--text-3); }
+  .tab-btn.active .snum { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
+  textarea { resize: vertical; line-height: 1.5; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  /* Upload zone */
+  .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 48px 24px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.2s; position: relative; }
+  .upload-zone:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .upload-zone.has-image { border-style: solid; border-color: var(--accent-mid); padding: 12px; }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-title { font-size: 15px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+  .upload-subtitle { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .preview-img { width: 100%; max-height: 460px; object-fit: contain; border-radius: var(--radius-sm); display: block; }
+  .remove-btn { position: absolute; top: 8px; right: 8px; background: var(--red); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; z-index: 2; }
+  .remove-btn:hover { background: #6b1010; }
+
+  /* Instrucción USS */
+  .instr-box { background: var(--amber-light); border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12px; color: var(--amber); line-height: 1.6; margin-bottom: 16px; }
+  .instr-box strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Cuadrantes */
+  .cuad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .cuad-card { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .cuad-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+  .cuad-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; }
+  .cuad-1 .cuad-num { background: #2e6faf; }
+  .cuad-2 .cuad-num { background: #2e6faf; }
+  .cuad-3 .cuad-num { background: #1a5c3a; }
+  .cuad-4 .cuad-num { background: #1a5c3a; }
+  .cuad-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .cuad-sublabel { font-size: 11px; color: var(--text-3); }
+  .cuad-dientes { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-3); margin-left: auto; }
+  .cuad-body { padding: 12px 14px; }
+  .cuad-body textarea { min-height: 90px; font-size: 13px; }
+
+  /* Hallazgos generales */
+  .hall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .hall-item { display: flex; flex-direction: column; gap: 6px; }
+  .hall-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  /* AI */
+  .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+  .ai-result { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 14px; font-size: 13px; color: var(--text); line-height: 1.7; margin-top: 10px; animation: fadeIn 0.3s; }
+  .ai-result-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--amber); margin-bottom: 8px; }
+  .ai-result-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+  .btn-green { background: var(--green); }
+  .btn-green:hover { background: #144a2e; }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+  /* Bib */
+  .bib-box { background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--accent); line-height: 1.6; margin-top: 12px; }
+  .bib-box strong { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 3px; }
+
+  /* Summary */
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .summary-section { margin-bottom: 18px; }
+  .summary-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .summary-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--text-2); flex-shrink: 0; max-width: 40%; }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 58%; }
+
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    .cuad-grid { grid-template-columns: 1fr; }
+    .hall-grid { grid-template-columns: 1fr; }
+    header { padding: 14px 16px; }
+    main { padding: 18px 14px; }
+  }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🦷</div>
+  <div class="header-text">
+    <h1>Odontograma</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slides 18–19</span>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="goTab(0)"><span class="snum">S18</span>Odontograma</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="snum">S19</span>Descripción por cuadrante</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="snum">✓</span>Resumen</button>
+</div>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+
+<!-- ===== TAB 0: Odontograma imagen (S18) ===== -->
+<div id="tab-0">
+  <div class="section-header">
+    <h2>Odontograma</h2>
+    <p>Adjunta la imagen del odontograma exportada desde el sistema de ficha clínica USS.</p>
+  </div>
+
+  <div class="instr-box">
+    <strong>📋 Instrucción — Cómo adjuntar el odontograma</strong>
+    En el sistema de ficha USS: completa el odontograma digital → usa la opción <em>Exportar / Imprimir como imagen</em> o realiza una captura de pantalla del odontograma completado → arrastra o selecciona la imagen en el recuadro a continuación.
+  </div>
+
+  <div class="card">
+    <div class="card-title">Imagen del odontograma — Slide 18</div>
+    <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'odont')">
+      <input type="file" accept="image/*" class="upload-input" id="fileOdont" onchange="onFileChange('odont')">
+      <div id="uploadPlaceholder">
+        <div class="upload-icon">🦷</div>
+        <div class="upload-title">Arrastra la imagen aquí o haz clic para seleccionar</div>
+        <div class="upload-subtitle">Captura o exportación del odontograma desde el sistema USS<br>Formatos: PNG, JPG, WEBP</div>
+      </div>
+      <img id="previewOdont" class="preview-img hidden" alt="Odontograma">
+      <button class="remove-btn hidden" id="removeOdont" onclick="removeImg('odont')" title="Eliminar imagen">×</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Observaciones generales del odontograma</div>
+    <div class="field">
+      <label>Hallazgos generales / resumen del odontograma</label>
+      <textarea id="obsOdontograma" rows="4" placeholder="Ej: Odontograma con múltiples restauraciones en amalgama en sector posterior. Presencia de caries activas en piezas 1.6, 3.6 y 3.7. Ausencias: 1.8, 2.8, 3.8, 4.8. Piezas 1.1 y 2.1 con restauraciones estéticas en resina compuesta..."></textarea>
+    </div>
+
+    <div class="bib-box">
+      <strong>📚 Referencia — Simbología odontograma USS</strong>
+      Diente sano (sin símbolo) · Caries (C) · Restauración (color según material) · Ausente (X) · Extracción indicada (EI) · Corona (Co) · Puente (Pu) · Implante (Im) · Sellante (Se) · Fractura (F) · Endodoncia (E) · Prótesis removible (PR) · Amalgama (Am) · Resina (Re) · Incrustación (In).
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <div></div>
+    <button class="btn" onclick="goTab(1)">Siguiente → Descripción por cuadrante</button>
+  </div>
+</div>
+
+<!-- ===== TAB 1: Descripción por cuadrante (S19) ===== -->
+<div id="tab-1" class="hidden">
+  <div class="section-header">
+    <h2>Descripción por cuadrante dentario</h2>
+    <p>Registro de hallazgos clínicos detallados organizados por los 4 cuadrantes. Slide 19 de la ficha USS.</p>
+  </div>
+
+  <!-- Hallazgos generales -->
+  <div class="card">
+    <div class="card-title">Datos generales de la dentición</div>
+    <div class="hall-grid">
+      <div class="hall-item">
+        <span class="hall-label">Piezas ausentes</span>
+        <input type="text" id="piezasAusentes" placeholder="Ej: 1.8, 2.8, 3.8, 4.8">
+      </div>
+      <div class="hall-item">
+        <span class="hall-label">Piezas con extracción indicada</span>
+        <input type="text" id="piezasEI" placeholder="Ej: 3.7 (raíz residual), 4.6 (fractura vertical)">
+      </div>
+      <div class="hall-item">
+        <span class="hall-label">Piezas con endodoncia</span>
+        <input type="text" id="piezasEndo" placeholder="Ej: 1.1, 2.1, 3.6">
+      </div>
+      <div class="hall-item">
+        <span class="hall-label">Piezas con prótesis fija (corona / puente)</span>
+        <input type="text" id="piezasProtFija" placeholder="Ej: Corona 2.5. Puente 3.4–3.6.">
+      </div>
+    </div>
+  </div>
+
+  <!-- Cuadrantes -->
+  <div class="card">
+    <div class="card-title">Hallazgos por cuadrante dentario — Slide 19</div>
+
+    <div class="cuad-grid">
+
+      <!-- Cuadrante 1 -->
+      <div class="cuad-card cuad-1">
+        <div class="cuad-header">
+          <div class="cuad-num">1</div>
+          <div>
+            <div class="cuad-label">Cuadrante 1</div>
+            <div class="cuad-sublabel">Superior derecho</div>
+          </div>
+          <div class="cuad-dientes">1.8 → 1.1</div>
+        </div>
+        <div class="cuad-body">
+          <textarea id="cuad1" rows="5" placeholder="Ej: 1.8 ausente. 1.7 sin hallazgos. 1.6 amalgama oclusal en buen estado. 1.5 caries dentinaria oclusal (ICDAS 4). 1.4 sin hallazgos. 1.3 sin hallazgos. 1.2 restauración resina compuesta mesial. 1.1 restauración resina vestibular decolorada..."></textarea>
+        </div>
+      </div>
+
+      <!-- Cuadrante 2 -->
+      <div class="cuad-card cuad-2">
+        <div class="cuad-header">
+          <div class="cuad-num">2</div>
+          <div>
+            <div class="cuad-label">Cuadrante 2</div>
+            <div class="cuad-sublabel">Superior izquierdo</div>
+          </div>
+          <div class="cuad-dientes">2.1 → 2.8</div>
+        </div>
+        <div class="cuad-body">
+          <textarea id="cuad2" rows="5" placeholder="Ej: 2.1 sin hallazgos. 2.2 sin hallazgos. 2.3 sin hallazgos. 2.4 restauración resina compuesta oclusal. 2.5 caries esmalte oclusal (ICDAS 2). 2.6 amalgama oclusal con filtración marginal. 2.7 sin hallazgos. 2.8 ausente..."></textarea>
+        </div>
+      </div>
+
+      <!-- Cuadrante 4 -->
+      <div class="cuad-card cuad-4">
+        <div class="cuad-header">
+          <div class="cuad-num">4</div>
+          <div>
+            <div class="cuad-label">Cuadrante 4</div>
+            <div class="cuad-sublabel">Inferior derecho</div>
+          </div>
+          <div class="cuad-dientes">4.8 → 4.1</div>
+        </div>
+        <div class="cuad-body">
+          <textarea id="cuad4" rows="5" placeholder="Ej: 4.8 ausente. 4.7 sin hallazgos. 4.6 amalgama oclusal en buen estado. 4.5 restauración resina compuesta oclusal. 4.4 sin hallazgos. 4.3 sin hallazgos. 4.2 sin hallazgos. 4.1 sin hallazgos..."></textarea>
+        </div>
+      </div>
+
+      <!-- Cuadrante 3 -->
+      <div class="cuad-card cuad-3">
+        <div class="cuad-header">
+          <div class="cuad-num">3</div>
+          <div>
+            <div class="cuad-label">Cuadrante 3</div>
+            <div class="cuad-sublabel">Inferior izquierdo</div>
+          </div>
+          <div class="cuad-dientes">3.1 → 3.8</div>
+        </div>
+        <div class="cuad-body">
+          <textarea id="cuad3" rows="5" placeholder="Ej: 3.1 sin hallazgos. 3.2 sin hallazgos. 3.3 sin hallazgos. 3.4 sin hallazgos. 3.5 restauración resina oclusal. 3.6 caries dentinaria oclusal profunda (ICDAS 5). 3.7 amalgama oclusal en buen estado. 3.8 ausente..."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bib-box">
+      <strong>📚 Referencia — Orden de descripción por cuadrante</strong>
+      Describir desde distal a mesial en superiores (1.8→1.1 y 2.1→2.8) y de mesial a distal en inferiores (4.1→4.8 y 3.1→3.8), siguiendo la numeración FDI. Incluir: estado (sano, restaurado, cariado, ausente), tipo de restauración y material, extensión de caries según ICDAS (0–6), y cualquier anomalía de forma, número o posición relevante.
+    </div>
+  </div>
+
+  <!-- IA resumen por cuadrante -->
+  <div class="card">
+    <div class="card-title">✦ Asistente IA — Síntesis de hallazgos</div>
+    <div class="ai-bar">
+      <span class="ai-bar-text">Completa los cuadrantes y la IA redactará la <span>síntesis clínica del odontograma</span> en lenguaje formal para la ficha.</span>
+      <button class="btn btn-sm" id="btnIA" onclick="generarSintesis()">Generar síntesis</button>
+    </div>
+    <div id="iaResultBox" class="hidden">
+      <div class="ai-result">
+        <div class="ai-result-label">✦ Síntesis sugerida por IA</div>
+        <div id="iaTexto"></div>
+        <div class="ai-result-actions">
+          <button class="btn btn-sm btn-green" onclick="usarSintesis()">Usar este texto</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('iaResultBox').classList.add('hidden')">Descartar</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Síntesis narrativa del odontograma</label>
+      <textarea id="sintesisOdont" rows="6" placeholder="La síntesis clínica del odontograma aparecerá aquí, o puedes redactarla directamente..."></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(0)">← Odontograma</button>
+    <button class="btn" onclick="goTab(2)">Ver resumen →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 2: Resumen ===== -->
+<div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Resumen del módulo</h2>
+    <p>Consolidado del odontograma y descripción por cuadrante.</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <button class="btn btn-outline btn-sm" onclick="buildResumen()">🔄 Actualizar resumen</button>
+      <button class="btn btn-sm" onclick="copiarResumen()">📋 Copiar resumen</button>
+    </div>
+    <div id="summaryContent">
+      <p style="color:var(--text-3);font-size:13px;text-align:center;padding:24px 0;">Haz clic en "Actualizar resumen" para ver el consolidado.</p>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(1)">← Descripción por cuadrante</button>
+    <div style="font-size:12px;color:var(--text-3);">Módulo Slides 18–19 completo</div>
+  </div>
+</div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+
+// ---- Tabs ----
+function goTab(n) {
+  document.querySelectorAll('main > div[id^="tab-"]').forEach((el, i) => {
+    el.classList.toggle('hidden', i !== n);
+  });
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === n);
+  });
+  if (n === 2) buildResumen();
+}
+
+// ---- Imagen upload ----
+function onFileChange(id) {
+  const file = document.getElementById('file' + cap(id)).files[0];
+  if (file) loadImage(id, file);
+}
+function onDragOver(e) { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--accent-mid)'; }
+function onDragLeave(e) { e.currentTarget.style.borderColor = ''; }
+function onDrop(e, id) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(id, file);
+}
+function loadImage(id, file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const zone = document.getElementById('uploadZone');
+    const preview = document.getElementById('preview' + cap(id));
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const removeBtn = document.getElementById('remove' + cap(id));
+    preview.src = e.target.result;
+    preview.classList.remove('hidden');
+    removeBtn.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    zone.classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+function removeImg(id) {
+  const zone = document.getElementById('uploadZone');
+  const preview = document.getElementById('preview' + cap(id));
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const removeBtn = document.getElementById('remove' + cap(id));
+  preview.src = '';
+  preview.classList.add('hidden');
+  removeBtn.classList.add('hidden');
+  placeholder.classList.remove('hidden');
+  zone.classList.remove('has-image');
+  document.getElementById('file' + cap(id)).value = '';
+}
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ---- IA Síntesis ----
+async function generarSintesis() {
+  const datos = {
+    'Cuadrante 1 (Superior derecho 1.8→1.1)': document.getElementById('cuad1').value.trim(),
+    'Cuadrante 2 (Superior izquierdo 2.1→2.8)': document.getElementById('cuad2').value.trim(),
+    'Cuadrante 3 (Inferior izquierdo 3.1→3.8)': document.getElementById('cuad3').value.trim(),
+    'Cuadrante 4 (Inferior derecho 4.1→4.8)': document.getElementById('cuad4').value.trim(),
+  };
+  const extras = [
+    document.getElementById('piezasAusentes').value.trim() ? 'Ausentes: ' + document.getElementById('piezasAusentes').value.trim() : '',
+    document.getElementById('piezasEI').value.trim() ? 'Extracción indicada: ' + document.getElementById('piezasEI').value.trim() : '',
+    document.getElementById('piezasEndo').value.trim() ? 'Endodónticas: ' + document.getElementById('piezasEndo').value.trim() : '',
+    document.getElementById('piezasProtFija').value.trim() ? 'Prótesis fija: ' + document.getElementById('piezasProtFija').value.trim() : '',
+  ].filter(Boolean);
+
+  const contenido = Object.entries(datos).filter(([,v]) => v);
+  if (contenido.length < 2) { alert('Completa al menos 2 cuadrantes antes de usar el asistente.'); return; }
+
+  const btn = document.getElementById('btnIA');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 900,
+        messages: [{
+          role: 'user',
+          content: `Eres clínico odontológico universitario en Chile. Redacta la síntesis narrativa del "Odontograma" para la ficha clínica USS, basada en los hallazgos por cuadrante registrados.
+
+Hallazgos:
+${contenido.map(([k,v]) => `${k}: ${v}`).join('\n')}
+${extras.length ? '\n' + extras.join('\n') : ''}
+
+Redacta en prosa clínica formal, tercera persona. Organiza la descripción por arcadas (superior luego inferior), mencionando los hallazgos más relevantes de cada cuadrante, el estado general de la dentición, tipo y estado de las restauraciones presentes, y las piezas cariadas o con patología. Máximo 200 palabras. Solo el texto narrativo.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text || '').join('');
+    document.getElementById('iaTexto').textContent = texto;
+    document.getElementById('iaResultBox').classList.remove('hidden');
+  } catch(e) { alert('Error al conectar con el asistente. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Generar síntesis'; }
+}
+function usarSintesis() {
+  document.getElementById('sintesisOdont').value = document.getElementById('iaTexto').textContent.trim();
+  document.getElementById('iaResultBox').classList.add('hidden');
+}
+
+// ---- Resumen ----
+function getVal(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+
+function buildResumen() {
+  const imgLoaded = document.getElementById('previewOdont').src && !document.getElementById('previewOdont').classList.contains('hidden');
+
+  const sections = [
+    { title: 'Slide 18 — Odontograma', rows: [
+      ['Imagen adjuntada', imgLoaded ? '✓ Imagen cargada' : 'Pendiente'],
+      ['Observaciones generales', getVal('obsOdontograma')],
+    ]},
+    { title: 'Slide 19 — Descripción por cuadrante', rows: [
+      ['Piezas ausentes', getVal('piezasAusentes')],
+      ['Extracción indicada', getVal('piezasEI')],
+      ['Piezas con endodoncia', getVal('piezasEndo')],
+      ['Prótesis fija', getVal('piezasProtFija')],
+      ['Cuadrante 1 — Sup. derecho', getVal('cuad1')],
+      ['Cuadrante 2 — Sup. izquierdo', getVal('cuad2')],
+      ['Cuadrante 3 — Inf. izquierdo', getVal('cuad3')],
+      ['Cuadrante 4 — Inf. derecho', getVal('cuad4')],
+      ['Síntesis narrativa', getVal('sintesisOdont')],
+    ]},
+  ];
+
+  const html = sections.map(s => `
+    <div class="summary-section">
+      <div class="summary-section-title">${s.title}</div>
+      ${s.rows.map(([label, value]) => `
+        <div class="summary-row">
+          <span class="summary-label">${label}</span>
+          <span class="summary-value">${value}</span>
+        </div>`).join('')}
+    </div>`).join('');
+
+  document.getElementById('summaryContent').innerHTML = `<div class="summary-card">${html}</div>`;
+}
+
+function copiarResumen() {
+  const rows = document.querySelectorAll('.summary-row');
+  const text = [...rows].map(r => {
+    const cells = r.querySelectorAll('span');
+    return cells[0].textContent.trim() + ': ' + cells[1].textContent.replace(/\s+/g, ' ').trim();
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar resumen', 2000);
+  });
+}
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

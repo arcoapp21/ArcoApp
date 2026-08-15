@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exámenes Periodontales — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --green-light: #E8F5EE;
+    --amber: #7A4A00; --amber-light: #FFF4E0;
+    --red: #8B1A1A; --red-light: #FDEAEA;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; overflow-x: auto; }
+  .tab-btn { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text-3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .tab-btn:hover { color: var(--text-2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .snum { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-right: 5px; color: var(--text-3); }
+  .tab-btn.active .snum { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
+
+  .field-grid { display: grid; gap: 14px; }
+  .fg2 { grid-template-columns: 1fr 1fr; }
+  .fg3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .radio-pill input { display: none; }
+  .radio-pill label { display: block; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); }
+  .radio-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+
+  /* IHO-S dientes grid */
+  .iho-section { margin-bottom: 18px; }
+  .iho-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .diente-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .diente-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 6px; text-align: center; }
+  .diente-num { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+  .diente-cara { font-size: 9px; color: var(--text-3); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .diente-input { width: 100% !important; text-align: center; padding: 4px 2px !important; font-size: 16px !important; font-weight: 600 !important; font-family: 'DM Mono', monospace !important; }
+
+  /* Resultado IHO */
+  .iho-result { display: flex; align-items: center; gap: 20px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; margin-top: 14px; }
+  .iho-score { font-size: 42px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--accent); min-width: 80px; text-align: center; }
+  .iho-info { flex: 1; }
+  .iho-categoria { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
+  .iho-rango { font-size: 12px; color: var(--text-3); }
+  .iho-badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; font-weight: 600; margin-top: 4px; }
+
+  /* Índice de sangrado */
+  .sangrado-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .sang-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+  .sang-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 8px; }
+  .sang-input { width: 70px !important; text-align: center; font-size: 20px !important; font-weight: 600 !important; font-family: 'DM Mono', monospace !important; margin: 0 auto; display: block !important; }
+  .sang-unit { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  .sang-result { font-size: 13px; font-weight: 600; margin-top: 6px; }
+
+  /* Encía características */
+  .encia-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .encia-param { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .encia-param-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 8px; }
+
+  /* Check pills for características */
+  .check-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .check-pill input { display: none; }
+  .check-pill label { display: block; padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); }
+  .check-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+  .check-pill.warn input:checked + label { background: var(--amber-light); color: var(--amber); border-color: #e8d99a; }
+  .check-pill.danger input:checked + label { background: var(--red-light); color: var(--red); border-color: #f5c0c0; }
+
+  /* AI bar */
+  .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+  .ai-suggestion { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6; margin-top: 8px; animation: fadeIn 0.3s; }
+  .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Periodontograma imagen upload */
+  .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 24px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.2s; position: relative; }
+  .upload-zone:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .upload-zone.has-image { border-style: solid; border-color: var(--accent-mid); padding: 12px; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-title { font-size: 15px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+  .upload-subtitle { font-size: 12px; color: var(--text-3); }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .preview-img { width: 100%; max-height: 400px; object-fit: contain; border-radius: var(--radius-sm); display: block; }
+  .remove-img { position: absolute; top: 8px; right: 8px; background: var(--red); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* Bib note */
+  .bib-note { padding: 10px 14px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); font-size: 12px; color: var(--accent); margin-top: 12px; line-height: 1.5; }
+
+  /* Summary */
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .summary-section { margin-bottom: 18px; }
+  .summary-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--text-2); flex-shrink: 0; }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 65%; }
+
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .fg2, .fg3 { grid-template-columns: 1fr; }
+    .diente-grid { grid-template-columns: repeat(3, 1fr); }
+    .sangrado-grid { grid-template-columns: 1fr 1fr; }
+    .encia-grid { grid-template-columns: 1fr; }
+  }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🦷</div>
+  <div class="header-text">
+    <h1>Exámenes Periodontales</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slides 19–25</span>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="goTab(0)"><span class="snum">S19</span>Índice de higiene</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="snum">S20</span>Encía</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="snum">S21–25</span>Periodontograma</button>
+  <button class="tab-btn" onclick="goTab(3)"><span class="snum">✓</span>Resumen</button>
+</div>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+
+<!-- ===== TAB 0: Índice de higiene (S19) ===== -->
+<div id="tab-0">
+  <div class="section-header">
+    <h2>Índice de higiene oral</h2>
+    <p>Registro del índice de higiene oral simplificado (IHO-S de Greene y Vermillion) y tipo de higiene del paciente.</p>
+  </div>
+
+  <!-- Selector tipo de índice -->
+  <div class="card">
+    <div class="card-title">Tipo de índice utilizado</div>
+    <div class="radio-group">
+      <div class="radio-pill"><input type="radio" name="tipoIndice" id="ti-ihos" value="IHO-S (Greene y Vermillion)" checked onchange="mostrarIndice()"><label for="ti-ihos">IHO-S (Greene y Vermillion)</label></div>
+      <div class="radio-pill"><input type="radio" name="tipoIndice" id="ti-ohi" value="OHI (O'Leary)" onchange="mostrarIndice()"><label for="ti-ohi">O'Leary (índice de placa %)</label></div>
+      <div class="radio-pill"><input type="radio" name="tipoIndice" id="ti-otro" value="Otro" onchange="mostrarIndice()"><label for="ti-otro">Otro</label></div>
+    </div>
+  </div>
+
+  <!-- IHO-S -->
+  <div id="seccionIHOS" class="card">
+    <div class="card-title">IHO-S — Registro por diente índice</div>
+    <p style="font-size:12px;color:var(--text-3);margin-bottom:14px;">Registra el valor de placa (0–3) y cálculo (0–3) para cada diente índice en la cara indicada.</p>
+
+    <div class="iho-section">
+      <div class="iho-section-title">Superior — Cara vestibular (V)</div>
+      <div class="diente-grid">
+        <div class="diente-card">
+          <div class="diente-num">1.6</div>
+          <div class="diente-cara">Vest.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <div><div style="font-size:9px;color:var(--text-3);">Placa</div><input type="number" class="diente-input" id="iho_16_p" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+            <div><div style="font-size:9px;color:var(--text-3);">Cálc.</div><input type="number" class="diente-input" id="iho_16_c" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+          </div>
+        </div>
+        <div class="diente-card">
+          <div class="diente-num">1.1</div>
+          <div class="diente-cara">Vest.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <div><div style="font-size:9px;color:var(--text-3);">Placa</div><input type="number" class="diente-input" id="iho_11_p" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+            <div><div style="font-size:9px;color:var(--text-3);">Cálc.</div><input type="number" class="diente-input" id="iho_11_c" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+          </div>
+        </div>
+        <div class="diente-card">
+          <div class="diente-num">2.6</div>
+          <div class="diente-cara">Vest.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <div><div style="font-size:9px;color:var(--text-3);">Placa</div><input type="number" class="diente-input" id="iho_26_p" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+            <div><div style="font-size:9px;color:var(--text-3);">Cálc.</div><input type="number" class="diente-input" id="iho_26_c" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+          </div>
+        </div>
+        <!-- Inferior lingual -->
+        <div class="diente-card">
+          <div class="diente-num">4.6</div>
+          <div class="diente-cara">Ling.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <div><div style="font-size:9px;color:var(--text-3);">Placa</div><input type="number" class="diente-input" id="iho_46_p" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+            <div><div style="font-size:9px;color:var(--text-3);">Cálc.</div><input type="number" class="diente-input" id="iho_46_c" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+          </div>
+        </div>
+        <div class="diente-card">
+          <div class="diente-num">3.1</div>
+          <div class="diente-cara">Vest.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <div><div style="font-size:9px;color:var(--text-3);">Placa</div><input type="number" class="diente-input" id="iho_31_p" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+            <div><div style="font-size:9px;color:var(--text-3);">Cálc.</div><input type="number" class="diente-input" id="iho_31_c" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+          </div>
+        </div>
+        <div class="diente-card">
+          <div class="diente-num">3.6</div>
+          <div class="diente-cara">Ling.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+            <div><div style="font-size:9px;color:var(--text-3);">Placa</div><input type="number" class="diente-input" id="iho_36_p" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+            <div><div style="font-size:9px;color:var(--text-3);">Cálc.</div><input type="number" class="diente-input" id="iho_36_c" min="0" max="3" step="1" placeholder="0" oninput="calcIHOS()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado automático -->
+    <div class="iho-result" id="ihoResult" style="display:none;">
+      <div class="iho-score" id="ihoScore">—</div>
+      <div class="iho-info">
+        <div class="iho-categoria" id="ihoCat">—</div>
+        <div class="iho-rango" id="ihoRango">—</div>
+        <div class="iho-badge" id="ihoBadge"></div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones índice de higiene</label>
+      <textarea id="obsIHOS" placeholder="Ej: IHO-S de 1.8, higiene oral regular. Mayor acumulación de placa y cálculo en sector posterior inferior..." rows="2"></textarea>
+    </div>
+
+    <div class="bib-note">
+      📚 <strong>Referencia:</strong> Greene JC, Vermillion JR. The Simplified Oral Hygiene Index. <em>J Am Dent Assoc.</em> 1964;68:7–13.
+    </div>
+  </div>
+
+  <!-- O'Leary -->
+  <div id="seccionOLeary" class="card hidden">
+    <div class="card-title">Índice de placa de O'Leary (%)</div>
+    <div class="field-grid fg3" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Superficies con placa</label>
+        <input type="number" id="olearySup" placeholder="Ej: 48" min="0" oninput="calcOLeary()">
+      </div>
+      <div class="field">
+        <label>Total de superficies evaluadas</label>
+        <input type="number" id="olearytotal" placeholder="Ej: 112" min="1" oninput="calcOLeary()">
+      </div>
+      <div class="field">
+        <label>Índice O'Leary (%)</label>
+        <div id="oLearyResult" style="font-size:22px;font-weight:600;color:var(--accent);padding:9px 0;font-family:'DM Mono',monospace;">—</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones</label>
+      <textarea id="obsOLeary" placeholder="Ej: índice de placa 43%, higiene deficiente con mayor concentración en sectores posteriores..." rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- Otro índice -->
+  <div id="seccionOtro" class="card hidden">
+    <div class="card-title">Otro índice de higiene</div>
+    <div class="field-grid fg2">
+      <div class="field">
+        <label>Nombre del índice</label>
+        <input type="text" id="otroNombre" placeholder="Ej: Índice de Löe y Silness...">
+      </div>
+      <div class="field">
+        <label>Resultado</label>
+        <input type="text" id="otroResultado" placeholder="Ej: 1.4 — higiene regular">
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Observaciones</label>
+      <textarea id="obsOtro" placeholder="Descripción del resultado y hallazgos..." rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- Clasificación del tipo de higiene -->
+  <div class="card">
+    <div class="card-title">Clasificación del tipo de higiene oral</div>
+    <div class="radio-group">
+      <div class="radio-pill"><input type="radio" name="tipoHigiene" id="th-buena" value="Buena"><label for="th-buena">✓ Buena</label></div>
+      <div class="radio-pill"><input type="radio" name="tipoHigiene" id="th-regular" value="Regular"><label for="th-regular">⚡ Regular</label></div>
+      <div class="radio-pill"><input type="radio" name="tipoHigiene" id="th-deficiente" value="Deficiente"><label for="th-deficiente">⚠ Deficiente</label></div>
+      <div class="radio-pill"><input type="radio" name="tipoHigiene" id="th-muy" value="Muy deficiente"><label for="th-muy">✗ Muy deficiente</label></div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Descripción del comportamiento de higiene del paciente</label>
+      <textarea id="descHigiene" placeholder="Ej: Paciente con higiene oral regular, cepillado 2 veces al día sin uso de hilo dental. Mayor acúmulo de placa en sector posterior y superficies linguales. Se refuerza técnica de Bass modificada..." rows="3"></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <div style="font-size:12px;color:var(--text-3);">Slide 19</div>
+    <button class="btn" onclick="goTab(1)">Siguiente → Características de la encía</button>
+  </div>
+</div>
+
+<!-- ===== TAB 1: Características de la encía (S20) ===== -->
+<div id="tab-1" class="hidden">
+  <div class="section-header">
+    <h2>Examen clínico de la encía</h2>
+    <p>Evaluación de color, textura, consistencia, contorno y otros parámetros clínicos gingivales.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Parámetros clínicos gingivales</div>
+    <div class="encia-grid">
+
+      <div class="encia-param">
+        <div class="encia-param-title">Color</div>
+        <div class="check-pills">
+          <div class="check-pill"><input type="checkbox" id="col-rosa" name="color"><label for="col-rosa">Rosa coral (normal)</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="col-rojo" name="color"><label for="col-rojo">Rojo / eritematoso</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="col-roja-int" name="color"><label for="col-roja-int">Rojo intenso</label></div>
+          <div class="check-pill"><input type="checkbox" id="col-pali" name="color"><label for="col-pali">Pálido</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="col-cianotico" name="color"><label for="col-cianotico">Cianótico</label></div>
+        </div>
+      </div>
+
+      <div class="encia-param">
+        <div class="encia-param-title">Textura</div>
+        <div class="check-pills">
+          <div class="check-pill"><input type="checkbox" id="tex-piel" name="textura"><label for="tex-piel">Piel de naranja (normal)</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="tex-lisa" name="textura"><label for="tex-lisa">Lisa y brillante</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="tex-irregular" name="textura"><label for="tex-irregular">Irregular</label></div>
+          <div class="check-pill"><input type="checkbox" id="tex-firm" name="textura"><label for="tex-firm">Firme</label></div>
+          <div class="check-pill danger"><input type="checkbox" id="tex-edema" name="textura"><label for="tex-edema">Edematosa</label></div>
+        </div>
+      </div>
+
+      <div class="encia-param">
+        <div class="encia-param-title">Consistencia</div>
+        <div class="check-pills">
+          <div class="check-pill"><input type="checkbox" id="con-firm" name="consist"><label for="con-firm">Firme y resiliente (normal)</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="con-blanda" name="consist"><label for="con-blanda">Blanda</label></div>
+          <div class="check-pill danger"><input type="checkbox" id="con-edema" name="consist"><label for="con-edema">Edematosa</label></div>
+          <div class="check-pill"><input type="checkbox" id="con-fib" name="consist"><label for="con-fib">Fibrosa</label></div>
+        </div>
+      </div>
+
+      <div class="encia-param">
+        <div class="encia-param-title">Contorno y forma</div>
+        <div class="check-pills">
+          <div class="check-pill"><input type="checkbox" id="cont-norm" name="contorno"><label for="cont-norm">Normal (festoneado)</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="cont-aplana" name="contorno"><label for="cont-aplana">Aplanado / redondeado</label></div>
+          <div class="check-pill danger"><input type="checkbox" id="cont-agrand" name="contorno"><label for="cont-agrand">Agrandamiento gingival</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="cont-crate" name="contorno"><label for="cont-crate">Craterizado</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="cont-rece" name="contorno"><label for="cont-rece">Recesiones</label></div>
+        </div>
+      </div>
+
+      <div class="encia-param">
+        <div class="encia-param-title">Sangrado al sondaje</div>
+        <div class="check-pills">
+          <div class="check-pill"><input type="checkbox" id="sang-no" name="sangrado"><label for="sang-no">Ausente (normal)</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="sang-leve" name="sangrado"><label for="sang-leve">Leve / puntiforme</label></div>
+          <div class="check-pill danger"><input type="checkbox" id="sang-mod" name="sangrado"><label for="sang-mod">Moderado</label></div>
+          <div class="check-pill danger"><input type="checkbox" id="sang-prof" name="sangrado"><label for="sang-prof">Profuso</label></div>
+        </div>
+      </div>
+
+      <div class="encia-param">
+        <div class="encia-param-title">Otros hallazgos</div>
+        <div class="check-pills">
+          <div class="check-pill"><input type="checkbox" id="otro-norm" name="otros"><label for="otro-norm">Sin hallazgos adicionales</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="otro-exu" name="otros"><label for="otro-exu">Exudado al sondaje</label></div>
+          <div class="check-pill danger"><input type="checkbox" id="otro-sup" name="otros"><label for="otro-sup">Supuración</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="otro-pig" name="otros"><label for="otro-pig">Pigmentación melanótica</label></div>
+          <div class="check-pill warn"><input type="checkbox" id="otro-fen" name="otros"><label for="otro-fen">Frenillo de inserción alta</label></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Zona de mayor afección -->
+    <div class="field-grid fg2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Zona de mayor afección</label>
+        <input type="text" id="zonaAfeccion" placeholder="Ej: sector anteroinferior, zona molar superior derecha...">
+      </div>
+      <div class="field">
+        <label>Distribución de los hallazgos</label>
+        <select id="distribucion">
+          <option value="">Seleccionar</option>
+          <option>Generalizada</option>
+          <option>Localizada</option>
+          <option>Multifocal</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Índice de sangrado -->
+  <div class="card">
+    <div class="card-title">Índice de sangrado al sondaje (Slide 25)</div>
+    <div class="sangrado-grid">
+      <div class="sang-card">
+        <div class="sang-label">Sitios con sangrado</div>
+        <input type="number" class="sang-input" id="sangSitios" placeholder="—" min="0" oninput="calcSangrado()">
+        <div class="sang-unit">sitios</div>
+      </div>
+      <div class="sang-card">
+        <div class="sang-label">Total sitios evaluados</div>
+        <input type="number" class="sang-input" id="sangTotal" placeholder="—" min="1" oninput="calcSangrado()">
+        <div class="sang-unit">sitios</div>
+      </div>
+      <div class="sang-card">
+        <div class="sang-label">Índice de sangrado (%)</div>
+        <div class="sang-result" id="sangResult" style="font-size:22px;font-weight:600;color:var(--accent);font-family:'DM Mono',monospace;">—</div>
+        <div id="sangCategoria" style="font-size:11px;font-weight:600;margin-top:4px;"></div>
+      </div>
+    </div>
+    <div class="bib-note">
+      📚 <strong>Referencia:</strong> Ainamo J, Bay I. Problems and proposals for recording gingivitis and plaque. <em>Int Dent J.</em> 1975;25(4):229–235.
+    </div>
+  </div>
+
+  <!-- Diagnóstico periodontal + IA -->
+  <div class="card">
+    <div class="card-title">Descripción clínica y diagnóstico gingival presuntivo</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — con los parámetros marcados, la IA redactará la descripción clínica de la encía.</div>
+      <button class="btn btn-sm" id="btnEncia" onclick="generarDescripcionEncia()">Redactar con IA</button>
+    </div>
+    <div id="enciaIA" class="hidden">
+      <div class="ai-suggestion" id="enciaIATexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarEncia()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('enciaIA').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Descripción clínica de la encía</label>
+      <textarea id="descEncia" placeholder="Ej: Encía de coloración eritematosa generalizada con textura lisa y brillante, consistencia blanda y edematosa. Se observa sangrado al sondaje leve en sector anteroinferior..." rows="4"></textarea>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Diagnóstico periodontal presuntivo</label>
+      <select id="diagPerio">
+        <option value="">Seleccionar</option>
+        <optgroup label="Salud periodontal">
+          <option>Salud periodontal en periodonto intacto</option>
+          <option>Salud periodontal en periodonto reducido</option>
+        </optgroup>
+        <optgroup label="Gingivitis">
+          <option>Gingivitis inducida por biofilm dental</option>
+          <option>Gingivitis no inducida por placa</option>
+          <option>Gingivitis asociada a medicamentos</option>
+        </optgroup>
+        <optgroup label="Periodontitis">
+          <option>Periodontitis estadio I — grado A</option>
+          <option>Periodontitis estadio I — grado B</option>
+          <option>Periodontitis estadio I — grado C</option>
+          <option>Periodontitis estadio II — grado A</option>
+          <option>Periodontitis estadio II — grado B</option>
+          <option>Periodontitis estadio II — grado C</option>
+          <option>Periodontitis estadio III — grado A</option>
+          <option>Periodontitis estadio III — grado B</option>
+          <option>Periodontitis estadio III — grado C</option>
+          <option>Periodontitis estadio IV — grado A</option>
+          <option>Periodontitis estadio IV — grado B</option>
+          <option>Periodontitis estadio IV — grado C</option>
+        </optgroup>
+        <optgroup label="Otras condiciones">
+          <option>Agrandamiento gingival</option>
+          <option>Enfermedad periodontal necrosante</option>
+          <option>Absceso periodontal</option>
+          <option>Lesión endoperiodontal</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="bib-note">
+      📚 <strong>Referencia:</strong> Clasificación de enfermedades periodontales — Tonetti MS, et al. <em>J Clin Periodontol.</em> 2018;45(Suppl 20):S149–S161. (World Workshop on the Classification of Periodontal and Peri-Implant Diseases, 2017).
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(0)">← Anterior</button>
+    <button class="btn" onclick="goTab(2)">Siguiente → Periodontograma</button>
+  </div>
+</div>
+
+<!-- ===== TAB 2: Periodontograma imagen (S21-25) ===== -->
+<div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Periodontograma</h2>
+    <p>Adjunta la imagen exportada desde el sistema de ficha de la USS para cada arcada.</p>
+  </div>
+
+  <!-- Superior -->
+  <div class="card">
+    <div class="card-title">Slides 21–22 — Periodontograma maxilar superior</div>
+    <div class="upload-zone" id="zoneSuperior" onclick="triggerUpload('uploadSuperior')">
+      <input type="file" id="uploadSuperior" class="upload-input" accept="image/*" onchange="previewImg('uploadSuperior','zoneSuperior','previewSuperior','btnRemoveSup')">
+      <div id="uploadSupContent">
+        <div class="upload-icon">🖼</div>
+        <div class="upload-title">Adjuntar periodontograma superior</div>
+        <div class="upload-subtitle">Arrastra la imagen aquí o haz clic para seleccionar · PNG, JPG</div>
+      </div>
+      <img id="previewSuperior" class="preview-img hidden" alt="Periodontograma superior">
+      <button id="btnRemoveSup" class="remove-img hidden" onclick="removeImg(event,'uploadSuperior','zoneSuperior','previewSuperior','uploadSupContent','btnRemoveSup')">×</button>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Hallazgos relevantes — superior</label>
+      <textarea id="halSup" placeholder="Ej: Profundidades de sondaje aumentadas en sector molar superior derecho (6-7 mm). NIC de 5 mm en vestibular de 16. Furca grado II en 16 y 26..." rows="3"></textarea>
+    </div>
+  </div>
+
+  <!-- Inferior -->
+  <div class="card">
+    <div class="card-title">Slides 23–24 — Periodontograma maxilar inferior</div>
+    <div class="upload-zone" id="zoneInferior" onclick="triggerUpload('uploadInferior')">
+      <input type="file" id="uploadInferior" class="upload-input" accept="image/*" onchange="previewImg('uploadInferior','zoneInferior','previewInferior','btnRemoveInf')">
+      <div id="uploadInfContent">
+        <div class="upload-icon">🖼</div>
+        <div class="upload-title">Adjuntar periodontograma inferior</div>
+        <div class="upload-subtitle">Arrastra la imagen aquí o haz clic para seleccionar · PNG, JPG</div>
+      </div>
+      <img id="previewInferior" class="preview-img hidden" alt="Periodontograma inferior">
+      <button id="btnRemoveInf" class="remove-img hidden" onclick="removeImg(event,'uploadInferior','zoneInferior','previewInferior','uploadInfContent','btnRemoveInf')">×</button>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Hallazgos relevantes — inferior</label>
+      <textarea id="halInf" placeholder="Ej: Pérdida ósea horizontal generalizada en sector posterior inferior. Profundidades entre 3–5 mm en zona anteroinferior. Movilidad grado I en 31 y 41..." rows="3"></textarea>
+    </div>
+  </div>
+
+  <!-- Nota instruccional -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13px; color: var(--text-2); line-height: 1.6;">
+    <strong style="display:block;margin-bottom:4px;">💡 ¿Cómo exportar el periodontograma?</strong>
+    Desde el sistema de ficha de la USS, completa el periodontograma digital, luego exporta o captura la pantalla como imagen (PNG o JPG) y adjúntala aquí. El sistema guarda la imagen dentro de la ficha para que quede todo integrado.
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(1)">← Anterior</button>
+    <button class="btn" onclick="goTab(3)">Ver resumen →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 3: Resumen ===== -->
+<div id="tab-3" class="hidden">
+  <div class="section-header">
+    <h2>Resumen — Exámenes Periodontales</h2>
+    <p>Vista consolidada de Slides 19 al 25.</p>
+  </div>
+  <div id="summaryContent"></div>
+  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+    <button class="btn" onclick="copiarResumen()">📋 Copiar resumen</button>
+    <button class="btn btn-outline" onclick="goTab(2)">← Editar</button>
+  </div>
+</div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+let currentTab = 0;
+
+function goTab(n) {
+  document.getElementById('tab-' + currentTab).classList.add('hidden');
+  document.querySelectorAll('.tab-btn')[currentTab].classList.remove('active');
+  currentTab = n;
+  document.getElementById('tab-' + n).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
+  if (n === 3) renderSummary();
+  window.scrollTo(0, 0);
+}
+
+// ---- Selector tipo índice ----
+function mostrarIndice() {
+  const val = document.querySelector('input[name="tipoIndice"]:checked')?.value;
+  document.getElementById('seccionIHOS').classList.toggle('hidden', val !== 'IHO-S (Greene y Vermillion)');
+  document.getElementById('seccionOLeary').classList.toggle('hidden', val !== "OHI (O'Leary)");
+  document.getElementById('seccionOtro').classList.toggle('hidden', val !== 'Otro');
+}
+
+// ---- Cálculo IHO-S ----
+const IHO_DIENTES = ['16','11','26','46','31','36'];
+function calcIHOS() {
+  let sumP = 0, sumC = 0, count = 0;
+  IHO_DIENTES.forEach(d => {
+    const p = parseFloat(document.getElementById('iho_'+d+'_p')?.value);
+    const c = parseFloat(document.getElementById('iho_'+d+'_c')?.value);
+    if (!isNaN(p)) { sumP += p; count++; }
+    if (!isNaN(c)) { sumC += c; }
+  });
+  if (count === 0) { document.getElementById('ihoResult').style.display = 'none'; return; }
+  const idc = (sumP + sumC) / 6;
+  const r = Math.round(idc * 100) / 100;
+
+  let cat, rango, color, bg;
+  if (r <= 0.6)       { cat = 'Buena'; rango = '0.0 – 0.6'; color = 'var(--green)'; bg = 'var(--green-light)'; }
+  else if (r <= 1.8)  { cat = 'Regular'; rango = '0.7 – 1.8'; color = 'var(--amber)'; bg = 'var(--amber-light)'; }
+  else                { cat = 'Deficiente'; rango = '1.9 – 3.0'; color = 'var(--red)'; bg = 'var(--red-light)'; }
+
+  document.getElementById('ihoScore').textContent = r.toFixed(2);
+  document.getElementById('ihoScore').style.color = color;
+  document.getElementById('ihoCat').textContent = cat;
+  document.getElementById('ihoCat').style.color = color;
+  document.getElementById('ihoRango').textContent = `Rango: ${rango}`;
+  const badge = document.getElementById('ihoBadge');
+  badge.textContent = cat;
+  badge.style.cssText = `background:${bg};color:${color};display:inline-block;font-size:11px;padding:3px 10px;border-radius:4px;font-weight:600;margin-top:4px;`;
+  document.getElementById('ihoResult').style.display = 'flex';
+}
+
+// ---- Cálculo O'Leary ----
+function calcOLeary() {
+  const sup = parseFloat(document.getElementById('olearySup').value);
+  const tot = parseFloat(document.getElementById('olearytotal').value);
+  const el = document.getElementById('oLearyResult');
+  if (isNaN(sup) || isNaN(tot) || tot === 0) { el.textContent = '—'; return; }
+  const pct = Math.round((sup / tot) * 1000) / 10;
+  el.textContent = pct + ' %';
+  el.style.color = pct <= 20 ? 'var(--green)' : pct <= 40 ? 'var(--amber)' : 'var(--red)';
+}
+
+// ---- Cálculo sangrado ----
+function calcSangrado() {
+  const sit = parseFloat(document.getElementById('sangSitios').value);
+  const tot = parseFloat(document.getElementById('sangTotal').value);
+  const el = document.getElementById('sangResult');
+  const cat = document.getElementById('sangCategoria');
+  if (isNaN(sit) || isNaN(tot) || tot === 0) { el.textContent = '—'; cat.textContent = ''; return; }
+  const pct = Math.round((sit / tot) * 1000) / 10;
+  el.textContent = pct + ' %';
+  let label, color;
+  if (pct <= 10)      { label = 'Bajo'; color = 'var(--green)'; }
+  else if (pct <= 30) { label = 'Moderado'; color = 'var(--amber)'; }
+  else                { label = 'Alto'; color = 'var(--red)'; }
+  el.style.color = color;
+  cat.textContent = label;
+  cat.style.color = color;
+}
+
+// ---- Upload imagen periodontograma ----
+function triggerUpload(inputId) { document.getElementById(inputId).click(); }
+
+function previewImg(inputId, zoneId, previewId, btnRemoveId) {
+  const file = document.getElementById(inputId).files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const zone = document.getElementById(zoneId);
+    const preview = document.getElementById(previewId);
+    const btn = document.getElementById(btnRemoveId);
+    preview.src = e.target.result;
+    preview.classList.remove('hidden');
+    btn.classList.remove('hidden');
+    zone.classList.add('has-image');
+    zone.querySelector('[id$="Content"]') && (zone.querySelector('[id$="Content"]').style.display = 'none');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImg(e, inputId, zoneId, previewId, contentId, btnId) {
+  e.stopPropagation();
+  document.getElementById(inputId).value = '';
+  document.getElementById(previewId).src = '';
+  document.getElementById(previewId).classList.add('hidden');
+  document.getElementById(btnId).classList.add('hidden');
+  document.getElementById(zoneId).classList.remove('has-image');
+  document.getElementById(contentId).style.display = 'block';
+}
+
+// ---- IA descripción encía ----
+async function generarDescripcionEncia() {
+  const params = {
+    color: [...document.querySelectorAll('input[name="color"]:checked')].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean),
+    textura: [...document.querySelectorAll('input[name="textura"]:checked')].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean),
+    consist: [...document.querySelectorAll('input[name="consist"]:checked')].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean),
+    contorno: [...document.querySelectorAll('input[name="contorno"]:checked')].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean),
+    sangrado: [...document.querySelectorAll('input[name="sangrado"]:checked')].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean),
+    otros: [...document.querySelectorAll('input[name="otros"]:checked')].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean),
+    zona: document.getElementById('zonaAfeccion').value,
+    distribucion: document.getElementById('distribucion').value,
+    sangPct: document.getElementById('sangResult').textContent,
+  };
+  const datos = [
+    params.color.length ? `Color: ${params.color.join(', ')}` : '',
+    params.textura.length ? `Textura: ${params.textura.join(', ')}` : '',
+    params.consist.length ? `Consistencia: ${params.consist.join(', ')}` : '',
+    params.contorno.length ? `Contorno: ${params.contorno.join(', ')}` : '',
+    params.sangrado.length ? `Sangrado: ${params.sangrado.join(', ')}` : '',
+    params.otros.length ? `Otros: ${params.otros.join(', ')}` : '',
+    params.zona ? `Zona afectada: ${params.zona}` : '',
+    params.distribucion ? `Distribución: ${params.distribucion}` : '',
+    params.sangPct !== '—' ? `Índice de sangrado: ${params.sangPct}` : '',
+  ].filter(Boolean);
+
+  if (datos.length < 2) { alert('Marca al menos algunas características de la encía primero.'); return; }
+
+  const btn = document.getElementById('btnEncia');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 700,
+        messages: [{ role: 'user', content:
+          `Eres periodoncista clínico. Redacta la sección "Examen clínico de la encía" para una ficha clínica universitaria odontológica con estos parámetros:
+${datos.join('\n')}
+Usa lenguaje clínico periodontal formal, tercera persona, prosa continua organizada. Máximo 120 palabras. Solo el texto.` }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('enciaIATexto').innerHTML = `<strong>✦ Descripción clínica sugerida por IA</strong>${texto}`;
+    document.getElementById('enciaIA').classList.remove('hidden');
+  } catch(e) { alert('Error. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Redactar con IA'; }
+}
+
+function usarEncia() {
+  document.getElementById('descEncia').value = document.getElementById('enciaIATexto').textContent.replace('✦ Descripción clínica sugerida por IA','').trim();
+  document.getElementById('enciaIA').classList.add('hidden');
+}
+
+// ---- Helpers ----
+function v(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+function rv(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || '—'; }
+function checked(name) { return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el => el.nextElementSibling?.textContent?.trim()).filter(Boolean).join(', ') || '—'; }
+
+// ---- Summary ----
+function renderSummary() {
+  const ihoScore = document.getElementById('ihoScore')?.textContent;
+  const ihoCat = document.getElementById('ihoCat')?.textContent;
+  const ihoStr = ihoScore && ihoScore !== '—' ? `${ihoScore} — ${ihoCat}` : '—';
+  const sangPct = document.getElementById('sangResult')?.textContent || '—';
+  const supLoaded = document.getElementById('previewSuperior')?.src && !document.getElementById('previewSuperior').classList.contains('hidden');
+  const infLoaded = document.getElementById('previewInferior')?.src && !document.getElementById('previewInferior').classList.contains('hidden');
+
+  const sections = [
+    { title: 'Slide 19 — Índice de higiene', rows: [
+      ['Tipo de índice', rv('tipoIndice')],
+      ['Resultado IHO-S', ihoStr],
+      ['Tipo de higiene', rv('tipoHigiene')],
+      ['Descripción higiene', v('descHigiene')],
+    ]},
+    { title: 'Slide 20 — Características de la encía', rows: [
+      ['Color', checked('color')],
+      ['Textura', checked('textura')],
+      ['Consistencia', checked('consist')],
+      ['Contorno', checked('contorno')],
+      ['Sangrado', checked('sangrado')],
+      ['Distribución', v('distribucion')],
+      ['Zona de afección', v('zonaAfeccion')],
+      ['Índice de sangrado', sangPct],
+      ['Diagnóstico periodontal', v('diagPerio')],
+      ['Descripción clínica', v('descEncia')],
+    ]},
+    { title: 'Slides 21–25 — Periodontograma', rows: [
+      ['Periodontograma superior', supLoaded ? '✓ Imagen adjuntada' : 'Pendiente'],
+      ['Hallazgos superior', v('halSup')],
+      ['Periodontograma inferior', infLoaded ? '✓ Imagen adjuntada' : 'Pendiente'],
+      ['Hallazgos inferior', v('halInf')],
+    ]},
+  ];
+
+  const html = `<div class="summary-card">${sections.map(s => `
+    <div class="summary-section">
+      <div class="summary-section-title">${s.title}</div>
+      ${s.rows.map(([label, value]) => `
+        <div class="summary-row">
+          <span class="summary-label">${label}</span>
+          <span class="summary-value">${value}</span>
+        </div>`).join('')}
+    </div>`).join('')}
+  </div>`;
+  document.getElementById('summaryContent').innerHTML = html;
+}
+
+function copiarResumen() {
+  const rows = document.querySelectorAll('.summary-row');
+  const text = [...rows].map(r => {
+    const cells = r.querySelectorAll('span');
+    return cells[0].textContent + ': ' + cells[1].textContent.replace(/\s+/g,' ').trim();
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar resumen', 2000);
+  });
+}
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

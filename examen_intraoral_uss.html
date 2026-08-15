@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Clínico Intraoral — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --green-light: #E8F5EE;
+    --amber: #7A4A00; --amber-light: #FFF4E0;
+    --red: #8B1A1A; --red-light: #FDEAEA;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; overflow-x: auto; }
+  .tab-btn { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text-3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .tab-btn:hover { color: var(--text-2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn .slide-num { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-right: 6px; color: var(--text-3); }
+  .tab-btn.active .slide-num { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 28px 24px; }
+
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
+
+  .field-grid { display: grid; gap: 14px; }
+  .field-grid-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .radio-pill input { display: none; }
+  .radio-pill label { display: block; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); }
+  .radio-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+
+  /* AI bar */
+  .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+  .ai-suggestion { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6; margin-top: 8px; animation: fadeIn 0.3s; }
+  .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Perfil facial SVG diagram */
+  .perfil-diagram { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .svg-container { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
+  .svg-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 10px; }
+  .perfil-options { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Perfil type cards */
+  .perfil-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .perfil-opt input { display: none; }
+  .perfil-opt label { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; text-align: center; background: var(--surface-2); transition: all 0.12s; }
+  .perfil-opt label .perf-icon { font-size: 28px; line-height: 1; }
+  .perfil-opt label .perf-name { font-size: 12px; font-weight: 500; color: var(--text-2); }
+  .perfil-opt label .perf-desc { font-size: 10px; color: var(--text-3); }
+  .perfil-opt input:checked + label { background: var(--accent-light); border-color: var(--accent-mid); }
+  .perfil-opt input:checked + label .perf-name { color: var(--accent); }
+
+  /* Tercio facial visual */
+  .tercios-visual { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .tercio-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); gap: 10px; }
+  .tercio-row:last-child { border-bottom: none; }
+  .tercio-name { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .tercio-pts { font-size: 10px; color: var(--text-3); text-align: right; }
+  .tercio-select { height: 34px; font-size: 12px !important; padding: 4px 28px 4px 8px !important; }
+
+  /* ATM evaluación */
+  .atm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .atm-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .atm-card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+  /* DV medidas */
+  .dv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .dv-measure { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+  .dv-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 6px; }
+  .dv-sublabel { font-size: 10px; color: var(--text-3); margin-bottom: 8px; }
+  .dv-val { font-size: 22px; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
+  .dv-unit { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .dv-status { font-size: 11px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+
+  /* Apertura bucal gauge */
+  .apertura-gauge { position: relative; height: 10px; background: var(--border); border-radius: 5px; margin: 8px 0; overflow: hidden; }
+  .apertura-fill { height: 100%; border-radius: 5px; transition: width 0.4s ease, background 0.4s; }
+
+  /* Photo note */
+  .photo-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 10px; }
+
+  /* Summary */
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .summary-section { margin-bottom: 18px; }
+  .summary-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--text-2); flex-shrink: 0; }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 65%; }
+
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .field-grid-2, .field-grid-3, .field-grid-4 { grid-template-columns: 1fr; }
+    .perfil-type-grid, .dv-grid { grid-template-columns: 1fr 1fr; }
+    .atm-grid { grid-template-columns: 1fr; }
+    .tercio-row { grid-template-columns: 70px 1fr; }
+    .tercio-pts { display: none; }
+    .perfil-diagram { grid-template-columns: 1fr; }
+  }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+<style>
+  /* Zona de fotografía clínica */
+  .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 24px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.2s; position: relative; }
+  .upload-zone:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .upload-zone.has-image { border-style: solid; border-color: var(--accent-mid); padding: 12px; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-title { font-size: 14px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+  .upload-subtitle { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .preview-img { width: 100%; max-height: 420px; object-fit: contain; border-radius: var(--radius-sm); display: block; }
+  .remove-btn { position: absolute; top: 8px; right: 8px; background: var(--red); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+  .remove-btn:hover { background: #6b1010; }
+  .instr-box { background: var(--amber-light); border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12px; color: var(--amber); line-height: 1.6; margin-bottom: 16px; }
+  .instr-box strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">👄</div>
+  <div class="header-text">
+    <h1>Examen Clínico Intraoral</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Tejidos blandos</span>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="goTab(0)"><span class="slide-num">1</span>Labios y mucosas</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="slide-num">2</span>Lengua y piso de boca</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="slide-num">3</span>Paladar y orofaringe</button>
+  <button class="tab-btn" onclick="goTab(3)"><span class="slide-num">4</span>Glándulas salivales</button>
+  <button class="tab-btn" onclick="goTab(4)"><span class="slide-num">5</span>Lesiones de mucosa</button>
+  <button class="tab-btn" onclick="goTab(5)"><span class="slide-num">✓</span>Resumen</button>
+</div>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+
+<!-- ===== TAB 0: Labios y mucosas ===== -->
+<div id="tab-0">
+  <div class="section-header">
+    <h2>Labios y mucosas</h2>
+    <p>Inspección y palpación de labios, mucosa yugal y labial, frenillos y reborde alveolar.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Labios y mucosa</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — describe los hallazgos en lenguaje libre y la IA redactará la descripción clínica.</div>
+      <button class="btn btn-sm" id="btnMucosas" onclick="redactarMucosas()">Redactar con IA</button>
+    </div>
+
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Semimucosa labial</label>
+        <select id="labiosIntra">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Queilitis angular</option>
+          <option>Queilitis actínica</option>
+          <option>Herpes labial recurrente</option>
+          <option>Resequedad / descamación</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mucosa labial</label>
+        <select id="mucosaLabial">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Mucoceles</option>
+          <option>Petequias</option>
+          <option>Aftas</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mucosa yugal derecha</label>
+        <select id="yugalDer">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Línea alba</option>
+          <option>Morsicatio (mordisqueteo)</option>
+          <option>Leucoedema</option>
+          <option>Pigmentación melánica</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Mucosa yugal izquierda</label>
+        <select id="yugalIzq">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Línea alba</option>
+          <option>Morsicatio (mordisqueteo)</option>
+          <option>Leucoedema</option>
+          <option>Pigmentación melánica</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Frenillos</label>
+        <select id="frenillos">
+          <option value="">Seleccionar</option>
+          <option>Normoinsertados</option>
+          <option>Frenillo labial superior de inserción baja</option>
+          <option>Frenillo lingual corto (anquiloglosia)</option>
+          <option>Frenillos laterales prominentes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Reborde alveolar y trígono retromolar</label>
+        <select id="reborde">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Reborde atrófico</option>
+          <option>Exostosis</option>
+          <option>Zona eritematosa bajo prótesis</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Descripción libre de hallazgos en labios y mucosas</label>
+      <textarea id="mucosasLibre" rows="3" placeholder="Ej: Línea alba bilateral marcada, mucosa yugal por lo demás sin alteraciones. Comisuras sin fisuras…"></textarea>
+    </div>
+
+    <div id="mucosasIA" class="hidden">
+      <div class="ai-suggestion" id="mucosasIATexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarMucosas()">Usar este texto</button>
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('mucosasIA').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Descripción clínica final</label>
+      <textarea id="mucosasFinal" rows="3" placeholder="Texto que quedará en el registro."></textarea>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TAB 1: Lengua y piso de boca ===== -->
+<div id="tab-1" class="hidden">
+  <div class="section-header">
+    <h2>Lengua y piso de boca</h2>
+    <p>Dorso, bordes laterales, vientre lingual, movilidad y piso de boca.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Lengua</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Dorso lingual</label>
+        <select id="dorsoLingual">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Saburral</option>
+          <option>Lengua fisurada</option>
+          <option>Lengua geográfica (glositis migratoria)</option>
+          <option>Depapilación</option>
+          <option>Candidiasis pseudomembranosa</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bordes laterales</label>
+        <select id="bordesLinguales">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Indentaciones por impresión dentaria</option>
+          <option>Lesión blanca</option>
+          <option>Lesión roja</option>
+          <option>Ulceración</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Vientre lingual</label>
+        <select id="vientreLingual">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Várices sublinguales</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tamaño lingual</label>
+        <select id="tamanoLingual">
+          <option value="">Seleccionar</option>
+          <option>Normal</option>
+          <option>Macroglosia relativa</option>
+          <option>Macroglosia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Movilidad lingual</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="movLingual" id="mov-cons" value="Conservada"><label for="mov-cons">Conservada</label></div>
+          <div class="radio-pill"><input type="radio" name="movLingual" id="mov-lim" value="Limitada"><label for="mov-lim">Limitada</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Sintomatología lingual</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="sintLingual" id="sl-no" value="Asintomática"><label for="sl-no">Asintomática</label></div>
+          <div class="radio-pill"><input type="radio" name="sintLingual" id="sl-ardor" value="Ardor / glosodinia"><label for="sl-ardor">Ardor</label></div>
+          <div class="radio-pill"><input type="radio" name="sintLingual" id="sl-dolor" value="Dolor"><label for="sl-dolor">Dolor</label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Piso de boca</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Inspección y palpación bimanual</label>
+        <select id="pisoBoca">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Tumefacción</option>
+          <option>Ránula</option>
+          <option>Induración a la palpación</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Conductos de Wharton</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="wharton" id="wh-perm" value="Permeables, saliva clara"><label for="wh-perm">Permeables</label></div>
+          <div class="radio-pill"><input type="radio" name="wharton" id="wh-alt" value="Alterados"><label for="wh-alt">Alterados</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones de lengua y piso de boca</label>
+      <textarea id="lenguaObs" rows="3" placeholder="Ej: Indentaciones marcadas en ambos bordes laterales, coincidentes con las facetas de desgaste registradas en el odontograma…"></textarea>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TAB 2: Paladar y orofaringe ===== -->
+<div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Paladar y orofaringe</h2>
+    <p>Paladar duro y blando, úvula, pilares, amígdalas y clasificación de vía aérea.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Paladar</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Paladar duro</label>
+        <select id="paladarDuro">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Torus palatino</option>
+          <option>Estomatitis protésica</option>
+          <option>Hiperplasia papilar inflamatoria</option>
+          <option>Petequias / equimosis</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Paladar blando y úvula</label>
+        <select id="paladarBlando">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Asimetría del velo</option>
+          <option>Úvula bífida</option>
+          <option>Eritema difuso</option>
+          <option>Lesión a describir en pestaña 5</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Orofaringe y vía aérea</div>
+    <div class="field-grid field-grid-3" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Amígdalas y pilares</label>
+        <select id="amigdalas">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Hiperemia</option>
+          <option>Hipertrofia amigdalina</option>
+          <option>Amigdalectomizado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Clasificación de Mallampati</label>
+        <select id="mallampati">
+          <option value="">Seleccionar</option>
+          <option>Clase I</option>
+          <option>Clase II</option>
+          <option>Clase III</option>
+          <option>Clase IV</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Reflejo nauseoso</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="nauseoso" id="na-norm" value="Normal"><label for="na-norm">Normal</label></div>
+          <div class="radio-pill"><input type="radio" name="nauseoso" id="na-exa" value="Exacerbado"><label for="na-exa">Exacerbado</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones de paladar y orofaringe</label>
+      <textarea id="paladarObs" rows="3" placeholder="Consigna aquí lo que condicione la toma de impresiones, la radiografía o el manejo de la vía aérea."></textarea>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TAB 3: Glándulas salivales ===== -->
+<div id="tab-3" class="hidden">
+  <div class="section-header">
+    <h2>Glándulas salivales</h2>
+    <p>Palpación glandular, permeabilidad de conductos y evaluación del flujo salival.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Palpación glandular</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Parótidas</label>
+        <select id="parotidas">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Aumento de volumen unilateral</option>
+          <option>Aumento de volumen bilateral</option>
+          <option>Dolor a la palpación</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Submandibulares y sublinguales</label>
+        <select id="submandibulares">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Aumento de volumen unilateral</option>
+          <option>Aumento de volumen bilateral</option>
+          <option>Dolor a la palpación</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Conductos de Stenon</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="stenon" id="st-perm" value="Permeables, saliva clara"><label for="st-perm">Permeables</label></div>
+          <div class="radio-pill"><input type="radio" name="stenon" id="st-alt" value="Alterados"><label for="st-alt">Alterados</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Consistencia de la saliva</label>
+        <select id="consistenciaSaliva">
+          <option value="">Seleccionar</option>
+          <option>Serosa, fluida</option>
+          <option>Espesa / filante</option>
+          <option>Escasa, sin acumulación en piso de boca</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Flujo salival</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Evaluación clínica del flujo</label>
+        <select id="flujoSalival">
+          <option value="">Seleccionar</option>
+          <option>Normal</option>
+          <option>Hiposalivación</option>
+          <option>Xerostomía referida por el paciente</option>
+          <option>Sialorrea</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Factores asociados</label>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+            <input type="checkbox" id="xeroFarmacos"> Usa fármacos xerostomizantes
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+            <input type="checkbox" id="xeroSistemico"> Condición sistémica asociada
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
+            <input type="checkbox" id="xeroRadio"> Antecedente de radioterapia de cabeza y cuello
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="instr-box">
+      <strong>Contrasta con la anamnesis</strong>
+      Si marcaste fármacos o condición sistémica, revisa que coincida con lo que registraste
+      en Identificación y antecedentes. La hiposalivación cambia la lectura del riesgo cariogénico.
+    </div>
+    <div class="field">
+      <label>Observaciones de glándulas salivales</label>
+      <textarea id="salivalObs" rows="3" placeholder="Ej: Saliva espesa, escasa acumulación en piso de boca. La paciente refiere sequedad nocturna…"></textarea>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TAB 4: Lesiones de mucosa ===== -->
+<div id="tab-4" class="hidden">
+  <div class="section-header">
+    <h2>Lesiones de mucosa</h2>
+    <p>Descripción semiológica de la lesión. El asistente ordena la descripción; el diagnóstico lo estableces tú.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">¿Se detectan lesiones de mucosa?</div>
+    <div class="field">
+      <div class="radio-group">
+        <div class="radio-pill"><input type="radio" name="hayLesion" id="les-no" value="No se detectan lesiones" onchange="toggleLesion()"><label for="les-no">No se detectan</label></div>
+        <div class="radio-pill"><input type="radio" name="hayLesion" id="les-si" value="Se detecta al menos una lesión" onchange="toggleLesion()"><label for="les-si">Sí, describir</label></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bloqueLesion" style="display:none;">
+    <div class="card">
+      <div class="card-title">Descripción semiológica</div>
+      <div class="field-grid field-grid-3" style="margin-bottom:14px;">
+        <div class="field">
+          <label>Localización</label>
+          <input type="text" id="lesLocalizacion" placeholder="Ej: borde lateral lengua, lado derecho">
+        </div>
+        <div class="field">
+          <label>Lesión elemental</label>
+          <select id="lesTipo">
+            <option value="">Seleccionar</option>
+            <option>Mácula</option>
+            <option>Pápula</option>
+            <option>Placa</option>
+            <option>Nódulo</option>
+            <option>Vesícula</option>
+            <option>Ampolla</option>
+            <option>Erosión</option>
+            <option>Úlcera</option>
+            <option>Costra</option>
+            <option>Fisura</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tamaño mayor (mm)</label>
+          <input type="number" id="lesTamano" min="0" step="1" placeholder="mm">
+        </div>
+        <div class="field">
+          <label>Color</label>
+          <select id="lesColor">
+            <option value="">Seleccionar</option>
+            <option>Blanca</option>
+            <option>Roja</option>
+            <option>Blanca y roja</option>
+            <option>Pigmentada</option>
+            <option>Color de la mucosa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Bordes</label>
+          <select id="lesBordes">
+            <option value="">Seleccionar</option>
+            <option>Netos y regulares</option>
+            <option>Difusos</option>
+            <option>Irregulares</option>
+            <option>Evertidos</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Consistencia a la palpación</label>
+          <select id="lesConsistencia">
+            <option value="">Seleccionar</option>
+            <option>Blanda</option>
+            <option>Firme</option>
+            <option>Indurada</option>
+            <option>Fluctuante</option>
+            <option>No evaluada</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Superficie</label>
+          <select id="lesSuperficie">
+            <option value="">Seleccionar</option>
+            <option>Lisa</option>
+            <option>Rugosa / verrugosa</option>
+            <option>Ulcerada</option>
+            <option>Desprendible al raspado</option>
+            <option>No desprendible al raspado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tiempo de evolución</label>
+          <select id="lesEvolucion">
+            <option value="">Seleccionar</option>
+            <option>Menos de 2 semanas</option>
+            <option>2 a 3 semanas</option>
+            <option>Más de 3 semanas</option>
+            <option>Meses o años</option>
+            <option>Desconocido</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Sintomatología</label>
+          <select id="lesSintoma">
+            <option value="">Seleccionar</option>
+            <option>Asintomática</option>
+            <option>Dolorosa</option>
+            <option>Ardor</option>
+            <option>Sangrado espontáneo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Factor irritante local identificado</label>
+        <input type="text" id="lesIrritante" placeholder="Ej: borde protésico, cúspide fracturada de 4.6, hábito de mordisqueteo. Escribe «ninguno identificado» si corresponde.">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Fotografía clínica</div>
+      <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <input type="file" accept="image/*" class="upload-input" id="fileLesion" onchange="onFileChange()">
+        <div id="uploadPlaceholder">
+          <div class="upload-icon">📷</div>
+          <div class="upload-title">Arrastra la fotografía aquí o haz clic para seleccionar</div>
+          <div class="upload-subtitle">Registra la lesión con regla o referencia de tamaño si es posible<br>Formatos: PNG, JPG, WEBP</div>
+        </div>
+        <img id="previewLesion" class="preview-img hidden" alt="Fotografía de la lesión">
+        <button class="remove-btn hidden" id="removeLesion" onclick="removeImg()" title="Eliminar imagen">×</button>
+      </div>
+      <div class="instr-box" style="margin-top:14px;margin-bottom:0;">
+        <strong>Consentimiento</strong>
+        La fotografía queda guardada en este computador y se exporta con el caso.
+        Verifica que el paciente haya autorizado el registro fotográfico y que la imagen
+        no permita identificarle.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Redacción de la descripción</div>
+      <div class="ai-bar">
+        <div class="ai-bar-text">✦ <span>IA disponible</span> — ordena tu descripción en lenguaje semiológico. No entrega diagnóstico ni diferencial.</div>
+        <button class="btn btn-sm" id="btnLesion" onclick="ordenarLesion()">Ordenar descripción</button>
+      </div>
+      <div class="field">
+        <label>Descripción libre de la lesión</label>
+        <textarea id="lesLibre" rows="3" placeholder="Escribe lo que observas con tus palabras. La IA lo reordenará en lenguaje semiológico, sin nombrar patologías."></textarea>
+      </div>
+      <div id="lesionIA" class="hidden">
+        <div class="ai-suggestion" id="lesionIATexto"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn btn-sm btn-outline" onclick="usarLesion()">Usar este texto</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('lesionIA').classList.add('hidden')">Descartar</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label>Descripción clínica final de la lesión</label>
+        <textarea id="lesFinal" rows="3" placeholder="Texto que quedará en el registro."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== TAB 5: Resumen ===== -->
+<div id="tab-5" class="hidden">
+  <div class="section-header">
+    <h2>Resumen — Examen Clínico Intraoral</h2>
+    <p>Vista consolidada para revisar antes de continuar con el odontograma.</p>
+  </div>
+  <div id="summaryContent"></div>
+  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+    <button class="btn" onclick="copiarResumen()">📋 Copiar resumen</button>
+    <button class="btn btn-outline" onclick="goTab(4)">← Editar</button>
+  </div>
+</div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+let currentTab = 0;
+
+function goTab(n) {
+  document.getElementById('tab-' + currentTab).classList.add('hidden');
+  document.querySelectorAll('.tab-btn')[currentTab].classList.remove('active');
+  currentTab = n;
+  document.getElementById('tab-' + n).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
+  if (n === 5) renderSummary();
+  window.scrollTo(0, 0);
+}
+
+function v(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+function rv(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || '—'; }
+function ck(id) { return document.getElementById(id)?.checked || false; }
+
+// ---- Lesiones: mostrar u ocultar el bloque ----
+function toggleLesion() {
+  const si = document.getElementById('les-si').checked;
+  document.getElementById('bloqueLesion').style.display = si ? 'block' : 'none';
+}
+
+// ---- Fotografía de la lesión ----
+function onFileChange() {
+  const file = document.getElementById('fileLesion').files[0];
+  if (file) loadImage(file);
+}
+function onDragOver(e) { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--accent-mid)'; }
+function onDragLeave(e) { e.currentTarget.style.borderColor = ''; }
+function onDrop(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(file);
+}
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById('previewLesion');
+    preview.src = e.target.result;
+    preview.classList.remove('hidden');
+    document.getElementById('removeLesion').classList.remove('hidden');
+    document.getElementById('uploadPlaceholder').classList.add('hidden');
+    document.getElementById('uploadZone').classList.add('has-image');
+    preview.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  reader.readAsDataURL(file);
+}
+function removeImg() {
+  const preview = document.getElementById('previewLesion');
+  preview.src = '';
+  preview.classList.add('hidden');
+  document.getElementById('removeLesion').classList.add('hidden');
+  document.getElementById('uploadPlaceholder').classList.remove('hidden');
+  document.getElementById('uploadZone').classList.remove('has-image');
+  document.getElementById('fileLesion').value = '';
+  if (window.FichaUSS) window.FichaUSS.guardar();
+}
+
+// ---- IA: descripción de labios y mucosas ----
+async function redactarMucosas() {
+  const datos = [
+    v('labiosIntra'), v('mucosaLabial'), v('yugalDer') !== '—' ? 'Mucosa yugal derecha: ' + v('yugalDer') : '',
+    v('yugalIzq') !== '—' ? 'Mucosa yugal izquierda: ' + v('yugalIzq') : '',
+    v('frenillos'), v('reborde'), v('mucosasLibre')
+  ].filter(d => d && d !== '—');
+
+  if (datos.length < 2) { alert('Completa al menos algunos campos del examen primero.'); return; }
+
+  const btn = document.getElementById('btnMucosas');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 600,
+        messages: [{ role: 'user', content:
+`Eres asistente clínico odontológico. Redacta la sección de "Examen intraoral — labios y mucosas" para una ficha clínica universitaria con estos hallazgos:
+${datos.join(' | ')}
+Usa lenguaje clínico formal, tercera persona, prosa continua. No propongas diagnósticos ni hipótesis: solo describe lo consignado. Máximo 90 palabras. Solo el texto.` }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('mucosasIATexto').innerHTML = `<strong>✦ Descripción clínica sugerida por IA</strong>${texto}`;
+    document.getElementById('mucosasIA').classList.remove('hidden');
+  } catch(e) { alert('Error. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Redactar con IA'; }
+}
+function usarMucosas() {
+  const el = document.getElementById('mucosasFinal');
+  el.value = document.getElementById('mucosasIATexto').textContent.replace('✦ Descripción clínica sugerida por IA','').trim();
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  document.getElementById('mucosasIA').classList.add('hidden');
+}
+
+// ---- IA: ordenar la descripción de la lesión ----
+async function ordenarLesion() {
+  const campos = [
+    ['Localización', v('lesLocalizacion')],
+    ['Lesión elemental', v('lesTipo')],
+    ['Tamaño mayor', v('lesTamano') !== '—' ? v('lesTamano') + ' mm' : '—'],
+    ['Color', v('lesColor')],
+    ['Bordes', v('lesBordes')],
+    ['Consistencia', v('lesConsistencia')],
+    ['Superficie', v('lesSuperficie')],
+    ['Evolución', v('lesEvolucion')],
+    ['Sintomatología', v('lesSintoma')],
+    ['Factor irritante local', v('lesIrritante')],
+  ].filter(([, val]) => val && val !== '—').map(([k, val]) => k + ': ' + val);
+
+  const libre = v('lesLibre') !== '—' ? v('lesLibre') : '';
+  if (campos.length < 3 && !libre) { alert('Describe primero la lesión o completa los campos semiológicos.'); return; }
+
+  const btn = document.getElementById('btnLesion');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 600,
+        messages: [{ role: 'user', content:
+`Eres asistente clínico odontológico en una clínica universitaria en Chile.
+
+REGLA ABSOLUTA: no nombres ninguna patología, no propongas diagnóstico, diferencial ni sospecha, ni siquiera "compatible con" o "sugerente de". Tu única función es reordenar la descripción del estudiante en lenguaje semiológico correcto.
+
+DESCRIPCIÓN DEL ESTUDIANTE:
+${libre || '(no escribió descripción libre)'}
+
+CAMPOS SEMIOLÓGICOS REGISTRADOS:
+${campos.join('\n')}
+
+Redacta un párrafo único de descripción semiológica, en tercera persona y lenguaje clínico formal, siguiendo el orden: localización, lesión elemental, tamaño, color, bordes, superficie, consistencia, evolución y sintomatología. Si falta un atributo, no lo inventes: omítelo. Al final, en una línea aparte que comience con "Falta consignar:", enumera los atributos semiológicos que el estudiante no registró. Máximo 110 palabras.` }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('lesionIATexto').innerHTML = `<strong>✦ Descripción semiológica ordenada</strong>${texto}`;
+    document.getElementById('lesionIA').classList.remove('hidden');
+  } catch(e) { alert('Error. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Ordenar descripción'; }
+}
+function usarLesion() {
+  const el = document.getElementById('lesFinal');
+  el.value = document.getElementById('lesionIATexto').textContent.replace('✦ Descripción semiológica ordenada','').trim();
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  document.getElementById('lesionIA').classList.add('hidden');
+}
+
+// ---- Resumen ----
+function renderSummary() {
+  const factores = [
+    ck('xeroFarmacos') ? 'fármacos xerostomizantes' : '',
+    ck('xeroSistemico') ? 'condición sistémica' : '',
+    ck('xeroRadio') ? 'radioterapia de cabeza y cuello' : ''
+  ].filter(Boolean).join(', ') || '—';
+
+  const hayLesion = rv('hayLesion');
+  const filasLesion = hayLesion === 'Se detecta al menos una lesión'
+    ? [
+        ['Localización', v('lesLocalizacion')],
+        ['Lesión elemental', v('lesTipo')],
+        ['Tamaño', v('lesTamano') !== '—' ? v('lesTamano') + ' mm' : '—'],
+        ['Color', v('lesColor')],
+        ['Bordes', v('lesBordes')],
+        ['Superficie', v('lesSuperficie')],
+        ['Consistencia', v('lesConsistencia')],
+        ['Evolución', v('lesEvolucion')],
+        ['Sintomatología', v('lesSintoma')],
+        ['Factor irritante local', v('lesIrritante')],
+        ['Descripción final', v('lesFinal') !== '—' ? v('lesFinal') : v('lesLibre')],
+      ]
+    : [['Lesiones de mucosa', hayLesion]];
+
+  const sections = [
+    { title: 'Labios y mucosas', rows: [
+      ['Semimucosa labial', v('labiosIntra')],
+      ['Mucosa labial', v('mucosaLabial')],
+      ['Mucosa yugal derecha', v('yugalDer')],
+      ['Mucosa yugal izquierda', v('yugalIzq')],
+      ['Frenillos', v('frenillos')],
+      ['Reborde alveolar', v('reborde')],
+      ['Descripción clínica', v('mucosasFinal') !== '—' ? v('mucosasFinal') : v('mucosasLibre')],
+    ]},
+    { title: 'Lengua y piso de boca', rows: [
+      ['Dorso lingual', v('dorsoLingual')],
+      ['Bordes laterales', v('bordesLinguales')],
+      ['Vientre lingual', v('vientreLingual')],
+      ['Tamaño lingual', v('tamanoLingual')],
+      ['Movilidad', rv('movLingual')],
+      ['Sintomatología', rv('sintLingual')],
+      ['Piso de boca', v('pisoBoca')],
+      ['Conductos de Wharton', rv('wharton')],
+      ['Observaciones', v('lenguaObs')],
+    ]},
+    { title: 'Paladar y orofaringe', rows: [
+      ['Paladar duro', v('paladarDuro')],
+      ['Paladar blando y úvula', v('paladarBlando')],
+      ['Amígdalas y pilares', v('amigdalas')],
+      ['Mallampati', v('mallampati')],
+      ['Reflejo nauseoso', rv('nauseoso')],
+      ['Observaciones', v('paladarObs')],
+    ]},
+    { title: 'Glándulas salivales', rows: [
+      ['Parótidas', v('parotidas')],
+      ['Submandibulares y sublinguales', v('submandibulares')],
+      ['Conductos de Stenon', rv('stenon')],
+      ['Consistencia de la saliva', v('consistenciaSaliva')],
+      ['Flujo salival', v('flujoSalival')],
+      ['Factores asociados', factores],
+      ['Observaciones', v('salivalObs')],
+    ]},
+    { title: 'Lesiones de mucosa', rows: filasLesion },
+  ];
+
+  const html = `<div class="summary-card">${sections.map(s => `
+    <div class="summary-section">
+      <div class="summary-section-title">${s.title}</div>
+      ${s.rows.map(([label, value]) => `
+        <div class="summary-row">
+          <span class="summary-label">${label}</span>
+          <span class="summary-value">${value}</span>
+        </div>`).join('')}
+    </div>`).join('')}
+  </div>`;
+
+  document.getElementById('summaryContent').innerHTML = html;
+}
+
+function copiarResumen() {
+  const rows = document.querySelectorAll('.summary-row');
+  const text = [...rows].map(r => {
+    const cells = r.querySelectorAll('span');
+    return cells[0].textContent + ': ' + cells[1].textContent.replace(/\s+/g,' ').trim();
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar resumen', 2000);
+  });
+}
+
+// El bloque de lesión se reabre solo si el guardado automático marcó "Sí"
+window.addEventListener('load', () => setTimeout(toggleLesion, 800));
+</script>
+
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

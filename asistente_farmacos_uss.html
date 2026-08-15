@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente de Fármacos — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F4F2EE;
+    --surface: #FFFFFF;
+    --surface-2: #F9F8F5;
+    --border: #E2DED6;
+    --border-strong: #C8C3B8;
+    --text: #1A1814;
+    --text-2: #5C5849;
+    --text-3: #9C9688;
+    --accent: #1D3A6B;
+    --accent-light: #EAF0FA;
+    --accent-mid: #4A6FA5;
+    --green: #1A5C3A;
+    --green-light: #E8F5EE;
+    --amber: #7A4A00;
+    --amber-light: #FFF4E0;
+    --red: #8B1A1A;
+    --red-light: #FDEAEA;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-logo {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .header-text h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+
+  .header-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+
+  .slide-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    color: var(--text-3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 20px;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: var(--text-2); margin-bottom: 24px; }
+
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .input-row {
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+
+  .input-group { flex: 1; }
+  .input-group label {
+    display: block;
+    font-size: 12px; font-weight: 500;
+    color: var(--text-2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface-2);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(74,111,165,0.12);
+    background: white;
+  }
+
+  input[type="text"]::placeholder { color: var(--text-3); }
+
+  .btn {
+    height: 42px; padding: 0 20px;
+    background: var(--accent);
+    color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+  }
+  .btn-outline:hover { background: var(--accent-light); }
+
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hint {
+    font-size: 12px; color: var(--text-3);
+    margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    align-items: center;
+  }
+
+  .hint-pill {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .hint-pill:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  /* Results */
+  .results-section { margin-top: 24px; }
+
+  .results-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .results-title {
+    font-size: 13px; font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .drug-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .drug-header {
+    display: flex; align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    background: var(--surface-2);
+  }
+
+  .drug-name {
+    font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+  }
+
+  .drug-condition {
+    font-size: 12px; color: var(--text-2);
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 3px 10px; border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .drug-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .drug-cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .drug-cell:nth-child(2) { border-right: none; }
+  .drug-cell:nth-last-child(-n+2) { border-bottom: none; }
+
+  .cell-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-3);
+    margin-bottom: 6px;
+  }
+
+  .cell-content {
+    font-size: 13px; line-height: 1.6; color: var(--text);
+  }
+
+  .risk-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 4px;
+    margin: 2px 3px 2px 0;
+  }
+
+  .risk-alto { background: var(--red-light); color: var(--red); }
+  .risk-medio { background: var(--amber-light); color: var(--amber); }
+  .risk-bajo { background: var(--green-light); color: var(--green); }
+
+  .bib-section {
+    background: var(--accent-light);
+    border-top: 1px solid var(--border);
+    padding: 12px 18px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+
+  .bib-icon {
+    font-size: 14px; margin-top: 1px;
+    color: var(--accent-mid);
+    flex-shrink: 0;
+  }
+
+  .bib-content { font-size: 12px; color: var(--accent); line-height: 1.5; }
+  .bib-content strong { font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* Table view */
+  .table-wrap { overflow-x: auto; margin-top: 16px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: var(--surface-2); }
+  tbody td { padding: 10px 14px; vertical-align: top; line-height: 1.5; }
+
+  /* View toggle */
+  .view-toggle {
+    display: flex; gap: 4px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+  }
+  .vt-btn {
+    padding: 4px 10px; font-size: 12px;
+    border-radius: 4px; border: none;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    color: var(--text-2);
+    background: transparent;
+    transition: background 0.12s;
+  }
+  .vt-btn.active { background: var(--surface); color: var(--text); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+
+  /* Export */
+  .export-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 16px;
+  }
+  .export-text { font-size: 13px; color: var(--text-2); }
+  .export-text strong { color: var(--text); }
+
+  .empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--text-3);
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+  }
+  .empty-state .icon { font-size: 32px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  .loading-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px;
+    animation: fadeIn 0.2s;
+  }
+  .loading-spinner {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  .loading-text { font-size: 13px; color: var(--text-2); }
+  .loading-drug { font-weight: 600; color: var(--text); }
+
+  .error-msg {
+    background: var(--red-light);
+    border: 1px solid #f5c0c0;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 10px;
+  }
+</style>
+<script src="config-uss.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">💊</div>
+  <div class="header-text">
+    <h1>Asistente de Fármacos</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slide 5 — IA</span>
+</header>
+
+<main>
+  <div class="slide-label">📋 Sección: Fármacos y efectos en tratamiento odontológico</div>
+  <h2>Registro de medicamentos del paciente</h2>
+  <p class="subtitle">Ingresa uno o más fármacos. La IA completará automáticamente la condición sistémica, mecanismo de acción, y efectos en odontología.</p>
+
+  <div class="input-card">
+    <div class="input-row">
+      <div class="input-group">
+        <label>Nombre del fármaco</label>
+        <input type="text" id="drugInput" placeholder="Ej: Enalapril, Metformina, Warfarina..." />
+      </div>
+      <button class="btn" id="addBtn" onclick="addDrug()">
+        <span>Agregar</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <div class="hint">
+      <span style="font-size:11px; color:var(--text-3);">Sugerencias frecuentes:</span>
+      <span class="hint-pill" onclick="quickAdd('Enalapril')">Enalapril</span>
+      <span class="hint-pill" onclick="quickAdd('Warfarina')">Warfarina</span>
+      <span class="hint-pill" onclick="quickAdd('Atorvastatina')">Atorvastatina</span>
+      <span class="hint-pill" onclick="quickAdd('Losartán')">Losartán</span>
+      <span class="hint-pill" onclick="quickAdd('Omeprazol')">Omeprazol</span>
+      <span class="hint-pill" onclick="quickAdd('Levotiroxina')">Levotiroxina</span>
+      <span class="hint-pill" onclick="quickAdd('Clonazepam')">Clonazepam</span>
+    </div>
+    <div id="errorMsg" class="error-msg" style="display:none;"></div>
+  </div>
+
+  <div id="results" class="results-section">
+    <div class="empty-state" id="emptyState">
+      <div class="icon">💊</div>
+      <p>Ingresa el nombre de un fármaco para comenzar el análisis clínico.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+const drugs = [];
+let viewMode = 'cards';
+
+function quickAdd(name) {
+  document.getElementById('drugInput').value = name;
+  addDrug();
+}
+
+document.getElementById('drugInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addDrug();
+});
+
+async function addDrug() {
+  const input = document.getElementById('drugInput');
+  const name = input.value.trim();
+  if (!name) return;
+
+  const btn = document.getElementById('addBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Analizando...</span>';
+
+  hideError();
+  input.value = '';
+  showEmptyOrResults();
+
+  const loadingId = 'loading_' + Date.now();
+  addLoadingCard(loadingId, name);
+
+  try {
+    const result = await analyzeDrug(name);
+    removeLoadingCard(loadingId);
+    drugs.push(result);
+    renderAll();
+  } catch (err) {
+    removeLoadingCard(loadingId);
+    showError('No se pudo analizar "' + name + '". Verifica el nombre del fármaco o intenta nuevamente.');
+    if (drugs.length === 0) showEmpty();
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Agregar</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  }
+}
+
+async function analyzeDrug(drugName) {
+  const prompt = `Eres un asistente clínico odontológico experto. Analiza el fármaco "${drugName}" y responde SOLO con un objeto JSON válido (sin markdown, sin texto adicional) con esta estructura exacta:
+{
+  "nombre": "nombre oficial del fármaco",
+  "condicion": "enfermedad o condición sistémica que sustenta su indicación",
+  "mecanismo": "mecanismo de acción farmacológico resumido en 2-3 líneas",
+  "efectos_odonto": ["efecto 1", "efecto 2", "efecto 3"],
+  "nivel_riesgo": "alto|medio|bajo",
+  "consideraciones": "consideraciones clínicas importantes para el tratamiento odontológico en 1-2 líneas",
+  "bibliografia": {
+    "texto": "referencia bibliográfica relevante (autor, título, año, journal si aplica)",
+    "tipo": "guía clínica|artículo|libro de texto|consenso"
+  }
+}
+Los efectos_odonto deben ser específicos y relevantes. Si no hay efectos odontológicos conocidos, indicar "Sin efectos odontológicos reportados".`;
+
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-5',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) throw new Error('API error ' + response.status);
+  const data = await response.json();
+  const text = data.content.map(b => b.text || '').join('').replace(/```json|```/g,'').trim();
+  return JSON.parse(text);
+}
+
+function riskClass(nivel) {
+  if (!nivel) return 'risk-bajo';
+  const n = nivel.toLowerCase();
+  if (n === 'alto') return 'risk-alto';
+  if (n === 'medio') return 'risk-medio';
+  return 'risk-bajo';
+}
+
+function riskLabel(nivel) {
+  if (!nivel) return 'Sin riesgo especial';
+  const n = nivel.toLowerCase();
+  if (n === 'alto') return '⚠ Riesgo alto';
+  if (n === 'medio') return '⚡ Riesgo medio';
+  return '✓ Riesgo bajo';
+}
+
+function renderAll() {
+  const container = document.getElementById('results');
+  if (drugs.length === 0) { showEmpty(); return; }
+
+  let html = `
+    <div class="results-header">
+      <span class="results-title">${drugs.length} fármaco${drugs.length > 1 ? 's' : ''} registrado${drugs.length > 1 ? 's' : ''}</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="view-toggle">
+          <button class="vt-btn ${viewMode==='cards'?'active':''}" onclick="setView('cards')">Tarjetas</button>
+          <button class="vt-btn ${viewMode==='table'?'active':''}" onclick="setView('table')">Tabla</button>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearAll()">Limpiar todo</button>
+      </div>
+    </div>
+  `;
+
+  if (viewMode === 'cards') {
+    drugs.forEach((d, i) => {
+      const efectos = Array.isArray(d.efectos_odonto) ? d.efectos_odonto : [d.efectos_odonto];
+      html += `
+      <div class="drug-card">
+        <div class="drug-header">
+          <span class="drug-name">${d.nombre || 'Fármaco'}</span>
+          <span class="drug-condition">${d.condicion || '—'}</span>
+          <span class="risk-tag ${riskClass(d.nivel_riesgo)}" style="margin-left:auto;">${riskLabel(d.nivel_riesgo)}</span>
+          <button onclick="removeDrug(${i})" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:16px;padding:2px;margin-left:4px;" title="Eliminar">×</button>
+        </div>
+        <div class="drug-body">
+          <div class="drug-cell">
+            <div class="cell-label">Mecanismo de acción</div>
+            <div class="cell-content">${d.mecanismo || '—'}</div>
+          </div>
+          <div class="drug-cell">
+            <div class="cell-label">Efectos en tratamiento odontológico</div>
+            <div class="cell-content">
+              ${efectos.map(e => `<span class="risk-tag ${e.toLowerCase().includes('sin efecto') ? 'risk-bajo' : 'risk-medio'}">${e}</span>`).join('')}
+            </div>
+          </div>
+          <div class="drug-cell" style="grid-column:1/-1">
+            <div class="cell-label">Consideraciones clínicas</div>
+            <div class="cell-content">${d.consideraciones || '—'}</div>
+          </div>
+        </div>
+        ${d.bibliografia ? `
+        <div class="bib-section">
+          <span class="bib-icon">📚</span>
+          <div class="bib-content">
+            <strong>Referencia bibliográfica — ${d.bibliografia.tipo || 'Fuente académica'}</strong>
+            ${d.bibliografia.texto || '—'}
+          </div>
+        </div>` : ''}
+      </div>`;
+    });
+  } else {
+    html += `<div class="table-wrap"><table>
+      <thead><tr>
+        <th>Fármaco</th><th>Condición sistémica</th><th>Mecanismo de acción</th>
+        <th>Efectos en odontología</th><th>Riesgo</th>
+      </tr></thead><tbody>`;
+    drugs.forEach((d, i) => {
+      const efectos = Array.isArray(d.efectos_odonto) ? d.efectos_odonto.join(', ') : d.efectos_odonto;
+      html += `<tr>
+        <td><strong>${d.nombre}</strong></td>
+        <td>${d.condicion}</td>
+        <td>${d.mecanismo}</td>
+        <td>${efectos}</td>
+        <td><span class="risk-tag ${riskClass(d.nivel_riesgo)}">${riskLabel(d.nivel_riesgo)}</span></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+
+  if (drugs.length > 0) {
+    html += `<div class="export-bar">
+      <span class="export-text">Tabla lista para copiar a la ficha — <strong>${drugs.length} fármaco${drugs.length>1?'s':''}</strong> analizados</span>
+      <button class="btn btn-outline btn-sm" onclick="copyTable()">📋 Copiar tabla</button>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function setView(mode) {
+  viewMode = mode;
+  renderAll();
+}
+
+function removeDrug(index) {
+  drugs.splice(index, 1);
+  renderAll();
+  if (drugs.length === 0) showEmpty();
+}
+
+function clearAll() {
+  drugs.length = 0;
+  showEmpty();
+}
+
+function showEmpty() {
+  document.getElementById('results').innerHTML = `
+    <div class="empty-state" id="emptyState">
+      <div class="icon">💊</div>
+      <p>Ingresa el nombre de un fármaco para comenzar el análisis clínico.</p>
+    </div>`;
+}
+
+function showEmptyOrResults() {
+  if (drugs.length === 0 && !document.getElementById('emptyState')) showEmpty();
+}
+
+function addLoadingCard(id, name) {
+  const el = document.createElement('div');
+  el.id = id;
+  el.className = 'loading-card';
+  el.innerHTML = `<div class="loading-spinner"></div>
+    <div class="loading-text">Analizando <span class="loading-drug">${name}</span> — buscando mecanismo, efectos odontológicos y bibliografía...</div>`;
+  const results = document.getElementById('results');
+  const empty = document.getElementById('emptyState');
+  if (empty) empty.remove();
+  results.appendChild(el);
+}
+
+function removeLoadingCard(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+function copyTable() {
+  if (drugs.length === 0) return;
+  const headers = ['Fármaco', 'Condición sistémica', 'Mecanismo de acción', 'Efectos en odontología', 'Consideraciones', 'Bibliografía'];
+  const rows = drugs.map(d => [
+    d.nombre,
+    d.condicion,
+    d.mecanismo,
+    Array.isArray(d.efectos_odonto) ? d.efectos_odonto.join('; ') : d.efectos_odonto,
+    d.consideraciones,
+    d.bibliografia ? d.bibliografia.texto : '—'
+  ]);
+  const text = [headers, ...rows].map(r => r.join('\t')).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar tabla', 2000);
+  });
+}
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

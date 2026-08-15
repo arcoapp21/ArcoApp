@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de razonamiento clínico — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --amber: #7A4A00; --amber-light: #FFF4E0; --red: #8B1A1A;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 26px 24px 60px; }
+
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px; }
+  .toolbar-text { font-size: 12.5px; color: var(--text-2); flex: 1; min-width: 220px; line-height: 1.55; }
+  .btn { height: 36px; padding: 0 15px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+  .btn:hover { background: #162d54; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+
+  .ident { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 18px; }
+  .ident-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .ident-i { display: flex; flex-direction: column; gap: 3px; }
+  .ident-k { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); }
+  .ident-v { font-size: 14px; font-weight: 500; }
+  .ident-v.mono { font-family: 'DM Mono', monospace; font-size: 12.5px; }
+
+  .crit { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; page-break-inside: avoid; }
+  .crit-head { display: flex; align-items: baseline; gap: 10px; padding-bottom: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .crit-n { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); border: 1px solid var(--accent-mid); border-radius: 4px; padding: 1px 6px; }
+  .crit-t { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .crit-p { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-3); }
+  .crit-src { font-size: 11.5px; color: var(--text-3); margin-bottom: 14px; line-height: 1.5; }
+
+  .resp { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .resp:last-child { border-bottom: none; padding-bottom: 0; }
+  .resp-sec { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; }
+  .resp-txt { font-size: 13.5px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
+  .resp-none { font-size: 13px; color: var(--text-3); font-style: italic; }
+
+  .sello { background: var(--surface-2); border-left: 3px solid var(--green); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 9px 13px; font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--green); margin-bottom: 14px; }
+  .sin-sello { background: var(--amber-light); border-left: 3px solid var(--amber); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 11px 14px; font-size: 12.5px; color: var(--amber); line-height: 1.6; margin-bottom: 14px; }
+
+  .califica { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border-strong); }
+  .califica-l { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); }
+  .califica-box { width: 88px; height: 30px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+  .califica-note { flex: 1; height: 30px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+
+  .vacio { background: var(--amber-light); border: 1px solid #e8d99a; border-radius: var(--radius); padding: 22px; text-align: center; font-size: 13.5px; color: var(--amber); line-height: 1.65; }
+
+  .nota-pie { font-size: 12px; color: var(--text-2); line-height: 1.65; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 20px; }
+  .nota-pie strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 5px; }
+
+  @media (max-width: 700px) {
+    .ident-grid { grid-template-columns: 1fr 1fr; }
+    header { padding: 14px 16px; }
+    main { padding: 16px 14px 40px; }
+  }
+
+  @media print {
+    body { background: white; }
+    header { background: white; color: black; border-bottom: 2px solid #333; padding: 0 0 10px; }
+    .header-logo, .header-badge { display: none; }
+    .toolbar, .nota-pie { display: none; }
+    main { max-width: none; padding: 0; }
+    .crit, .ident { border: 1px solid #999; box-shadow: none; break-inside: avoid; margin-bottom: 12px; }
+    .crit-src { color: #555; }
+    @page { margin: 1.6cm; }
+  }
+</style>
+<script src="config-uss.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">📑</div>
+  <div class="header-text">
+    <h1>Registro de razonamiento clínico</h1>
+    <p>Documento de corrección · Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Uso docente</span>
+</header>
+
+<main>
+  <div class="toolbar">
+    <span class="toolbar-text">Reúne las respuestas del estudiante ordenadas por los seis criterios de la pauta. Se corrige de arriba abajo, sin volver a los módulos.</span>
+    <button class="btn" onclick="window.print()">🖨 Imprimir o guardar en PDF</button>
+    <button class="btn btn-outline" onclick="copiarTodo()">📋 Copiar texto</button>
+    <button class="btn btn-outline" onclick="descargarJSON()">⬇ Datos (.json)</button>
+  </div>
+
+  <div id="contenido"></div>
+
+  <div class="nota-pie">
+    <strong>Sobre este documento</strong>
+    Se genera con los datos guardados en este navegador. Para corregir en otro equipo, exporta el caso desde el índice del asistente e impórtalo allá. El archivo <code>.json</code> contiene las mismas respuestas en formato tabulable, para reunir varios casos en una planilla.
+  </div>
+</main>
+
+<script>
+const PREFIX = 'fichaUSS:v6:';
+
+/* Orden y nombre de las secciones de la ficha */
+const SECCIONES = [
+  ['identificacion_antecedentes_uss', 'Identificación y antecedentes'],
+  ['examen_fisico_general_uss',       'Examen físico general'],
+  ['examen_extraoral_uss',            'Examen extraoral'],
+  ['examen_intraoral_uss',            'Examen intraoral'],
+  ['odontograma_uss',                 'Odontograma'],
+  ['examenes_periodontales_uss',      'Exámenes periodontales'],
+  ['examenes_complementarios_uss',    'Exámenes complementarios'],
+  ['situaciones_relevantes_uss',      'Situaciones relevantes'],
+];
+
+const RZ_MOD = 'diagnostico_razonamiento_guiado_uss';
+
+function leer(mod) {
+  try {
+    const crudo = localStorage.getItem(PREFIX + mod);
+    return crudo ? (JSON.parse(crudo).datos || {}) : null;
+  } catch (e) { return null; }
+}
+function meta() {
+  try { return JSON.parse(localStorage.getItem(PREFIX + '_meta')) || {}; } catch (e) { return {}; }
+}
+function sello() {
+  try { return JSON.parse(localStorage.getItem(PREFIX + 'rz-sello')); } catch (e) { return null; }
+}
+function esc(t) {
+  return String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+function fecha(iso) {
+  if (!iso) return '—';
+  const f = new Date(iso);
+  return f.toLocaleDateString('es-CL') + ' ' + f.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+}
+
+/* Recoge una misma pregunta a lo largo de todas las secciones */
+function recolectar(campo) {
+  const out = [];
+  SECCIONES.forEach(([mod, titulo]) => {
+    const d = leer(mod);
+    if (!d) return;
+    const v = d['v|' + campo];
+    if (v && String(v).trim()) out.push([titulo, String(v).trim()]);
+  });
+  return out;
+}
+
+function bloqueRespuestas(lista, vacio) {
+  if (!lista.length) return '<div class="resp"><span class="resp-none">' + vacio + '</span></div>';
+  return lista.map(([sec, txt]) =>
+    '<div class="resp"><div class="resp-sec">' + esc(sec) + '</div>' +
+    '<div class="resp-txt">' + esc(txt) + '</div></div>').join('');
+}
+
+function bloqueLibre(titulo, texto, vacio) {
+  if (!texto || !String(texto).trim()) return '<div class="resp"><span class="resp-none">' + vacio + '</span></div>';
+  return '<div class="resp">' + (titulo ? '<div class="resp-sec">' + esc(titulo) + '</div>' : '') +
+    '<div class="resp-txt">' + esc(String(texto).trim()) + '</div></div>';
+}
+
+function criterio(n, titulo, peso, fuente, cuerpo, extra) {
+  return '<div class="crit">' +
+    '<div class="crit-head"><span class="crit-n">' + n + '</span>' +
+    '<span class="crit-t">' + titulo + '</span>' +
+    '<span class="crit-p">' + peso + '</span></div>' +
+    '<div class="crit-src">' + fuente + '</div>' +
+    (extra || '') + cuerpo +
+    '<div class="califica"><span class="califica-l">Puntaje</span>' +
+    '<span class="califica-box"></span>' +
+    '<span class="califica-l">Observación</span>' +
+    '<span class="califica-note"></span></div>' +
+  '</div>';
+}
+
+function construir() {
+  const m = meta();
+  const s = sello();
+  const rz = leer(RZ_MOD) || {};
+
+  const jerarquia = recolectar('pq-clave');
+  const consecuencia = recolectar('pq-consecuencia');
+  const pendientes = recolectar('pq-pendiente');
+  const anticipacion = recolectar('pq-anticipacion');
+
+  const hayAlgo = jerarquia.length || consecuencia.length || pendientes.length || s || rz['v|rzRevision'];
+  if (!hayAlgo) {
+    document.getElementById('contenido').innerHTML =
+      '<div class="vacio">No hay registro de razonamiento en este navegador.<br>' +
+      'Abre el índice del asistente e importa el caso del estudiante antes de corregir.</div>';
+    return;
+  }
+
+  const cabecera =
+    '<div class="ident"><div class="ident-grid">' +
+      '<div class="ident-i"><span class="ident-k">Estudiante</span><span class="ident-v">' + (esc(m.estudiante) || '—') + '</span></div>' +
+      '<div class="ident-i"><span class="ident-k">Código del caso</span><span class="ident-v">' + (esc(m.paciente) || '—') + '</span></div>' +
+      '<div class="ident-i"><span class="ident-k">Secciones respondidas</span><span class="ident-v">' + jerarquia.length + ' de ' + SECCIONES.length + '</span></div>' +
+      '<div class="ident-i"><span class="ident-k">Generado</span><span class="ident-v mono">' + fecha(new Date().toISOString()) + '</span></div>' +
+    '</div></div>';
+
+  const selloHTML = s && s.sello
+    ? '<div class="sello">Fundamentación sellada el ' + esc(s.sello) + ' · texto no editable desde ese momento</div>'
+    : '<div class="sin-sello">El estudiante no registró su fundamentación en el módulo de razonamiento, o el sello se perdió al borrar los datos del navegador. Sin sello no hay garantía de que el texto sea anterior a la intervención del asistente: los criterios 4 y 5 no deberían puntuarse.</div>';
+
+  const c1 = criterio(1, 'Jerarquización del hallazgo', '15%',
+    'Pregunta 1 de cierre, recogida en todas las secciones.',
+    bloqueRespuestas(jerarquia, 'Sin respuestas registradas.'));
+
+  const c2 = criterio(2, 'Consecuencia clínica del hallazgo', '25%',
+    'Pregunta 2 de cierre, recogida en todas las secciones.',
+    bloqueRespuestas(consecuencia, 'Sin respuestas registradas.'));
+
+  const c3 = criterio(3, 'Reconocimiento de la incertidumbre', '15%',
+    'Pregunta 3 de cierre, recogida en todas las secciones.',
+    bloqueRespuestas(pendientes, 'Sin respuestas registradas.'));
+
+  const c4 = criterio(4, 'Correspondencia entre hallazgos y evidencia invocada', '20%',
+    'Fundamentación sellada del módulo de razonamiento diagnóstico. Contrastar con los hallazgos que el estudiante declaró relevantes en el criterio 1.',
+    bloqueLibre('Hipótesis diagnóstica inicial', s ? s.hipotesis : rz['v|rzHipotesis'], 'Sin hipótesis registrada.') +
+    bloqueLibre('Evidencia que la sostiene', s ? s.evidencia : rz['v|rzEvidencia'], 'Sin evidencia registrada.'),
+    selloHTML);
+
+  const c5 = criterio(5, 'Consideración y descarte del diferencial', '15%',
+    'Fundamentación sellada del módulo de razonamiento diagnóstico.',
+    bloqueLibre('', s ? s.diferencial : rz['v|rzDiferencial'], 'No consideró explicaciones alternativas.'));
+
+  const preguntas = s && s.preguntas ? s.preguntas.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+  const c6 = criterio(6, 'Revisión posterior a las preguntas', '10%',
+    'Paso 3 del módulo de razonamiento diagnóstico. Verificar que la revisión responda a lo que el asistente preguntó.',
+    (preguntas ? bloqueLibre('Preguntas que planteó el asistente', preguntas, '') : '') +
+    bloqueLibre('Revisión del estudiante', rz['v|rzRevision'], 'No registró revisión posterior.'));
+
+  const anexo = anticipacion.length
+    ? '<div class="crit"><div class="crit-head"><span class="crit-n">A</span>' +
+      '<span class="crit-t">Anexo · Expectativas previas al examen</span>' +
+      '<span class="crit-p">no puntúa</span></div>' +
+      '<div class="crit-src">Pregunta de anticipación de cada sección. No se califica: sirve para contrastar lo que el estudiante esperaba encontrar con lo que finalmente registró.</div>' +
+      bloqueRespuestas(anticipacion, '') + '</div>'
+    : '';
+
+  document.getElementById('contenido').innerHTML = cabecera + c1 + c2 + c3 + c4 + c5 + c6 + anexo;
+}
+
+/* ── Exportaciones ── */
+function copiarTodo() {
+  const partes = [];
+  document.querySelectorAll('.ident-i').forEach(i => {
+    partes.push(i.children[0].textContent + ': ' + i.children[1].textContent);
+  });
+  partes.push('');
+  document.querySelectorAll('.crit').forEach(c => {
+    partes.push('═══ ' + c.querySelector('.crit-t').textContent + ' (' + c.querySelector('.crit-p').textContent + ') ═══');
+    c.querySelectorAll('.resp').forEach(r => {
+      const sec = r.querySelector('.resp-sec');
+      const t = r.querySelector('.resp-txt') || r.querySelector('.resp-none');
+      partes.push((sec ? '[' + sec.textContent + '] ' : '') + (t ? t.textContent : ''));
+    });
+    partes.push('');
+  });
+  navigator.clipboard.writeText(partes.join('\n')).then(() => {
+    const b = event.target;
+    const o = b.textContent;
+    b.textContent = '✓ Copiado';
+    setTimeout(() => b.textContent = o, 2000);
+  });
+}
+
+function descargarJSON() {
+  const m = meta(), s = sello(), rz = leer(RZ_MOD) || {};
+  const paquete = {
+    formato: 'registro-razonamiento-uss',
+    version: 'v6',
+    generado: new Date().toISOString(),
+    estudiante: m.estudiante || '',
+    caso: m.paciente || '',
+    sello: s ? s.sello : null,
+    criterio_1_jerarquizacion: recolectar('pq-clave').map(([s2, t]) => ({ seccion: s2, respuesta: t })),
+    criterio_2_consecuencia: recolectar('pq-consecuencia').map(([s2, t]) => ({ seccion: s2, respuesta: t })),
+    criterio_3_incertidumbre: recolectar('pq-pendiente').map(([s2, t]) => ({ seccion: s2, respuesta: t })),
+    criterio_4_hipotesis: s ? s.hipotesis : (rz['v|rzHipotesis'] || ''),
+    criterio_4_evidencia: s ? s.evidencia : (rz['v|rzEvidencia'] || ''),
+    criterio_5_diferencial: s ? s.diferencial : (rz['v|rzDiferencial'] || ''),
+    criterio_6_revision: rz['v|rzRevision'] || '',
+    anexo_anticipacion: recolectar('pq-anticipacion').map(([s2, t]) => ({ seccion: s2, respuesta: t }))
+  };
+  const nombre = 'razonamiento_' + String(m.paciente || 'caso').replace(/[^\w\-]+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.json';
+  const blob = new Blob([JSON.stringify(paquete, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+construir();
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Clínico Extraoral — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --green-light: #E8F5EE;
+    --amber: #7A4A00; --amber-light: #FFF4E0;
+    --red: #8B1A1A; --red-light: #FDEAEA;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; overflow-x: auto; }
+  .tab-btn { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text-3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .tab-btn:hover { color: var(--text-2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn .slide-num { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-right: 6px; color: var(--text-3); }
+  .tab-btn.active .slide-num { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 28px 24px; }
+
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
+
+  .field-grid { display: grid; gap: 14px; }
+  .field-grid-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .radio-pill input { display: none; }
+  .radio-pill label { display: block; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); }
+  .radio-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+
+  /* AI bar */
+  .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+  .ai-suggestion { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6; margin-top: 8px; animation: fadeIn 0.3s; }
+  .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Perfil facial SVG diagram */
+  .perfil-diagram { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .svg-container { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
+  .svg-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 10px; }
+  .perfil-options { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Perfil type cards */
+  .perfil-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .perfil-opt input { display: none; }
+  .perfil-opt label { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; text-align: center; background: var(--surface-2); transition: all 0.12s; }
+  .perfil-opt label .perf-icon { font-size: 28px; line-height: 1; }
+  .perfil-opt label .perf-name { font-size: 12px; font-weight: 500; color: var(--text-2); }
+  .perfil-opt label .perf-desc { font-size: 10px; color: var(--text-3); }
+  .perfil-opt input:checked + label { background: var(--accent-light); border-color: var(--accent-mid); }
+  .perfil-opt input:checked + label .perf-name { color: var(--accent); }
+
+  /* Tercio facial visual */
+  .tercios-visual { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .tercio-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); gap: 10px; }
+  .tercio-row:last-child { border-bottom: none; }
+  .tercio-name { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .tercio-pts { font-size: 10px; color: var(--text-3); text-align: right; }
+  .tercio-select { height: 34px; font-size: 12px !important; padding: 4px 28px 4px 8px !important; }
+
+  /* ATM evaluación */
+  .atm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .atm-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .atm-card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+  /* DV medidas */
+  .dv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .dv-measure { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+  .dv-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 6px; }
+  .dv-sublabel { font-size: 10px; color: var(--text-3); margin-bottom: 8px; }
+  .dv-val { font-size: 22px; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
+  .dv-unit { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .dv-status { font-size: 11px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+
+  /* Apertura bucal gauge */
+  .apertura-gauge { position: relative; height: 10px; background: var(--border); border-radius: 5px; margin: 8px 0; overflow: hidden; }
+  .apertura-fill { height: 100%; border-radius: 5px; transition: width 0.4s ease, background 0.4s; }
+
+  /* Photo note */
+  .photo-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 10px; }
+
+  /* Summary */
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .summary-section { margin-bottom: 18px; }
+  .summary-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--text-2); flex-shrink: 0; }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 65%; }
+
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .field-grid-2, .field-grid-3, .field-grid-4 { grid-template-columns: 1fr; }
+    .perfil-type-grid, .dv-grid { grid-template-columns: 1fr 1fr; }
+    .atm-grid { grid-template-columns: 1fr; }
+    .tercio-row { grid-template-columns: 70px 1fr; }
+    .tercio-pts { display: none; }
+    .perfil-diagram { grid-template-columns: 1fr; }
+  }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">👤</div>
+  <div class="header-text">
+    <h1>Examen Clínico Extraoral</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slides 9–12</span>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="goTab(0)"><span class="slide-num">S9</span>Examen extraoral</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="slide-num">S10</span>Perfil facial</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="slide-num">S11</span>Dimensión vertical</button>
+  <button class="tab-btn" onclick="goTab(3)"><span class="slide-num">S12</span>Examen ATM</button>
+  <button class="tab-btn" onclick="goTab(4)"><span class="slide-num">✓</span>Resumen</button>
+</div>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+
+<!-- ===== TAB 0: Examen extraoral (Slide 9) ===== -->
+<div id="tab-0">
+  <div class="section-header">
+    <h2>Examen clínico extraoral</h2>
+    <p>Inspección y palpación de cabeza, cuello y estructuras faciales.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Inspección general cabeza y cuello</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — describe los hallazgos en lenguaje libre y la IA redactará la descripción clínica.</div>
+      <button class="btn btn-sm" id="btnExtraoral" onclick="analizarExtraoral()">Redactar con IA</button>
+    </div>
+    <div class="field-grid field-grid-3" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Simetría facial</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="simetria" id="sim-si" value="Simétrico"><label for="sim-si">Simétrico</label></div>
+          <div class="radio-pill"><input type="radio" name="simetria" id="sim-no" value="Asimétrico"><label for="sim-no">Asimétrico</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Alteraciones cutáneas faciales</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="cutanea" id="cut-no" value="Sin alteraciones"><label for="cut-no">Sin alteraciones</label></div>
+          <div class="radio-pill"><input type="radio" name="cutanea" id="cut-si" value="Con alteraciones"><label for="cut-si">Con alteraciones</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Linfonodos cervicales</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="linfoExtr" id="lf-norm" value="Sin connotación patológica"><label for="lf-norm">Normal</label></div>
+          <div class="radio-pill"><input type="radio" name="linfoExtr" id="lf-alt" value="Adenopatías presentes"><label for="lf-alt">Adenopatías</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Musculatura facial y masticatoria</label>
+        <select id="musculatura">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones clínicas</option>
+          <option>Hipertonía muscular</option>
+          <option>Dolor a la palpación</option>
+          <option>Hipertrofia masetérica</option>
+          <option>Asimetría muscular</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Labios en reposo</label>
+        <select id="labios">
+          <option value="">Seleccionar</option>
+          <option>Competentes</option>
+          <option>Incompetentes</option>
+          <option>Hipertónicos</option>
+          <option>Hipotónicos</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Descripción libre de hallazgos extraorales</label>
+      <textarea id="extLibre" placeholder="Ej: Paciente con simetría facial conservada, sin alteraciones cutáneas evidentes. Musculatura masticatoria sin dolor a la palpación..." rows="3"></textarea>
+    </div>
+    <div id="extraoralIA" class="hidden">
+      <div class="ai-suggestion" id="extraoralIATexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarExtraoral()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('extraoralIA').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Descripción clínica final</label>
+      <textarea id="extFinal" placeholder="Descripción clínica del examen extraoral..." rows="3"></textarea>
+    </div>
+    <div class="photo-note">📸 Fotografías frontales y de perfil (reposo y sonrisa)</div>
+  </div>
+
+  <div class="nav-footer">
+    <div style="font-size:12px;color:var(--text-3);">Slide 9</div>
+    <button class="btn" onclick="goTab(1)">Siguiente → Perfil facial</button>
+  </div>
+</div>
+
+<!-- ===== TAB 1: Perfil facial (Slide 10) ===== -->
+<div id="tab-1" class="hidden">
+  <div class="section-header">
+    <h2>Análisis de perfil facial</h2>
+    <p>Clasificación del perfil sagital, tercios faciales y análisis de la sonrisa.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Tipo de perfil sagital</div>
+    <div class="perfil-type-grid">
+      <div class="perfil-opt">
+        <input type="radio" name="perfilSag" id="pf-recto" value="Perfil recto (clase I)">
+        <label for="pf-recto">
+          <span class="perf-icon">
+            <svg width="40" height="60" viewBox="0 0 40 60"><path d="M20 5 Q24 10 22 18 Q26 22 22 30 Q24 38 20 45 Q18 50 20 55" stroke="#1D3A6B" stroke-width="2.5" fill="none" stroke-linecap="round"/><line x1="20" y1="5" x2="20" y2="55" stroke="#E2DED6" stroke-width="1" stroke-dasharray="3,3"/></svg>
+          </span>
+          <span class="perf-name">Recto</span>
+          <span class="perf-desc">Clase I — normoface</span>
+        </label>
+      </div>
+      <div class="perfil-opt">
+        <input type="radio" name="perfilSag" id="pf-convexo" value="Perfil convexo (clase II)">
+        <label for="pf-convexo">
+          <span class="perf-icon">
+            <svg width="40" height="60" viewBox="0 0 40 60"><path d="M20 5 Q28 10 26 18 Q30 22 26 30 Q24 38 18 45 Q16 50 18 55" stroke="#1D3A6B" stroke-width="2.5" fill="none" stroke-linecap="round"/><line x1="20" y1="5" x2="20" y2="55" stroke="#E2DED6" stroke-width="1" stroke-dasharray="3,3"/></svg>
+          </span>
+          <span class="perf-name">Convexo</span>
+          <span class="perf-desc">Clase II — retroface</span>
+        </label>
+      </div>
+      <div class="perfil-opt">
+        <input type="radio" name="perfilSag" id="pf-concavo" value="Perfil cóncavo (clase III)">
+        <label for="pf-concavo">
+          <span class="perf-icon">
+            <svg width="40" height="60" viewBox="0 0 40 60"><path d="M20 5 Q22 10 18 18 Q22 22 18 30 Q22 38 24 45 Q24 50 22 55" stroke="#1D3A6B" stroke-width="2.5" fill="none" stroke-linecap="round"/><line x1="20" y1="5" x2="20" y2="55" stroke="#E2DED6" stroke-width="1" stroke-dasharray="3,3"/></svg>
+          </span>
+          <span class="perf-name">Cóncavo</span>
+          <span class="perf-desc">Clase III — proface</span>
+        </label>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Ángulo de convexidad facial</label>
+        <input type="text" id="anguloConv" placeholder="Ej: levemente convexo, ~5°">
+      </div>
+      <div class="field">
+        <label>Ángulo nasolabial</label>
+        <input type="text" id="anguloNaso" placeholder="Ej: normal ~90–110°">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Análisis de tercios faciales</div>
+    <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">Evalúa la proporción entre los tres tercios faciales verticales.</p>
+    <div class="tercios-visual">
+      <div class="tercio-row">
+        <span class="tercio-name">Superior</span>
+        <select class="tercio-select" id="tercioSup">
+          <option value="">—</option>
+          <option>Normal / Proporcionado</option>
+          <option>Aumentado</option>
+          <option>Disminuido</option>
+        </select>
+        <span class="tercio-pts">Triquion → Glabela</span>
+      </div>
+      <div class="tercio-row" style="background:var(--accent-light);">
+        <span class="tercio-name" style="color:var(--accent);">Medio</span>
+        <select class="tercio-select" id="tercioMed">
+          <option value="">—</option>
+          <option>Normal / Proporcionado</option>
+          <option>Aumentado</option>
+          <option>Disminuido</option>
+        </select>
+        <span class="tercio-pts" style="color:var(--accent-mid);">Glabela → ENA</span>
+      </div>
+      <div class="tercio-row">
+        <span class="tercio-name">Inferior</span>
+        <select class="tercio-select" id="tercioInf">
+          <option value="">—</option>
+          <option>Normal / Proporcionado</option>
+          <option>Aumentado</option>
+          <option>Disminuido</option>
+        </select>
+        <span class="tercio-pts">ENA → Mentón</span>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Subtercio inferior</label>
+      <div class="radio-group">
+        <div class="radio-pill"><input type="radio" name="subtercio" id="sub-norm" value="Proporcionado (1:2)"><label for="sub-norm">Proporcionado (1:2)</label></div>
+        <div class="radio-pill"><input type="radio" name="subtercio" id="sub-aum" value="Subtercios aumentados"><label for="sub-aum">Subtercios aumentados</label></div>
+        <div class="radio-pill"><input type="radio" name="subtercio" id="sub-dis" value="Subtercios disminuidos"><label for="sub-dis">Subtercios disminuidos</label></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Análisis de la sonrisa</div>
+    <div class="field-grid field-grid-3" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Línea de la sonrisa</label>
+        <select id="lineaSonrisa">
+          <option value="">Seleccionar</option>
+          <option>Alta (gingival)</option>
+          <option>Media</option>
+          <option>Baja</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Corredor bucal</label>
+        <select id="corridorBucal">
+          <option value="">Seleccionar</option>
+          <option>Amplio</option>
+          <option>Normal</option>
+          <option>Estrecho / Ausente</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Arco de sonrisa</label>
+        <select id="arcoSonrisa">
+          <option value="">Seleccionar</option>
+          <option>Consonante</option>
+          <option>No consonante</option>
+          <option>Plano</option>
+          <option>Invertido</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones del análisis facial</label>
+      <textarea id="obsPerfil" placeholder="Ej: Paciente con perfil recto, tercios faciales proporcionados. Sonrisa media con corredor bucal normal..." rows="3"></textarea>
+    </div>
+    <div class="photo-note">📸 Fotografías de perfil, frontal y sonrisa con regla milimetrada</div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(0)">← Anterior</button>
+    <button class="btn" onclick="goTab(2)">Siguiente → Dimensión vertical</button>
+  </div>
+</div>
+
+<!-- ===== TAB 2: Dimensión vertical (Slide 11) ===== -->
+<div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Dimensión vertical</h2>
+    <p>Medición de la dimensión vertical oclusal (DVO), postural (DVP) y cálculo del espacio libre interoclusal.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Mediciones de dimensión vertical</div>
+    <div class="dv-grid">
+      <div class="dv-measure">
+        <div class="dv-label">DVO</div>
+        <div class="dv-sublabel">Dim. vertical oclusal</div>
+        <input type="number" id="dvo" placeholder="—" min="40" max="90" step="0.5"
+          style="width:80px;text-align:center;font-size:20px;font-weight:600;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px;background:var(--surface-2);font-family:'DM Mono',monospace;margin:0 auto;display:block;"
+          oninput="calcELI()">
+        <div class="dv-unit">mm</div>
+      </div>
+      <div class="dv-measure">
+        <div class="dv-label">DVP</div>
+        <div class="dv-sublabel">Dim. vertical postural</div>
+        <input type="number" id="dvp" placeholder="—" min="40" max="95" step="0.5"
+          style="width:80px;text-align:center;font-size:20px;font-weight:600;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px;background:var(--surface-2);font-family:'DM Mono',monospace;margin:0 auto;display:block;"
+          oninput="calcELI()">
+        <div class="dv-unit">mm</div>
+      </div>
+      <div class="dv-measure" id="eliCard">
+        <div class="dv-label">ELI</div>
+        <div class="dv-sublabel">Espacio libre interoclusal</div>
+        <div class="dv-val" id="eliVal">—</div>
+        <div class="dv-unit">mm (DVP − DVO)</div>
+        <div id="eliStatus" class="dv-status" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones de dimensión vertical</label>
+      <textarea id="obsDV" placeholder="Ej: DVO de 62 mm, DVP de 65 mm, ELI de 3 mm dentro del rango fisiológico (2–4 mm)..." rows="3"></textarea>
+    </div>
+    <div style="margin-top:10px; padding:12px 14px; background:var(--accent-light); border:1px solid #c5d8f0; border-radius:var(--radius-sm); font-size:12px; color:var(--accent);">
+      📚 <strong>Referencia:</strong> Espacio libre interoclusal fisiológico normal: <strong>2–4 mm</strong> (Okeson JP. Management of Temporomandibular Disorders and Occlusion. 8ª ed. 2019).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Apertura bucal máxima</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:10px;">
+      <div class="field">
+        <label>Apertura máxima sin dolor (mm)</label>
+        <input type="number" id="aperturaSinDolor" placeholder="Ej: 45" min="0" max="80" oninput="evalApertura('sinDolor')">
+        <div class="apertura-gauge"><div class="apertura-fill" id="fillSin"></div></div>
+        <div id="statusSin" style="font-size:11px;font-weight:600;margin-top:2px;"></div>
+      </div>
+      <div class="field">
+        <label>Apertura máxima con dolor (mm)</label>
+        <input type="number" id="aperturaConDolor" placeholder="Ej: 38" min="0" max="80" oninput="evalApertura('conDolor')">
+        <div class="apertura-gauge"><div class="apertura-fill" id="fillCon"></div></div>
+        <div id="statusCon" style="font-size:11px;font-weight:600;margin-top:2px;"></div>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Lateralidad derecha (mm)</label>
+        <input type="number" id="latDerMM" placeholder="Ej: 10" min="0" max="20">
+      </div>
+      <div class="field">
+        <label>Lateralidad izquierda (mm)</label>
+        <input type="number" id="latIzqMM" placeholder="Ej: 10" min="0" max="20">
+      </div>
+    </div>
+    <div style="margin-top:10px; padding:12px 14px; background:var(--accent-light); border:1px solid #c5d8f0; border-radius:var(--radius-sm); font-size:12px; color:var(--accent);">
+      📚 <strong>Referencia:</strong> Apertura máxima normal adulto: <strong>≥ 40 mm</strong>. Lateralidades normales: <strong>≥ 7 mm</strong> (Okeson JP. 2019).
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(1)">← Anterior</button>
+    <button class="btn" onclick="goTab(3)">Siguiente → Examen ATM</button>
+  </div>
+</div>
+
+<!-- ===== TAB 3: Examen ATM (Slide 12) ===== -->
+<div id="tab-3" class="hidden">
+  <div class="section-header">
+    <h2>Examen de la articulación temporomandibular</h2>
+    <p>Evaluación clínica de ATM derecha e izquierda: palpación, auscultación y trayectoria mandibular.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Palpación y auscultación ATM</div>
+    <div class="atm-grid">
+      <div class="atm-card">
+        <div class="atm-card-title">ATM Derecha</div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Dolor a la palpación</label>
+          <div class="radio-group">
+            <div class="radio-pill"><input type="radio" name="dolorATMDer" id="daDer-no" value="Sin dolor"><label for="daDer-no">Sin dolor</label></div>
+            <div class="radio-pill"><input type="radio" name="dolorATMDer" id="daDer-si" value="Con dolor"><label for="daDer-si">Con dolor</label></div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Ruidos articulares</label>
+          <select id="ruidosDer">
+            <option value="">Seleccionar</option>
+            <option>Sin ruidos</option>
+            <option>Click en apertura</option>
+            <option>Click en cierre</option>
+            <option>Click recíproco</option>
+            <option>Crepitación</option>
+            <option>Click + crepitación</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Observaciones</label>
+          <textarea id="obsATMDer" placeholder="Hallazgos ATM derecha..." rows="2"></textarea>
+        </div>
+      </div>
+      <div class="atm-card">
+        <div class="atm-card-title">ATM Izquierda</div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Dolor a la palpación</label>
+          <div class="radio-group">
+            <div class="radio-pill"><input type="radio" name="dolorATMIzq" id="daIzq-no" value="Sin dolor"><label for="daIzq-no">Sin dolor</label></div>
+            <div class="radio-pill"><input type="radio" name="dolorATMIzq" id="daIzq-si" value="Con dolor"><label for="daIzq-si">Con dolor</label></div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Ruidos articulares</label>
+          <select id="ruidosIzq">
+            <option value="">Seleccionar</option>
+            <option>Sin ruidos</option>
+            <option>Click en apertura</option>
+            <option>Click en cierre</option>
+            <option>Click recíproco</option>
+            <option>Crepitación</option>
+            <option>Click + crepitación</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Observaciones</label>
+          <textarea id="obsATMIzq" placeholder="Hallazgos ATM izquierda..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Trayectoria de apertura mandibular</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Trayectoria de apertura</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="trayectoria" id="tray-rect" value="Rectilínea"><label for="tray-rect">Rectilínea</label></div>
+          <div class="radio-pill"><input type="radio" name="trayectoria" id="tray-desv" value="Con desviación"><label for="tray-desv">Con desviación</label></div>
+          <div class="radio-pill"><input type="radio" name="trayectoria" id="tray-defl" value="Con deflexión"><label for="tray-defl">Con deflexión</label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Dirección y magnitud</label>
+        <input type="text" id="trayDir" placeholder="Ej: desviación 3 mm hacia la derecha...">
+      </div>
+    </div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Dolor muscular (escala 0–10)</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="range" id="dolorMuscular" min="0" max="10" value="0" oninput="updateDolorLabel()" style="flex:1;">
+          <span id="dolorLabel" style="font-size:16px;font-weight:600;color:var(--accent);min-width:28px;text-align:center;">0</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Diagnóstico TTM presuntivo</label>
+        <select id="diagTTM">
+          <option value="">Seleccionar</option>
+          <option>Sin alteración TTM evidente</option>
+          <option>Dolor miofascial</option>
+          <option>Desplazamiento discal con reducción</option>
+          <option>Desplazamiento discal sin reducción</option>
+          <option>Artralgia ATM</option>
+          <option>Osteoartritis ATM</option>
+          <option>Requiere evaluación especializada</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Conclusión examen ATM / TTM</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — con los campos completados, la IA redactará la conclusión clínica del ATM.</div>
+      <button class="btn btn-sm" id="btnATM" onclick="generarConclusionATM()">Generar conclusión</button>
+    </div>
+    <div id="atmIA" class="hidden">
+      <div class="ai-suggestion" id="atmIATexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarATM()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('atmIA').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Conclusión clínica ATM / TTM</label>
+      <textarea id="conclusionATM" placeholder="Descripción clínica integrada del examen ATM..." rows="4"></textarea>
+    </div>
+    <div style="margin-top:10px; padding:12px 14px; background:var(--accent-light); border:1px solid #c5d8f0; border-radius:var(--radius-sm); font-size:12px; color:var(--accent);">
+      📚 <strong>Referencia:</strong> Criterios diagnósticos para TTM (DC/TMD): Schiffman E, et al. <em>Diagnostic Criteria for Temporomandibular Disorders (DC/TMD)</em>. J Oral Facial Pain Headache. 2014;28(1):6–27.
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(2)">← Anterior</button>
+    <button class="btn" onclick="goTab(4)">Ver resumen →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 4: Resumen ===== -->
+<div id="tab-4" class="hidden">
+  <div class="section-header">
+    <h2>Resumen — Examen Clínico Extraoral</h2>
+    <p>Vista consolidada de Slides 9 al 12.</p>
+  </div>
+  <div id="summaryContent"></div>
+  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+    <button class="btn" onclick="copiarResumen()">📋 Copiar resumen</button>
+    <button class="btn btn-outline" onclick="goTab(3)">← Editar</button>
+  </div>
+</div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+let currentTab = 0;
+
+function goTab(n) {
+  document.getElementById('tab-' + currentTab).classList.add('hidden');
+  document.querySelectorAll('.tab-btn')[currentTab].classList.remove('active');
+  currentTab = n;
+  document.getElementById('tab-' + n).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
+  if (n === 4) renderSummary();
+  window.scrollTo(0, 0);
+}
+
+// ---- ELI (espacio libre interoclusal) ----
+function calcELI() {
+  const dvo = parseFloat(document.getElementById('dvo').value);
+  const dvp = parseFloat(document.getElementById('dvp').value);
+  const eliVal = document.getElementById('eliVal');
+  const eliStatus = document.getElementById('eliStatus');
+
+  if (isNaN(dvo) || isNaN(dvp)) { eliVal.textContent = '—'; eliStatus.style.display = 'none'; return; }
+  const eli = Math.round((dvp - dvo) * 10) / 10;
+  eliVal.textContent = eli;
+
+  let label, bg, color;
+  if (eli < 0)        { label = 'Inválido'; bg = 'var(--red-light)'; color = 'var(--red)'; }
+  else if (eli < 2)   { label = 'Reducido'; bg = 'var(--amber-light)'; color = 'var(--amber)'; }
+  else if (eli <= 4)  { label = '✓ Normal (2–4 mm)'; bg = 'var(--green-light)'; color = 'var(--green)'; }
+  else                { label = 'Aumentado'; bg = 'var(--amber-light)'; color = 'var(--amber)'; }
+
+  eliStatus.style.cssText = `display:inline-block;background:${bg};color:${color};font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-top:4px;`;
+  eliStatus.textContent = label;
+}
+
+// ---- Apertura bucal gauge ----
+function evalApertura(tipo) {
+  const id = tipo === 'sinDolor' ? 'aperturaSinDolor' : 'aperturaConDolor';
+  const fillId = tipo === 'sinDolor' ? 'fillSin' : 'fillCon';
+  const statusId = tipo === 'sinDolor' ? 'statusSin' : 'statusCon';
+
+  const val = parseFloat(document.getElementById(id).value);
+  const fill = document.getElementById(fillId);
+  const status = document.getElementById(statusId);
+  if (isNaN(val)) { fill.style.width = '0%'; status.textContent = ''; return; }
+
+  const pct = Math.min((val / 60) * 100, 100);
+  let color, label;
+  if (val < 30)      { color = 'var(--red)'; label = '⚠ Limitación severa (< 30 mm)'; }
+  else if (val < 40) { color = 'var(--amber)'; label = '⚡ Limitación leve (30–39 mm)'; }
+  else               { color = 'var(--green)'; label = '✓ Normal (≥ 40 mm)'; }
+
+  fill.style.width = pct + '%';
+  fill.style.background = color;
+  status.style.color = color;
+  status.textContent = label;
+}
+
+// ---- Dolor muscular slider ----
+function updateDolorLabel() {
+  const v = document.getElementById('dolorMuscular').value;
+  const lbl = document.getElementById('dolorLabel');
+  lbl.textContent = v;
+  if (v == 0) lbl.style.color = 'var(--green)';
+  else if (v <= 3) lbl.style.color = 'var(--amber)';
+  else lbl.style.color = 'var(--red)';
+}
+
+// ---- IA examen extraoral ----
+async function analizarExtraoral() {
+  const simetria = document.querySelector('input[name="simetria"]:checked')?.value || '';
+  const cutanea = document.querySelector('input[name="cutanea"]:checked')?.value || '';
+  const linfonodos = document.querySelector('input[name="linfoExtr"]:checked')?.value || '';
+  const musc = document.getElementById('musculatura').value;
+  const labios = document.getElementById('labios').value;
+  const libre = document.getElementById('extLibre').value.trim();
+
+  const datos = [simetria, cutanea, linfonodos, musc, labios, libre].filter(Boolean);
+  if (datos.length < 2) { alert('Completa al menos algunos campos del examen primero.'); return; }
+
+  const btn = document.getElementById('btnExtraoral');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 600,
+        messages: [{ role: 'user', content:
+          `Eres asistente clínico odontológico. Redacta la sección de "Examen extraoral" para una ficha clínica universitaria con estos hallazgos:
+${datos.join(' | ')}
+Usa lenguaje clínico formal, tercera persona, prosa continua. Máximo 90 palabras. Solo el texto.` }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('extraoralIATexto').innerHTML = `<strong>✦ Descripción clínica sugerida por IA</strong>${texto}`;
+    document.getElementById('extraoralIA').classList.remove('hidden');
+  } catch(e) { alert('Error. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Redactar con IA'; }
+}
+function usarExtraoral() {
+  document.getElementById('extFinal').value = document.getElementById('extraoralIATexto').textContent.replace('✦ Descripción clínica sugerida por IA','').trim();
+  document.getElementById('extraoralIA').classList.add('hidden');
+}
+
+// ---- IA conclusión ATM ----
+async function generarConclusionATM() {
+  const dolorDer = document.querySelector('input[name="dolorATMDer"]:checked')?.value || '';
+  const dolorIzq = document.querySelector('input[name="dolorATMIzq"]:checked')?.value || '';
+  const ruidosDer = document.getElementById('ruidosDer').value;
+  const ruidosIzq = document.getElementById('ruidosIzq').value;
+  const tray = document.querySelector('input[name="trayectoria"]:checked')?.value || '';
+  const trayDir = document.getElementById('trayDir').value;
+  const dolor = document.getElementById('dolorMuscular').value;
+  const diag = document.getElementById('diagTTM').value;
+  const aperSin = document.getElementById('aperturaSinDolor').value;
+
+  const datos = [
+    dolorDer ? `ATM derecha: ${dolorDer}` : '',
+    ruidosDer ? `Ruidos derecho: ${ruidosDer}` : '',
+    dolorIzq ? `ATM izquierda: ${dolorIzq}` : '',
+    ruidosIzq ? `Ruidos izquierdo: ${ruidosIzq}` : '',
+    tray ? `Trayectoria: ${tray}${trayDir ? ' — ' + trayDir : ''}` : '',
+    dolor > 0 ? `Dolor muscular: ${dolor}/10` : '',
+    aperSin ? `Apertura sin dolor: ${aperSin} mm` : '',
+    diag ? `Diagnóstico presuntivo: ${diag}` : '',
+  ].filter(Boolean);
+
+  if (datos.length < 3) { alert('Completa más campos del examen ATM primero.'); return; }
+
+  const btn = document.getElementById('btnATM');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 600,
+        messages: [{ role: 'user', content:
+          `Eres asistente clínico odontológico. Redacta la "Conclusión del examen ATM/TTM" para una ficha clínica universitaria con estos datos:
+${datos.join('\n')}
+Usa lenguaje clínico formal (DC/TMD), tercera persona, prosa continua. Máximo 100 palabras. Solo el texto.` }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('atmIATexto').innerHTML = `<strong>✦ Conclusión ATM sugerida por IA</strong>${texto}`;
+    document.getElementById('atmIA').classList.remove('hidden');
+  } catch(e) { alert('Error. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Generar conclusión'; }
+}
+function usarATM() {
+  document.getElementById('conclusionATM').value = document.getElementById('atmIATexto').textContent.replace('✦ Conclusión ATM sugerida por IA','').trim();
+  document.getElementById('atmIA').classList.add('hidden');
+}
+
+// ---- Helpers ----
+function v(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+function rv(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || '—'; }
+
+// ---- Summary ----
+function renderSummary() {
+  const dvo = document.getElementById('dvo').value;
+  const dvp = document.getElementById('dvp').value;
+  const eliVal = document.getElementById('eliVal').textContent;
+  const dvStr = dvo && dvp ? `DVO ${dvo} mm / DVP ${dvp} mm / ELI ${eliVal} mm` : '—';
+
+  const aperSin = document.getElementById('aperturaSinDolor').value;
+  const aperCon = document.getElementById('aperturaConDolor').value;
+  const aperStr = aperSin ? `Sin dolor: ${aperSin} mm${aperCon ? ' / Con dolor: ' + aperCon + ' mm' : ''}` : '—';
+
+  const sections = [
+    { title: 'Slide 9 — Examen extraoral', rows: [
+      ['Simetría', rv('simetria')],
+      ['Piel facial', rv('cutanea')],
+      ['Linfonodos', rv('linfoExtr')],
+      ['Musculatura', v('musculatura')],
+      ['Labios', v('labios')],
+      ['Descripción clínica', v('extFinal') !== '—' ? v('extFinal') : v('extLibre')],
+    ]},
+    { title: 'Slide 10 — Perfil facial', rows: [
+      ['Perfil sagital', rv('perfilSag')],
+      ['Tercio superior', v('tercioSup')],
+      ['Tercio medio', v('tercioMed')],
+      ['Tercio inferior', v('tercioInf')],
+      ['Línea de sonrisa', v('lineaSonrisa')],
+      ['Arco de sonrisa', v('arcoSonrisa')],
+      ['Observaciones', v('obsPerfil')],
+    ]},
+    { title: 'Slide 11 — Dimensión vertical', rows: [
+      ['DVO / DVP / ELI', dvStr],
+      ['Apertura bucal', aperStr],
+      ['Lateralidad derecha', document.getElementById('latDerMM').value ? document.getElementById('latDerMM').value + ' mm' : '—'],
+      ['Lateralidad izquierda', document.getElementById('latIzqMM').value ? document.getElementById('latIzqMM').value + ' mm' : '—'],
+      ['Observaciones DV', v('obsDV')],
+    ]},
+    { title: 'Slide 12 — Examen ATM', rows: [
+      ['ATM derecha — dolor', rv('dolorATMDer')],
+      ['ATM derecha — ruidos', v('ruidosDer')],
+      ['ATM izquierda — dolor', rv('dolorATMIzq')],
+      ['ATM izquierda — ruidos', v('ruidosIzq')],
+      ['Trayectoria apertura', rv('trayectoria')],
+      ['Diagnóstico TTM', v('diagTTM')],
+      ['Conclusión ATM', v('conclusionATM')],
+    ]},
+  ];
+
+  const html = `<div class="summary-card">${sections.map(s => `
+    <div class="summary-section">
+      <div class="summary-section-title">${s.title}</div>
+      ${s.rows.map(([label, value]) => `
+        <div class="summary-row">
+          <span class="summary-label">${label}</span>
+          <span class="summary-value">${value}</span>
+        </div>`).join('')}
+    </div>`).join('')}
+  </div>`;
+
+  document.getElementById('summaryContent').innerHTML = html;
+}
+
+function copiarResumen() {
+  const rows = document.querySelectorAll('.summary-row');
+  const text = [...rows].map(r => {
+    const cells = r.querySelectorAll('span');
+    return cells[0].textContent + ': ' + cells[1].textContent.replace(/\s+/g,' ').trim();
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar resumen', 2000);
+  });
+}
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

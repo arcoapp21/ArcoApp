@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen Clínico Físico General — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --green-light: #E8F5EE;
+    --amber: #7A4A00; --amber-light: #FFF4E0;
+    --red: #8B1A1A; --red-light: #FDEAEA;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; gap: 0; overflow-x: auto; }
+  .tab-btn { padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--text-3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .tab-btn:hover { color: var(--text-2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn .slide-num { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-right: 6px; color: var(--text-3); }
+  .tab-btn.active .slide-num { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  .field-grid { display: grid; gap: 14px; }
+  .field-grid-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
+  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .radio-pill input { display: none; }
+  .radio-pill label { display: block; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); }
+  .radio-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+
+  /* Vital signs grid */
+  .vitals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .vital-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; text-align: center; position: relative; transition: border-color 0.2s; }
+  .vital-card.alert-high { border-color: #f5c0c0; background: var(--red-light); }
+  .vital-card.alert-low { border-color: #e8d99a; background: var(--amber-light); }
+  .vital-card.normal { border-color: #a8d5b5; background: var(--green-light); }
+  .vital-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 8px; }
+  .vital-input-wrap { display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .vital-input { width: 70px !important; text-align: center; font-size: 18px !important; font-weight: 600 !important; padding: 6px 8px !important; border-radius: var(--radius-sm); }
+  .vital-sep { font-size: 18px; font-weight: 600; color: var(--text-3); }
+  .vital-unit { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  .vital-status { font-size: 10px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .status-normal { background: var(--green-light); color: var(--green); }
+  .status-high { background: var(--red-light); color: var(--red); }
+  .status-low { background: var(--amber-light); color: var(--amber); }
+
+  /* IMC */
+  .imc-display { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 18px; display: flex; align-items: center; gap: 16px; margin-top: 12px; }
+  .imc-value { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; color: var(--accent); }
+  .imc-info { flex: 1; }
+  .imc-cat { font-size: 14px; font-weight: 500; }
+  .imc-range { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+  /* ASA badge */
+  .asa-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+  .asa-option input { display: none; }
+  .asa-option label { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; background: var(--surface-2); text-align: center; }
+  .asa-option label .asa-num { font-size: 18px; font-weight: 600; color: var(--text-3); }
+  .asa-option label .asa-desc { font-size: 10px; color: var(--text-3); line-height: 1.3; }
+  .asa-option input:checked + label { background: var(--accent-light); border-color: var(--accent-mid); }
+  .asa-option input:checked + label .asa-num { color: var(--accent); }
+  .asa-option input:checked + label .asa-desc { color: var(--accent-mid); }
+
+  /* Constitution select */
+  .const-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* AI bar */
+  .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+  .ai-suggestion { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6; margin-top: 8px; animation: fadeIn 0.3s; }
+  .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Summary */
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .summary-section { margin-bottom: 18px; }
+  .summary-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--text-2); }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 65%; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; margin: 1px; }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-amber { background: var(--amber-light); color: var(--amber); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .progress-dots { display: flex; gap: 6px; margin-top: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+  .dot.active { background: var(--accent); }
+  .dot.done { background: var(--accent-mid); }
+
+  .hidden { display: none !important; }
+  @media (max-width: 640px) {
+    .field-grid-2, .field-grid-3, .field-grid-4 { grid-template-columns: 1fr; }
+    .vitals-grid { grid-template-columns: 1fr 1fr; }
+    .asa-grid { grid-template-columns: repeat(3, 1fr); }
+    .const-grid { grid-template-columns: 1fr; }
+  }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🩺</div>
+  <div class="header-text">
+    <h1>Examen Clínico Físico General</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slides 7–8</span>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="goTab(0)"><span class="slide-num">S7</span>Examen general</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="slide-num">S8</span>Signos vitales e IMC</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="slide-num">✓</span>Resumen</button>
+</div>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+
+<!-- ===== TAB 0: Examen general ===== -->
+<div id="tab-0">
+  <div class="section-header">
+    <h2>Examen clínico físico general</h2>
+    <p>Postura, marcha, fascies, estado de conciencia, piel y linfonodos.</p>
+  </div>
+
+  <!-- Postura y decúbito -->
+  <div class="card">
+    <div class="card-title">Postura y decúbito</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Postura</label>
+        <select id="postura" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Normal / Adecuada</option>
+          <option>Cifosis</option>
+          <option>Lordosis</option>
+          <option>Escoliosis</option>
+          <option>Alterada — especificar</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Decúbito</label>
+        <div class="radio-group" style="margin-top:4px;">
+          <div class="radio-pill"><input type="radio" name="decubito" id="dec-act" value="Activo"><label for="dec-act">Activo</label></div>
+          <div class="radio-pill"><input type="radio" name="decubito" id="dec-pas" value="Pasivo"><label for="dec-pas">Pasivo</label></div>
+          <div class="radio-pill"><input type="radio" name="decubito" id="dec-ind" value="Indiferente"><label for="dec-ind">Indiferente</label></div>
+          <div class="radio-pill"><input type="radio" name="decubito" id="dec-forz" value="Forzado"><label for="dec-forz">Forzado</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Observaciones postura / decúbito</label>
+      <textarea id="obsPostura" placeholder="Ej: Paciente en decúbito activo, postura adecuada sin alteraciones evidentes..." rows="2" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <!-- Marcha -->
+  <div class="card">
+    <div class="card-title">Marcha</div>
+    <div class="field-grid field-grid-3" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Regularidad</label>
+        <select id="marchReg" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Regular</option>
+          <option>Irregular</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Estabilidad</label>
+        <select id="marchEst" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Estable</option>
+          <option>Inestable</option>
+          <option>Con apoyo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Braceo</label>
+        <select id="marchBrac" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Normal</option>
+          <option>Disminuido</option>
+          <option>Ausente</option>
+          <option>Asimétrico</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones de marcha</label>
+      <textarea id="obsMarcha" placeholder="Ej: Marcha regular, estable, con braceo conservado y largo de pasos normal..." rows="2" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <!-- Fascies -->
+  <div class="card">
+    <div class="card-title">Fascies</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Tipo de fascies</label>
+        <select id="fascies" onchange="toggleFasciesObs()">
+          <option value="">Seleccionar</option>
+          <option value="normal">Normal / Compuesta</option>
+          <option value="dolorosa">Dolorosa</option>
+          <option value="febril">Febril</option>
+          <option value="palida">Pálida</option>
+          <option value="ictérica">Ictérica</option>
+          <option value="cushing">Cushing</option>
+          <option value="parkinson">Parkinsoniana</option>
+          <option value="mixedema">Mixedema</option>
+          <option value="otra">Otra — especificar</option>
+        </select>
+      </div>
+      <div class="field" id="fasciesOtroWrap" style="display:none;">
+        <label>Especificar fascies</label>
+        <input type="text" id="fasciesOtro" placeholder="Describir fascies observada..." oninput="autoSave()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Descripción clínica de la fascies</label>
+      <textarea id="obsFascies" placeholder="Ej: Paciente con fascies compuesta, sin alteraciones patológicas evidentes..." rows="2" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <!-- Estado de conciencia -->
+  <div class="card">
+    <div class="card-title">Estado de conciencia</div>
+    <div class="field-grid field-grid-3" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Nivel de conciencia</label>
+        <select id="conciencia" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Lúcido / Consciente</option>
+          <option>Somnoliento</option>
+          <option>Estuporoso</option>
+          <option>Comatoso</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Orientación</label>
+        <select id="orientacion" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Orientado en tiempo, lugar y persona</option>
+          <option>Desorientado en tiempo</option>
+          <option>Desorientado en lugar</option>
+          <option>Desorientado globalmente</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Percepción</label>
+        <select id="percepcion" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Conservada</option>
+          <option>Alterada</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones estado de conciencia</label>
+      <textarea id="obsConciencia" placeholder="Ej: Paciente lúcido, orientado en tiempo, lugar y persona, percepción conservada..." rows="2" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <!-- Piel, fanéreos y linfonodos -->
+  <div class="card">
+    <div class="card-title">Piel, fanéreos y linfonodos</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — describe los hallazgos y la IA los redactará en lenguaje clínico.</div>
+      <button class="btn btn-sm" id="btnPiel" onclick="analizarPiel()">Redactar con IA</button>
+    </div>
+    <div class="field-grid field-grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Coloración de piel</label>
+        <select id="colorPiel" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Normal / Rosada</option>
+          <option>Pálida</option>
+          <option>Ictérica</option>
+          <option>Cianótica</option>
+          <option>Hiperpigmentada</option>
+          <option>Eritematosa</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Lesiones cutáneas</label>
+        <select id="lesionesPiel" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Sin lesiones evidentes</option>
+          <option>Lesiones presentes — especificar</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Fanéreos (pelo / uñas)</label>
+        <select id="fanereos" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Sin alteraciones</option>
+          <option>Con alteraciones — especificar</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Linfonodos</label>
+        <select id="linfonodos" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Sin connotación patológica</option>
+          <option>Adenopatías presentes — especificar</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Descripción libre de hallazgos en piel / fanéreos / linfonodos</label>
+      <textarea id="pielLibre" placeholder="Ej: Piel rosada, hidratada, sin lesiones patológicas evidentes. Fanéreos sin alteraciones. Linfonodos no palpables..." rows="3" oninput="autoSave()"></textarea>
+    </div>
+    <div id="pielIA" class="hidden">
+      <div class="ai-suggestion" id="pielIATexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarPiel()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('pielIA').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Descripción clínica final</label>
+      <textarea id="pielFinal" placeholder="Descripción clínica de piel, fanéreos y linfonodos..." rows="3" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <div>
+      <div style="font-size:12px;color:var(--text-3);">Sección 1 de 2</div>
+      <div class="progress-dots"><div class="dot active"></div><div class="dot"></div></div>
+    </div>
+    <button class="btn" onclick="goTab(1)">Siguiente → Signos vitales e IMC</button>
+  </div>
+</div>
+
+<!-- ===== TAB 1: Signos vitales e IMC ===== -->
+<div id="tab-1" class="hidden">
+  <div class="section-header">
+    <h2>Signos vitales, IMC y clasificación</h2>
+    <p>Control de signos vitales, hemoglucotest, IMC, constitución y clasificación ASA.</p>
+  </div>
+
+  <!-- Signos vitales -->
+  <div class="card">
+    <div class="card-title">Control de signos vitales</div>
+    <div class="vitals-grid">
+
+      <!-- Presión arterial -->
+      <div class="vital-card" id="vcPA">
+        <div class="vital-label">Presión arterial</div>
+        <div class="vital-input-wrap">
+          <input type="number" class="vital-input" id="paSist" placeholder="120" min="60" max="250" oninput="evaluarPA()">
+          <span class="vital-sep">/</span>
+          <input type="number" class="vital-input" id="paDiast" placeholder="80" min="40" max="150" oninput="evaluarPA()">
+        </div>
+        <div class="vital-unit">mmHg</div>
+        <div id="paStatus" class="vital-status status-normal" style="display:none;"></div>
+      </div>
+
+      <!-- Pulso -->
+      <div class="vital-card" id="vcPulso">
+        <div class="vital-label">Pulso</div>
+        <div class="vital-input-wrap">
+          <input type="number" class="vital-input" id="pulso" placeholder="75" min="30" max="220" oninput="evaluarPulso()" style="width:90px!important;">
+        </div>
+        <div class="vital-unit">lpm</div>
+        <div id="pulsoStatus" class="vital-status status-normal" style="display:none;"></div>
+      </div>
+
+      <!-- Respiración -->
+      <div class="vital-card" id="vcResp">
+        <div class="vital-label">Respiración</div>
+        <div class="vital-input-wrap">
+          <input type="number" class="vital-input" id="respiracion" placeholder="16" min="5" max="60" oninput="evaluarResp()" style="width:90px!important;">
+        </div>
+        <div class="vital-unit">rpm</div>
+        <div id="respStatus" class="vital-status status-normal" style="display:none;"></div>
+      </div>
+
+      <!-- Temperatura -->
+      <div class="vital-card" id="vcTemp">
+        <div class="vital-label">Temperatura</div>
+        <div class="vital-input-wrap">
+          <input type="number" class="vital-input" id="temperatura" placeholder="36.5" min="32" max="42" step="0.1" oninput="evaluarTemp()" style="width:90px!important;">
+        </div>
+        <div class="vital-unit">°C</div>
+        <div id="tempStatus" class="vital-status status-normal" style="display:none;"></div>
+      </div>
+
+    </div>
+
+    <!-- Hemoglucotest -->
+    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+      <div class="field-grid field-grid-2">
+        <div class="field">
+          <label>Hemoglucotest (HGT)</label>
+          <div class="radio-group">
+            <div class="radio-pill"><input type="radio" name="hgt" id="hgt-si" value="Sí" onchange="toggleHGT()"><label for="hgt-si">Aplica</label></div>
+            <div class="radio-pill"><input type="radio" name="hgt" id="hgt-no" value="No" onchange="toggleHGT()" checked><label for="hgt-no">No aplica</label></div>
+          </div>
+        </div>
+        <div class="field" id="hgtValorWrap" style="display:none;">
+          <label>Valor HGT</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="number" id="hgtValor" placeholder="100" min="40" max="600" oninput="evaluarHGT()" style="flex:1;">
+            <span style="font-size:13px;color:var(--text-3);white-space:nowrap;">mg/dL</span>
+            <span id="hgtStatus" style="font-size:12px;font-weight:600;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMC -->
+  <div class="card">
+    <div class="card-title">Índice de Masa Corporal (IMC)</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Peso (kg)</label>
+        <input type="number" id="peso" placeholder="70" min="20" max="300" step="0.1" oninput="calcIMC()">
+      </div>
+      <div class="field">
+        <label>Talla (cm)</label>
+        <input type="number" id="talla" placeholder="170" min="100" max="250" oninput="calcIMC()">
+      </div>
+    </div>
+    <div class="imc-display" id="imcDisplay" style="display:none;">
+      <div class="imc-value" id="imcValue">—</div>
+      <div class="imc-info">
+        <div class="imc-cat" id="imcCat">—</div>
+        <div class="imc-range" id="imcRange">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Constitución y estado nutritivo -->
+  <div class="card">
+    <div class="card-title">Constitución y estado nutritivo</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Clasificación de constitución</label>
+        <select id="clasificConst" onchange="autoSave()">
+          <option value="">Seleccionar clasificación</option>
+          <optgroup label="Sheldon">
+            <option value="Ectomorfo (Sheldon)">Ectomorfo</option>
+            <option value="Mesomorfo (Sheldon)">Mesomorfo</option>
+            <option value="Endomorfo (Sheldon)">Endomorfo</option>
+          </optgroup>
+          <optgroup label="Kretschmer">
+            <option value="Leptosómico (Kretschmer)">Leptosómico</option>
+            <option value="Atlético (Kretschmer)">Atlético</option>
+            <option value="Pícnico (Kretschmer)">Pícnico</option>
+            <option value="Displástico (Kretschmer)">Displástico</option>
+          </optgroup>
+          <optgroup label="Viola">
+            <option value="Longilíneo (Viola)">Longilíneo</option>
+            <option value="Normolíneo (Viola)">Normolíneo</option>
+            <option value="Brevilíneo (Viola)">Brevilíneo</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <label>Estado nutritivo</label>
+        <select id="estadoNutritivo" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Bien nutrido</option>
+          <option>Enflaquecido</option>
+          <option>Caquéctico</option>
+          <option>Obeso</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clasificación ASA -->
+  <div class="card">
+    <div class="card-title">Clasificación ASA</div>
+    <div class="asa-grid">
+      <div class="asa-option">
+        <input type="radio" name="asa" id="asa1" value="ASA I">
+        <label for="asa1">
+          <span class="asa-num">I</span>
+          <span class="asa-desc">Sano, sin alteración sistémica</span>
+        </label>
+      </div>
+      <div class="asa-option">
+        <input type="radio" name="asa" id="asa2" value="ASA II">
+        <label for="asa2">
+          <span class="asa-num">II</span>
+          <span class="asa-desc">Alteración sistémica leve, bien controlada</span>
+        </label>
+      </div>
+      <div class="asa-option">
+        <input type="radio" name="asa" id="asa3" value="ASA III">
+        <label for="asa3">
+          <span class="asa-num">III</span>
+          <span class="asa-desc">Alteración sistémica grave pero no incapacitante</span>
+        </label>
+      </div>
+      <div class="asa-option">
+        <input type="radio" name="asa" id="asa4" value="ASA IV">
+        <label for="asa4">
+          <span class="asa-num">IV</span>
+          <span class="asa-desc">Riesgo vital constante, alteración incapacitante</span>
+        </label>
+      </div>
+      <div class="asa-option">
+        <input type="radio" name="asa" id="asa5" value="ASA V">
+        <label for="asa5">
+          <span class="asa-num">V</span>
+          <span class="asa-desc">Moribundo, no se espera que sobreviva sin cirugía</span>
+        </label>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Justificación clasificación ASA</label>
+      <textarea id="asaJustif" placeholder="Ej: Paciente clasificado ASA II por HTA en tratamiento farmacológico controlado, sin otras complicaciones sistémicas..." rows="2" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(0)">← Anterior</button>
+    <button class="btn" onclick="goTab(2)">Ver resumen →</button>
+  </div>
+</div>
+
+<!-- ===== TAB 2: Resumen ===== -->
+<div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Resumen — Examen Clínico Físico General</h2>
+    <p>Vista consolidada de Slides 7 y 8 para revisar antes de continuar.</p>
+  </div>
+  <div id="summaryContent"></div>
+  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+    <button class="btn" onclick="copiarResumen()">📋 Copiar resumen</button>
+    <button class="btn btn-outline" onclick="goTab(1)">← Editar</button>
+  </div>
+</div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+let currentTab = 0;
+
+function goTab(n) {
+  document.getElementById('tab-' + currentTab).classList.add('hidden');
+  document.querySelectorAll('.tab-btn')[currentTab].classList.remove('active');
+  currentTab = n;
+  document.getElementById('tab-' + n).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
+  if (n === 2) renderSummary();
+  window.scrollTo(0, 0);
+}
+
+function autoSave() {}
+
+// ---- Fascies ----
+function toggleFasciesObs() {
+  const val = document.getElementById('fascies').value;
+  document.getElementById('fasciesOtroWrap').style.display = val === 'otra' ? 'block' : 'none';
+}
+
+// ---- HGT ----
+function toggleHGT() {
+  const val = document.querySelector('input[name="hgt"]:checked')?.value;
+  document.getElementById('hgtValorWrap').style.display = val === 'Sí' ? 'block' : 'none';
+}
+
+function evaluarHGT() {
+  const val = parseFloat(document.getElementById('hgtValor').value);
+  const el = document.getElementById('hgtStatus');
+  if (isNaN(val)) { el.textContent = ''; return; }
+  if (val < 70) { el.textContent = 'Hipoglucemia'; el.style.color = 'var(--red)'; }
+  else if (val <= 110) { el.textContent = 'Normal'; el.style.color = 'var(--green)'; }
+  else if (val <= 140) { el.textContent = 'Elevado'; el.style.color = 'var(--amber)'; }
+  else { el.textContent = 'Alto'; el.style.color = 'var(--red)'; }
+}
+
+// ---- Evaluación signos vitales ----
+function setVitalCard(cardId, statusId, label, cls) {
+  const card = document.getElementById(cardId);
+  const status = document.getElementById(statusId);
+  card.className = 'vital-card ' + (cls === 'normal' ? 'normal' : cls === 'high' ? 'alert-high' : 'alert-low');
+  status.textContent = label;
+  status.className = 'vital-status ' + (cls === 'normal' ? 'status-normal' : cls === 'high' ? 'status-high' : 'status-low');
+  status.style.display = 'inline-block';
+}
+
+function evaluarPA() {
+  const s = parseFloat(document.getElementById('paSist').value);
+  const d = parseFloat(document.getElementById('paDiast').value);
+  if (isNaN(s) || isNaN(d)) return;
+  if (s < 90 || d < 60) setVitalCard('vcPA','paStatus','Hipotensión','low');
+  else if (s >= 180 || d >= 120) setVitalCard('vcPA','paStatus','Crisis HTA','high');
+  else if (s >= 140 || d >= 90) setVitalCard('vcPA','paStatus','HTA Grado 1','high');
+  else if (s >= 130 || d >= 80) setVitalCard('vcPA','paStatus','Pre-HTA','low');
+  else setVitalCard('vcPA','paStatus','Normal','normal');
+}
+
+function evaluarPulso() {
+  const v = parseFloat(document.getElementById('pulso').value);
+  if (isNaN(v)) return;
+  if (v < 60) setVitalCard('vcPulso','pulsoStatus','Bradicardia','low');
+  else if (v > 100) setVitalCard('vcPulso','pulsoStatus','Taquicardia','high');
+  else setVitalCard('vcPulso','pulsoStatus','Normal','normal');
+}
+
+function evaluarResp() {
+  const v = parseFloat(document.getElementById('respiracion').value);
+  if (isNaN(v)) return;
+  if (v < 12) setVitalCard('vcResp','respStatus','Bradipnea','low');
+  else if (v > 20) setVitalCard('vcResp','respStatus','Taquipnea','high');
+  else setVitalCard('vcResp','respStatus','Normal','normal');
+}
+
+function evaluarTemp() {
+  const v = parseFloat(document.getElementById('temperatura').value);
+  if (isNaN(v)) return;
+  if (v < 36) setVitalCard('vcTemp','tempStatus','Hipotermia','low');
+  else if (v >= 38) setVitalCard('vcTemp','tempStatus','Fiebre','high');
+  else if (v >= 37.5) setVitalCard('vcTemp','tempStatus','Subfebril','low');
+  else setVitalCard('vcTemp','tempStatus','Normal','normal');
+}
+
+// ---- IMC ----
+function calcIMC() {
+  const peso = parseFloat(document.getElementById('peso').value);
+  const tallaCm = parseFloat(document.getElementById('talla').value);
+  const disp = document.getElementById('imcDisplay');
+  if (isNaN(peso) || isNaN(tallaCm) || tallaCm === 0) { disp.style.display = 'none'; return; }
+  const talla = tallaCm / 100;
+  const imc = peso / (talla * talla);
+  const imcR = Math.round(imc * 10) / 10;
+
+  let cat, range, color;
+  if (imc < 18.5) { cat = 'Bajo peso'; range = 'IMC < 18.5'; color = 'var(--amber)'; }
+  else if (imc < 25) { cat = 'Normopeso'; range = 'IMC 18.5 – 24.9'; color = 'var(--green)'; }
+  else if (imc < 30) { cat = 'Sobrepeso'; range = 'IMC 25 – 29.9'; color = 'var(--amber)'; }
+  else if (imc < 35) { cat = 'Obesidad Grado I'; range = 'IMC 30 – 34.9'; color = 'var(--red)'; }
+  else if (imc < 40) { cat = 'Obesidad Grado II'; range = 'IMC 35 – 39.9'; color = 'var(--red)'; }
+  else { cat = 'Obesidad Mórbida'; range = 'IMC ≥ 40'; color = 'var(--red)'; }
+
+  document.getElementById('imcValue').textContent = imcR;
+  document.getElementById('imcValue').style.color = color;
+  document.getElementById('imcCat').textContent = cat;
+  document.getElementById('imcRange').textContent = range;
+  disp.style.display = 'flex';
+}
+
+// ---- IA piel ----
+async function analizarPiel() {
+  const desc = document.getElementById('pielLibre').value.trim();
+  if (!desc) { alert('Ingresa una descripción primero.'); return; }
+  const btn = document.getElementById('btnPiel');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 600,
+        messages: [{
+          role: 'user',
+          content: `Eres asistente clínico odontológico. Redacta la descripción de "Piel, fanéreos y linfonodos" para una ficha clínica universitaria en base a esta descripción: "${desc}".
+Usa lenguaje clínico formal, tercera persona, máximo 80 palabras. Solo el texto, sin títulos ni listas.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('pielIATexto').innerHTML = `<strong>✦ Descripción clínica sugerida por IA</strong>${texto}`;
+    document.getElementById('pielIA').classList.remove('hidden');
+  } catch(e) { alert('Error. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Redactar con IA'; }
+}
+
+function usarPiel() {
+  const texto = document.getElementById('pielIATexto').textContent.replace('✦ Descripción clínica sugerida por IA','').trim();
+  document.getElementById('pielFinal').value = texto;
+  document.getElementById('pielIA').classList.add('hidden');
+}
+
+// ---- Helpers ----
+function val(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+function radioVal(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || '—'; }
+
+// ---- Summary ----
+function renderSummary() {
+  const paSist = document.getElementById('paSist').value;
+  const paDiast = document.getElementById('paDiast').value;
+  const paStr = paSist && paDiast ? `${paSist}/${paDiast} mmHg` : '—';
+
+  const pulso = document.getElementById('pulso').value;
+  const resp = document.getElementById('respiracion').value;
+  const temp = document.getElementById('temperatura').value;
+
+  const peso = document.getElementById('peso').value;
+  const talla = document.getElementById('talla').value;
+  const imcEl = document.getElementById('imcValue');
+  const imcCatEl = document.getElementById('imcCat');
+  const imcStr = peso && talla ? `${imcEl.textContent} — ${imcCatEl.textContent}` : '—';
+
+  const hgtAplic = document.querySelector('input[name="hgt"]:checked')?.value;
+  const hgtStr = hgtAplic === 'Sí' ? (document.getElementById('hgtValor').value ? document.getElementById('hgtValor').value + ' mg/dL' : '—') : 'No aplica';
+
+  const asa = radioVal('asa');
+
+  const sections = [
+    {
+      title: 'Slide 7 — Examen general',
+      rows: [
+        ['Postura', val('postura')],
+        ['Decúbito', radioVal('decubito')],
+        ['Marcha', [val('marchReg'), val('marchEst'), val('marchBrac')].filter(v=>v!=='—').join(', ') || '—'],
+        ['Fascies', val('fascies') === 'otra' ? val('fasciesOtro') : val('fascies')],
+        ['Conciencia', val('conciencia')],
+        ['Orientación', val('orientacion')],
+        ['Piel / fanéreos / linfonodos', val('pielFinal') !== '—' ? val('pielFinal') : val('pielLibre')],
+      ]
+    },
+    {
+      title: 'Slide 8 — Signos vitales e IMC',
+      rows: [
+        ['Presión arterial', paStr],
+        ['Pulso', pulso ? pulso + ' lpm' : '—'],
+        ['Respiración', resp ? resp + ' rpm' : '—'],
+        ['Temperatura', temp ? temp + ' °C' : '—'],
+        ['HGT', hgtStr],
+        ['IMC', imcStr],
+        ['Constitución', val('clasificConst')],
+        ['Estado nutritivo', val('estadoNutritivo')],
+        ['Clasificación ASA', asa],
+        ['Justificación ASA', val('asaJustif')],
+      ]
+    }
+  ];
+
+  const html = `<div class="summary-card">${sections.map(s => `
+    <div class="summary-section">
+      <div class="summary-section-title">${s.title}</div>
+      ${s.rows.map(([label, value]) => `
+        <div class="summary-row">
+          <span class="summary-label">${label}</span>
+          <span class="summary-value">${value}</span>
+        </div>`).join('')}
+    </div>`).join('')}
+  </div>`;
+
+  document.getElementById('summaryContent').innerHTML = html;
+}
+
+function copiarResumen() {
+  const rows = document.querySelectorAll('.summary-row');
+  const text = [...rows].map(r => {
+    const cells = r.querySelectorAll('span');
+    return cells[0].textContent + ': ' + cells[1].textContent.replace(/\s+/g,' ').trim();
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar resumen', 2000);
+  });
+}
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

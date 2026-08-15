@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identificación y Antecedentes — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE;
+    --surface: #FFFFFF;
+    --surface-2: #F9F8F5;
+    --border: #E2DED6;
+    --border-strong: #C8C3B8;
+    --text: #1A1814;
+    --text-2: #5C5849;
+    --text-3: #9C9688;
+    --accent: #1D3A6B;
+    --accent-light: #EAF0FA;
+    --accent-mid: #4A6FA5;
+    --green: #1A5C3A;
+    --green-light: #E8F5EE;
+    --amber: #7A4A00;
+    --amber-light: #FFF4E0;
+    --red: #8B1A1A;
+    --red-light: #FDEAEA;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--accent); color: white;
+    padding: 18px 32px; display: flex; align-items: center; gap: 16px;
+  }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  /* Tab nav */
+  .tab-nav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; padding: 0 24px; gap: 0; overflow-x: auto; }
+  .tab-btn { padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--text-3); border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-family: 'DM Sans', sans-serif; transition: color 0.15s; }
+  .tab-btn:hover { color: var(--text-2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn .slide-num { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; margin-right: 6px; color: var(--text-3); }
+  .tab-btn.active .slide-num { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+
+  main { max-width: 860px; margin: 0 auto; padding: 28px 24px; }
+
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
+
+  /* Form fields */
+  .field-grid { display: grid; gap: 14px; }
+  .field-grid-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white;
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  /* Radio/check group */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .radio-pill input { display: none; }
+  .radio-pill label {
+    display: block; padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.12s;
+    color: var(--text-2); background: var(--surface-2);
+  }
+  .radio-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
+
+  /* AI Assist button */
+  .ai-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm);
+    padding: 10px 14px; margin-bottom: 14px;
+  }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner-accent { border-color: rgba(29,58,107,0.2); border-top-color: var(--accent); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Dictation box */
+  .dictation-wrap { position: relative; }
+  .dictation-wrap textarea { padding-right: 90px; }
+  .dictation-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
+
+  /* Antecedente rows */
+  .ant-row { display: grid; grid-template-columns: 1fr 1fr 40px; gap: 8px; align-items: end; margin-bottom: 8px; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+  .btn-remove { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: none; cursor: pointer; color: var(--text-3); font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.12s, color 0.12s; }
+  .btn-remove:hover { background: var(--red-light); color: var(--red); border-color: #f5c0c0; }
+
+  /* Farmaco mini table inside this module */
+  .farma-row { display: grid; grid-template-columns: 1fr 40px; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .farma-chip { background: var(--accent-light); color: var(--accent); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; }
+
+  /* AI suggestion box */
+  .ai-suggestion {
+    background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm);
+    padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6;
+    margin-top: 8px; animation: fadeIn 0.3s;
+  }
+  .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Bib */
+  .bib-box { background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--accent); line-height: 1.5; margin-top: 8px; }
+  .bib-box strong { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 3px; }
+
+  /* Navigation */
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .nav-footer .progress { font-size: 12px; color: var(--text-3); }
+  .progress-dots { display: flex; gap: 6px; margin-top: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+  .dot.active { background: var(--accent); }
+  .dot.done { background: var(--accent-mid); }
+
+  /* Summary panel */
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--text-2); }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 60%; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; margin: 1px; }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-amber { background: var(--amber-light); color: var(--amber); }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    .field-grid-2, .field-grid-3, .field-grid-4 { grid-template-columns: 1fr; }
+    .ant-row { grid-template-columns: 1fr 40px; }
+    .ant-row .field:first-child { grid-column: 1/-1; }
+  }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🗂</div>
+  <div class="header-text">
+    <h1>Identificación y Antecedentes</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slides 2–6</span>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="goTab(0)"><span class="slide-num">S2</span>Anamnesis estadística</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="slide-num">S3</span>Motivo de consulta</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="slide-num">S4</span>Historia médica</button>
+  <button class="tab-btn" onclick="goTab(3)"><span class="slide-num">S5</span>Fármacos</button>
+  <button class="tab-btn" onclick="goTab(4)"><span class="slide-num">S6</span>Antec. odontológicos</button>
+  <button class="tab-btn" onclick="goTab(5)"><span class="slide-num">✓</span>Resumen</button>
+</div>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+
+<!-- ======= TAB 0: Anamnesis estadística ======= -->
+<div id="tab-0">
+  <div class="section-header">
+    <h2>Anamnesis estadística</h2>
+    <p>Datos de identificación del paciente. Usa iniciales, no nombre completo.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Datos del paciente</div>
+    <div class="field-grid field-grid-4" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Iniciales</label>
+        <input type="text" id="iniciales" placeholder="Ej: J.P.G." oninput="autoSave()">
+      </div>
+      <div class="field">
+        <label>Edad</label>
+        <input type="number" id="edad" placeholder="Años" min="18" max="120" oninput="autoSave()">
+      </div>
+      <div class="field">
+        <label>Sexo</label>
+        <select id="sexo" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Masculino</option>
+          <option>Femenino</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Previsión</label>
+        <select id="prevision" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>FONASA A</option>
+          <option>FONASA B</option>
+          <option>FONASA C</option>
+          <option>FONASA D</option>
+          <option>ISAPRE</option>
+          <option>Particular</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Ocupación</label>
+        <input type="text" id="ocupacion" placeholder="Ej: Profesora, Jubilado, Estudiante..." oninput="autoSave()">
+      </div>
+      <div class="field">
+        <label>Nivel educacional</label>
+        <select id="educacion" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Sin estudios</option>
+          <option>Básica completa</option>
+          <option>Media completa</option>
+          <option>Técnico superior</option>
+          <option>Universitario</option>
+          <option>Postgrado</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <div class="progress">
+      <div>Sección 1 de 5</div>
+      <div class="progress-dots" id="dots-0"></div>
+    </div>
+    <button class="btn" onclick="goTab(1)">Siguiente → Motivo de consulta</button>
+  </div>
+</div>
+
+<!-- ======= TAB 1: Motivo de consulta ======= -->
+<div id="tab-1" class="hidden">
+  <div class="section-header">
+    <h2>Motivo de consulta</h2>
+    <p>Relato en palabras del paciente + historia del motivo de consulta.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Relato literal del paciente</div>
+    <div class="field">
+      <label>¿Qué lo trae hoy? (en sus propias palabras)</label>
+      <textarea id="relatoPaciente" placeholder='Ej: "Me duele una muela del fondo hace tres días y se me hinchó la cara..."' rows="3" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Historia del motivo de consulta</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — describe el caso brevemente y la IA estructurará la historia clínica.</div>
+      <button class="btn btn-sm" id="btnHistoria" onclick="generarHistoria()">Generar con IA</button>
+    </div>
+    <div class="field">
+      <label>Descripción libre del caso (para la IA)</label>
+      <textarea id="descripcionCaso" placeholder="Ej: Paciente de 45 años con dolor de 3 días de evolución en zona molar inferior derecha, aumenta con el frío, sin fiebre..." rows="3" oninput="autoSave()"></textarea>
+    </div>
+    <div id="historiaGenerada" class="hidden">
+      <div class="ai-suggestion">
+        <strong>✦ Historia clínica sugerida por IA</strong>
+        <div id="historiaTexto"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarHistoria()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('historiaGenerada').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Historia elaborada</label>
+      <textarea id="historiaFinal" placeholder="Aquí quedará la historia del motivo de consulta..." rows="5" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(0)">← Anterior</button>
+    <button class="btn" onclick="goTab(2)">Siguiente → Historia médica</button>
+  </div>
+</div>
+
+<!-- ======= TAB 2: Historia médica ======= -->
+<div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Historia médica</h2>
+    <p>Patologías sistémicas, antecedentes quirúrgicos e historia familiar.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Patologías del paciente</div>
+    <div id="patologiasList"></div>
+    <button class="btn btn-outline btn-sm" onclick="addPatologia()">+ Agregar patología</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Antecedentes quirúrgicos</div>
+    <div id="quirurgicosList"></div>
+    <button class="btn btn-outline btn-sm" onclick="addQuirurgico()">+ Agregar antecedente quirúrgico</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Historia médica familiar</div>
+    <div id="familiarList"></div>
+    <button class="btn btn-outline btn-sm" onclick="addFamiliar()">+ Agregar antecedente familiar</button>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(1)">← Anterior</button>
+    <button class="btn" onclick="goTab(3)">Siguiente → Fármacos</button>
+  </div>
+</div>
+
+<!-- ======= TAB 3: Fármacos ======= -->
+<div id="tab-3" class="hidden">
+  <div class="section-header">
+    <h2>Fármacos y efectos en odontología</h2>
+    <p>Registra los medicamentos actuales. Para análisis completo usa el <strong>Asistente de Fármacos</strong>.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Medicamentos actuales</div>
+    <div id="farmacosList"></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:10px;">
+      <input type="text" id="farmacoInput" placeholder="Nombre del fármaco..." style="flex:1; height:36px;">
+      <button class="btn btn-sm" onclick="addFarmaco()">+ Agregar</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-3);margin-top:8px;">💊 Para ver mecanismo de acción, efectos y bibliografía completa, usa el <em>Asistente de Fármacos</em>.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Alergias conocidas</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>¿Tiene alergias a medicamentos?</label>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="alergia" id="alergia-si" value="Sí" onchange="toggleAlergia()"><label for="alergia-si">Sí</label></div>
+          <div class="radio-pill"><input type="radio" name="alergia" id="alergia-no" value="No" onchange="toggleAlergia()"><label for="alergia-no">No</label></div>
+          <div class="radio-pill"><input type="radio" name="alergia" id="alergia-nr" value="No refiere" onchange="toggleAlergia()"><label for="alergia-nr">No refiere</label></div>
+        </div>
+      </div>
+      <div class="field" id="alergiaDetalle" style="display:none;">
+        <label>Especificar alergia</label>
+        <input type="text" id="alergiaTexto" placeholder="Ej: Amoxicilina, AINEs..." oninput="autoSave()">
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(2)">← Anterior</button>
+    <button class="btn" onclick="goTab(4)">Siguiente → Antec. odontológicos</button>
+  </div>
+</div>
+
+<!-- ======= TAB 4: Antecedentes odontológicos ======= -->
+<div id="tab-4" class="hidden">
+  <div class="section-header">
+    <h2>Antecedentes odontológicos</h2>
+    <p>Tratamientos previos y hábitos de higiene oral.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Tratamientos odontológicos previos</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ Puedes dictar libremente y la IA identificará los tratamientos relevantes.</div>
+      <button class="btn btn-sm" id="btnTratamientos" onclick="analizarTratamientos()">Analizar con IA</button>
+    </div>
+    <div class="field">
+      <label>Descripción libre</label>
+      <textarea id="tratamientoLibre" placeholder="Ej: Me pusieron coronas hace 5 años, me han sacado varias muelas, tengo prótesis parcial superior, me han hecho varios tratamientos de conducto..." rows="3" oninput="autoSave()"></textarea>
+    </div>
+    <div id="tratamientosIA" class="hidden">
+      <div class="ai-suggestion" id="tratamientosTexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarTratamientos()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('tratamientosIA').classList.add('hidden')">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Tratamientos registrados</label>
+      <textarea id="tratamientoFinal" placeholder="Tratamientos odontológicos previos..." rows="4" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Hábitos de higiene oral</div>
+    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Frecuencia de cepillado</label>
+        <select id="frecCepillado" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>1 vez al día</option>
+          <option>2 veces al día</option>
+          <option>3 o más veces al día</option>
+          <option>Irregular</option>
+          <option>No cepilla</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Uso de hilo dental</label>
+        <select id="hiloDental" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Diario</option>
+          <option>Ocasional</option>
+          <option>No usa</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Uso de colutorios</label>
+        <select id="colutorios" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>Uso diario</option>
+          <option>Uso ocasional</option>
+          <option>No usa</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Otros elementos de higiene</label>
+        <input type="text" id="otrosHigiene" placeholder="Ej: irrigador, cepillo interproximal..." oninput="autoSave()">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones de higiene</label>
+      <textarea id="obsHigiene" placeholder="Observaciones adicionales sobre los hábitos de higiene..." rows="2" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(3)">← Anterior</button>
+    <button class="btn" onclick="goTab(5)">Ver resumen →</button>
+  </div>
+</div>
+
+<!-- ======= TAB 5: Resumen ======= -->
+<div id="tab-5" class="hidden">
+  <div class="section-header">
+    <h2>Resumen — Identificación y Antecedentes</h2>
+    <p>Vista consolidada para revisar antes de continuar con el examen clínico.</p>
+  </div>
+  <div id="summaryContent"></div>
+  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+    <button class="btn" onclick="copiarResumen()">📋 Copiar resumen</button>
+    <button class="btn btn-outline" onclick="goTab(4)">← Editar</button>
+  </div>
+</div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+let currentTab = 0;
+const TABS = 6;
+
+// ---- Tab navigation ----
+function goTab(n) {
+  document.getElementById('tab-' + currentTab).classList.add('hidden');
+  document.querySelectorAll('.tab-btn')[currentTab].classList.remove('active');
+  currentTab = n;
+  document.getElementById('tab-' + n).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[n].classList.add('active');
+  renderDots();
+  if (n === 5) renderSummary();
+  window.scrollTo(0, 0);
+}
+
+function renderDots() {
+  for (let i = 0; i < TABS; i++) {
+    const el = document.getElementById('dots-' + i);
+    if (!el) continue;
+    el.innerHTML = Array.from({length: TABS-1}, (_, j) =>
+      `<div class="dot ${j < currentTab ? 'done' : j === currentTab ? 'active' : ''}"></div>`
+    ).join('');
+  }
+}
+
+// ---- Autosave stub ----
+function autoSave() { /* data lives in DOM for this prototype */ }
+
+// ---- Historia clínica IA ----
+async function generarHistoria() {
+  const desc = document.getElementById('descripcionCaso').value.trim();
+  if (!desc) { alert('Ingresa una descripción del caso primero.'); return; }
+  const btn = document.getElementById('btnHistoria');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Eres un asistente clínico odontológico. Basándote en esta descripción: "${desc}", redacta la "Historia del motivo de consulta" para una ficha clínica universitaria odontológica. 
+Incluye: tiempo de evolución, características del síntoma principal, factores agravantes y atenuantes, síntomas asociados, tratamientos previos del episodio si los hay.
+Escribe en tercera persona, tono clínico formal, máximo 120 palabras. Solo el texto, sin títulos.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    document.getElementById('historiaTexto').textContent = texto;
+    document.getElementById('historiaGenerada').classList.remove('hidden');
+  } catch(e) {
+    alert('Error al conectar con la IA. Intenta nuevamente.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Generar con IA';
+  }
+}
+
+function usarHistoria() {
+  const texto = document.getElementById('historiaTexto').textContent;
+  document.getElementById('historiaFinal').value = texto;
+  document.getElementById('historiaGenerada').classList.add('hidden');
+}
+
+// ---- Lista patologías ----
+let patCount = 0;
+function addPatologia(val = '') {
+  patCount++;
+  const id = 'pat_' + patCount;
+  const div = document.createElement('div');
+  div.className = 'ant-row'; div.id = id;
+  div.innerHTML = `
+    <div class="field"><label>Patología</label><input type="text" placeholder="Ej: Diabetes mellitus tipo II" value="${val}" oninput="autoSave()"></div>
+    <div class="field"><label>Año diagnóstico</label><input type="text" placeholder="Ej: 2015" oninput="autoSave()"></div>
+    <button class="btn-remove" onclick="document.getElementById('${id}').remove()">×</button>`;
+  document.getElementById('patologiasList').appendChild(div);
+}
+
+let qCount = 0;
+function addQuirurgico(val = '') {
+  qCount++;
+  const id = 'q_' + qCount;
+  const div = document.createElement('div');
+  div.className = 'ant-row'; div.id = id;
+  div.innerHTML = `
+    <div class="field"><label>Procedimiento</label><input type="text" placeholder="Ej: Cirugía cardíaca" value="${val}" oninput="autoSave()"></div>
+    <div class="field"><label>Año</label><input type="text" placeholder="Ej: 2010" oninput="autoSave()"></div>
+    <button class="btn-remove" onclick="document.getElementById('${id}').remove()">×</button>`;
+  document.getElementById('quirurgicosList').appendChild(div);
+}
+
+let fCount = 0;
+function addFamiliar(val = '') {
+  fCount++;
+  const id = 'fam_' + fCount;
+  const div = document.createElement('div');
+  div.className = 'ant-row'; div.id = id;
+  div.innerHTML = `
+    <div class="field"><label>Pariente</label><input type="text" placeholder="Ej: Madre, Padre, Hermano..." oninput="autoSave()"></div>
+    <div class="field"><label>Condición</label><input type="text" placeholder="Ej: Cáncer de tiroides" value="${val}" oninput="autoSave()"></div>
+    <button class="btn-remove" onclick="document.getElementById('${id}').remove()">×</button>`;
+  document.getElementById('familiarList').appendChild(div);
+}
+
+// ---- Fármacos ----
+const farmacos = [];
+function addFarmaco() {
+  const inp = document.getElementById('farmacoInput');
+  const nombre = inp.value.trim();
+  if (!nombre) return;
+  farmacos.push(nombre);
+  inp.value = '';
+  renderFarmacos();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('farmacoInput').addEventListener('keydown', e => { if (e.key === 'Enter') addFarmaco(); });
+});
+function renderFarmacos() {
+  const list = document.getElementById('farmacosList');
+  list.innerHTML = farmacos.map((f, i) => `
+    <div class="farma-chip" style="margin-bottom:6px;">
+      <span>💊 ${f}</span>
+      <button class="btn-remove" style="width:28px;height:28px;font-size:16px;" onclick="farmacos.splice(${i},1);renderFarmacos()">×</button>
+    </div>`).join('');
+}
+
+function toggleAlergia() {
+  const val = document.querySelector('input[name="alergia"]:checked')?.value;
+  document.getElementById('alergiaDetalle').style.display = val === 'Sí' ? 'block' : 'none';
+}
+
+// ---- Tratamientos IA ----
+async function analizarTratamientos() {
+  const desc = document.getElementById('tratamientoLibre').value.trim();
+  if (!desc) { alert('Ingresa una descripción primero.'); return; }
+  const btn = document.getElementById('btnTratamientos');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 800,
+        messages: [{
+          role: 'user',
+          content: `Eres asistente clínico odontológico. El paciente describe sus antecedentes así: "${desc}". 
+Redacta un párrafo clínico estructurado de "Tratamientos odontológicos previos" para una ficha universitaria. 
+Menciona los procedimientos identificados de forma ordenada y formal. Máximo 100 palabras. Solo el texto.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text||'').join('');
+    const box = document.getElementById('tratamientosTexto');
+    box.innerHTML = `<strong>✦ Análisis IA</strong>${texto}`;
+    document.getElementById('tratamientosIA').classList.remove('hidden');
+  } catch(e) {
+    alert('Error. Intenta nuevamente.');
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Analizar con IA';
+  }
+}
+
+function usarTratamientos() {
+  const texto = document.getElementById('tratamientosTexto').textContent.replace('✦ Análisis IA', '').trim();
+  document.getElementById('tratamientoFinal').value = texto;
+  document.getElementById('tratamientosIA').classList.add('hidden');
+}
+
+// ---- Summary ----
+function collect(id) { return document.getElementById(id)?.value?.trim() || '—'; }
+function collectRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || '—'; }
+
+function renderSummary() {
+  const pats = [...document.getElementById('patologiasList').querySelectorAll('.ant-row')].map(r => {
+    const inputs = r.querySelectorAll('input');
+    return inputs[0]?.value ? `${inputs[0].value}${inputs[1]?.value ? ' (' + inputs[1].value + ')' : ''}` : null;
+  }).filter(Boolean);
+
+  const quirs = [...document.getElementById('quirurgicosList').querySelectorAll('.ant-row')].map(r => {
+    const inputs = r.querySelectorAll('input');
+    return inputs[0]?.value ? `${inputs[0].value}${inputs[1]?.value ? ' (' + inputs[1].value + ')' : ''}` : null;
+  }).filter(Boolean);
+
+  const fams = [...document.getElementById('familiarList').querySelectorAll('.ant-row')].map(r => {
+    const inputs = r.querySelectorAll('input');
+    return inputs[0]?.value && inputs[1]?.value ? `${inputs[0].value}: ${inputs[1].value}` : null;
+  }).filter(Boolean);
+
+  const alergia = collectRadio('alergia');
+  const alergiaDetalle = collect('alergiaTexto');
+
+  const rows = [
+    ['Iniciales', collect('iniciales')],
+    ['Edad', collect('edad') !== '—' ? collect('edad') + ' años' : '—'],
+    ['Sexo', collect('sexo')],
+    ['Previsión', collect('prevision')],
+    ['Ocupación', collect('ocupacion')],
+    ['Motivo de consulta', collect('relatoPaciente')],
+    ['Historia MC', collect('historiaFinal')],
+    ['Patologías sistémicas', pats.length ? pats.map(p => `<span class="tag tag-amber">${p}</span>`).join(' ') : '—'],
+    ['Antec. quirúrgicos', quirs.length ? quirs.join(', ') : 'Ninguno referido'],
+    ['Historia familiar', fams.length ? fams.join(', ') : 'No refiere'],
+    ['Fármacos', farmacos.length ? farmacos.map(f => `<span class="tag tag-blue">${f}</span>`).join(' ') : '—'],
+    ['Alergias', alergia === 'Sí' ? `Sí — ${alergiaDetalle}` : alergia],
+    ['Cepillado', collect('frecCepillado')],
+    ['Hilo dental', collect('hiloDental')],
+    ['Colutorios', collect('colutorios')],
+    ['Tratamientos previos', collect('tratamientoFinal')],
+  ];
+
+  const html = `<div class="summary-card">` +
+    rows.map(([label, val]) => `
+      <div class="summary-row">
+        <span class="summary-label">${label}</span>
+        <span class="summary-value">${val}</span>
+      </div>`).join('') +
+  `</div>`;
+
+  document.getElementById('summaryContent').innerHTML = html;
+}
+
+function copiarResumen() {
+  const rows = document.querySelectorAll('.summary-row');
+  const text = [...rows].map(r => {
+    const cells = r.querySelectorAll('span');
+    return cells[0].textContent + ': ' + cells[1].textContent.replace(/\s+/g,' ').trim();
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar resumen', 2000);
+  });
+}
+
+// Init
+renderDots();
+addPatologia();
+addQuirurgico();
+addFamiliar();
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

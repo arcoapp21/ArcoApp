@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Situaciones y Factores Relevantes — Asistente Digital USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE; --surface: #FFFFFF; --surface-2: #F9F8F5;
+    --border: #E2DED6; --border-strong: #C8C3B8;
+    --text: #1A1814; --text-2: #5C5849; --text-3: #9C9688;
+    --accent: #1D3A6B; --accent-light: #EAF0FA; --accent-mid: #4A6FA5;
+    --green: #1A5C3A; --green-light: #E8F5EE;
+    --amber: #7A4A00; --amber-light: #FFF4E0;
+    --red: #8B1A1A; --red-light: #FDEAEA;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--accent); color: white; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+  .section-header { margin-bottom: 22px; }
+  .section-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .section-header p { font-size: 13px; color: var(--text-2); }
+
+  /* Slide label */
+  .slide-label { display: inline-flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; color: var(--text-3); background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .card-subtitle { font-size: 12px; color: var(--text-3); margin-bottom: 14px; }
+
+  /* Color accent per block */
+  .card.social { border-left: 3px solid #4A6FA5; }
+  .card.sistemica { border-left: 3px solid #BA7517; }
+  .card.odonto { border-left: 3px solid #1A5C3A; }
+
+  .card-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue { background: #4A6FA5; }
+  .dot-amber { background: #BA7517; }
+  .dot-green { background: #1A5C3A; }
+
+  .field-grid { display: grid; gap: 14px; }
+  .fg2 { grid-template-columns: 1fr 1fr; }
+  .fg3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
+
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); background: var(--surface-2); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+  /* Check tag pills */
+  .check-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .check-pill { position: relative; }
+  .check-pill input { display: none; }
+  .check-pill label { display: block; padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); user-select: none; }
+  .check-pill input:checked + label { font-weight: 500; }
+  .check-pill.blue input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); }
+  .check-pill.amber input:checked + label { background: var(--amber-light); color: var(--amber); border-color: #e8d99a; }
+  .check-pill.green input:checked + label { background: var(--green-light); color: var(--green); border-color: #a8d5b5; }
+
+  /* Factor row (condicionante manual) */
+  .factor-row { display: grid; grid-template-columns: 1fr 1fr 32px; gap: 8px; align-items: end; margin-bottom: 8px; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+  .btn-remove { width: 32px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: none; cursor: pointer; color: var(--text-3); font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+  .btn-remove:hover { background: var(--red-light); color: var(--red); border-color: #f5c0c0; }
+
+  /* AI bar */
+  .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
+  .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
+  .ai-bar-text span { font-weight: 500; }
+
+  .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
+  .btn:hover { background: #162d54; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--text-3); cursor: not-allowed; transform: none; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: transparent; color: var(--accent); border: none; padding: 0 8px; }
+  .btn-ghost:hover { background: var(--accent-light); }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ai-suggestion { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6; margin-top: 8px; animation: fadeIn 0.3s; }
+  .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Resumen visual de condicionantes */
+  .resumen-condicionantes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .resumen-bloque { border-radius: var(--radius-sm); padding: 14px; }
+  .resumen-bloque.blue { background: var(--accent-light); border: 1px solid #c5d8f0; }
+  .resumen-bloque.amber { background: var(--amber-light); border: 1px solid #e8d99a; }
+  .resumen-bloque.green { background: var(--green-light); border: 1px solid #a8d5b5; }
+  .resumen-bloque-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .resumen-bloque.blue .resumen-bloque-title { color: var(--accent); }
+  .resumen-bloque.amber .resumen-bloque-title { color: var(--amber); }
+  .resumen-bloque.green .resumen-bloque-title { color: var(--green); }
+  .resumen-bloque-list { font-size: 12px; color: var(--text-2); line-height: 1.7; min-height: 40px; }
+  .resumen-bloque-list em { color: var(--text-3); font-style: italic; }
+
+  /* Copy / export */
+  .export-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .export-text { font-size: 13px; color: var(--text-2); }
+
+  /* Nav */
+  .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+</style>
+<script src="config-uss.js"></script>
+<style>
+/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
+.pq-antic, .pq-cierre {
+  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
+  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
+}
+.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
+.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
+.pq-h1 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.pq-badge {
+  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
+  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
+  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
+}
+.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
+.pq-f { margin-bottom: 16px; }
+.pq-f:last-child { margin-bottom: 0; }
+.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
+.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
+.pq-ta {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--text, #1A1814); background: var(--surface, #fff);
+  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
+  padding: 9px 11px; resize: vertical;
+}
+.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">📋</div>
+  <div class="header-text">
+    <h1>Situaciones y Factores Relevantes</h1>
+    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+  </div>
+  <span class="header-badge">Slide 36</span>
+</header>
+
+<main>
+
+<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
+<div class="pq-antic">
+  <div class="pq-h1">Antes de examinar</div>
+  <div class="pq-f" style="margin-bottom:0;">
+    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
+    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
+    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
+  </div>
+</div>
+
+  <div class="slide-label">📋 Slide 36 — Antecedentes que inciden en el plan de tratamiento integral</div>
+  <div class="section-header">
+    <h2>Situaciones y factores relevantes</h2>
+    <p>Registra los condicionantes sociales, sistémicos y odontológicos que condicionan el plan de tratamiento. La IA redactará el texto clínico integrado al final.</p>
+  </div>
+
+  <!-- ===== BLOQUE 1: Condicionantes sociales ===== -->
+  <div class="card social">
+    <div class="card-title"><span class="dot dot-blue"></span>Condicionantes sociales</div>
+    <div class="card-subtitle">Años de estudio, situación laboral, lugar de residencia, nivel socioeconómico, acceso a atención, etc.</div>
+
+    <div class="field-grid fg3" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Nivel educacional</label>
+        <select id="socNivelEdu">
+          <option value="">Seleccionar</option>
+          <option>Sin estudios</option>
+          <option>Básica completa</option>
+          <option>Media completa</option>
+          <option>Técnico superior</option>
+          <option>Universitario</option>
+          <option>Postgrado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Situación laboral</label>
+        <select id="socLaboral">
+          <option value="">Seleccionar</option>
+          <option>Empleado</option>
+          <option>Independiente</option>
+          <option>Desempleado</option>
+          <option>Jubilado / Pensionado</option>
+          <option>Estudiante</option>
+          <option>Dueña/o de casa</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Residencia</label>
+        <select id="socResidencia">
+          <option value="">Seleccionar</option>
+          <option>Urbana</option>
+          <option>Rural</option>
+          <option>Semiurbana</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-grid fg2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Previsión de salud</label>
+        <select id="socPrevision">
+          <option value="">Seleccionar</option>
+          <option>FONASA A</option>
+          <option>FONASA B</option>
+          <option>FONASA C</option>
+          <option>FONASA D</option>
+          <option>ISAPRE</option>
+          <option>Particular</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Acceso a atención dental</label>
+        <select id="socAcceso">
+          <option value="">Seleccionar</option>
+          <option>Adecuado</option>
+          <option>Limitado (distancia / costo)</option>
+          <option>Sin acceso regular</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <label>Otros condicionantes sociales relevantes</label>
+    </div>
+    <div class="check-pills" style="margin-bottom:12px;">
+      <div class="check-pill blue"><input type="checkbox" id="cs1"><label for="cs1">Barreras económicas para tratamiento</label></div>
+      <div class="check-pill blue"><input type="checkbox" id="cs2"><label for="cs2">Dificultad de traslado</label></div>
+      <div class="check-pill blue"><input type="checkbox" id="cs3"><label for="cs3">Red de apoyo social limitada</label></div>
+      <div class="check-pill blue"><input type="checkbox" id="cs4"><label for="cs4">Baja adherencia a controles previos</label></div>
+      <div class="check-pill blue"><input type="checkbox" id="cs5"><label for="cs5">Analfabetismo funcional</label></div>
+      <div class="check-pill blue"><input type="checkbox" id="cs6"><label for="cs6">Cuidador de persona dependiente</label></div>
+    </div>
+
+    <div id="listSociales"></div>
+    <button class="btn btn-outline btn-sm" onclick="addFactor('listSociales','soc')">+ Agregar condicionante social</button>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones sociales</label>
+      <textarea id="obsSocial" placeholder="Ej: Paciente jubilada con FONASA A, reside en zona rural con dificultad de traslado. Presenta barreras económicas para tratamiento protésico extenso..." rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- ===== BLOQUE 2: Condicionantes sistémicas ===== -->
+  <div class="card sistemica">
+    <div class="card-title"><span class="dot dot-amber"></span>Condicionantes de salud sistémicas</div>
+    <div class="card-subtitle">Polifarmacia, enfermedades controladas o no controladas, hábitos, adicciones, condiciones que incidan en el tratamiento.</div>
+
+    <div class="field-grid fg2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Control de patologías sistémicas</label>
+        <select id="sisControl">
+          <option value="">Seleccionar</option>
+          <option>Bien controladas</option>
+          <option>Parcialmente controladas</option>
+          <option>No controladas</option>
+          <option>Sin patologías sistémicas</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Polifarmacia</label>
+        <select id="sisPolifarmacia">
+          <option value="">Seleccionar</option>
+          <option>No (menos de 5 fármacos)</option>
+          <option>Sí (5 o más fármacos)</option>
+          <option>Fármacos de alto riesgo odontológico</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <label>Hábitos y condicionantes sistémicas presentes</label>
+    </div>
+    <div class="check-pills" style="margin-bottom:12px;">
+      <div class="check-pill amber"><input type="checkbox" id="ss1"><label for="ss1">Fumador activo</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss2"><label for="ss2">Ex fumador</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss3"><label for="ss3">Consumo de alcohol</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss4"><label for="ss4">Consumo de drogas</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss5"><label for="ss5">Diabetes descompensada</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss6"><label for="ss6">Hipertensión no controlada</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss7"><label for="ss7">Anticoagulación activa</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss8"><label for="ss8">Bifosfonatos / Denosumab</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss9"><label for="ss9">Inmunosupresión</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss10"><label for="ss10">Radioterapia cabeza y cuello</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss11"><label for="ss11">Xerostomía por medicación</label></div>
+      <div class="check-pill amber"><input type="checkbox" id="ss12"><label for="ss12">Embarazo / lactancia</label></div>
+    </div>
+
+    <div id="listSistemicas"></div>
+    <button class="btn btn-outline btn-sm" onclick="addFactor('listSistemicas','sis')">+ Agregar condicionante sistémica</button>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones sistémicas</label>
+      <textarea id="obsSistemica" placeholder="Ej: Paciente fumador pesado (20 cigarrillos/día) con HTA en tratamiento. Se encuentra en polifarmacia. El tabaquismo activo condiciona el pronóstico periodontal y la indicación de implantes..." rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- ===== BLOQUE 3: Condicionantes odontológicas ===== -->
+  <div class="card odonto">
+    <div class="card-title"><span class="dot dot-green"></span>Condicionantes odontológicas</div>
+    <div class="card-subtitle">Experiencia protésica previa, alteraciones anatómicas, colapso posterior, DVO, patología de tejidos, hábitos de higiene, etc.</div>
+
+    <div class="field-grid fg2" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Experiencia previa con prótesis</label>
+        <select id="odExpProt">
+          <option value="">Seleccionar</option>
+          <option>Sin experiencia protésica</option>
+          <option>Portador de prótesis removible</option>
+          <option>Portador de prótesis fija</option>
+          <option>Experiencia previa negativa con prótesis</option>
+          <option>Buena adaptación protésica previa</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Hábitos parafuncionales</label>
+        <select id="odParafuncion">
+          <option value="">Seleccionar</option>
+          <option>Sin parafunciones</option>
+          <option>Bruxismo nocturno</option>
+          <option>Bruxismo diurno</option>
+          <option>Apretamiento dental</option>
+          <option>Onicofagia</option>
+          <option>Otros hábitos orales</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <label>Condicionantes anatómicas y clínicas presentes</label>
+    </div>
+    <div class="check-pills" style="margin-bottom:12px;">
+      <div class="check-pill green"><input type="checkbox" id="od1"><label for="od1">Frenillo aberrante</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od2"><label for="od2">Torus palatino</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od3"><label for="od3">Torus mandibular</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od4"><label for="od4">Colapso dental posterior</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od5"><label for="od5">Alteración del espacio protésico</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od6"><label for="od6">Alteración significativa de la DVO</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od7"><label for="od7">Extrusiones dentarias</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od8"><label for="od8">Patología de tejidos blandos</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od9"><label for="od9">Patología de tejidos duros</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od10"><label for="od10">Higiene oral deficiente</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od11"><label for="od11">Ansiedad dental / fobia</label></div>
+      <div class="check-pill green"><input type="checkbox" id="od12"><label for="od12">Reflejo de náuseas exacerbado</label></div>
+    </div>
+
+    <div id="listOdonto"></div>
+    <button class="btn btn-outline btn-sm" onclick="addFactor('listOdonto','od')">+ Agregar condicionante odontológica</button>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones odontológicas</label>
+      <textarea id="obsOdonto" placeholder="Ej: Paciente portadora de prótesis removible superior antigua con mala adaptación. Presenta colapso dental posterior bilateral y alteración significativa de la DVO. Torus palatino de tamaño moderado que condiciona diseño protésico..." rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- ===== RESUMEN VISUAL ===== -->
+  <div class="card">
+    <div class="card-title">Resumen de condicionantes identificados</div>
+    <div class="resumen-condicionantes" id="resumenVisual">
+      <div class="resumen-bloque blue">
+        <div class="resumen-bloque-title">Sociales</div>
+        <div class="resumen-bloque-list" id="resBloqueSoc"><em>Sin condicionantes marcadas</em></div>
+      </div>
+      <div class="resumen-bloque amber">
+        <div class="resumen-bloque-title">Sistémicas</div>
+        <div class="resumen-bloque-list" id="resBloqueSis"><em>Sin condicionantes marcadas</em></div>
+      </div>
+      <div class="resumen-bloque green">
+        <div class="resumen-bloque-title">Odontológicas</div>
+        <div class="resumen-bloque-list" id="resBloqueOd"><em>Sin condicionantes marcadas</em></div>
+      </div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="actualizarResumen()">↻ Actualizar resumen</button>
+  </div>
+
+  <!-- ===== SÍNTESIS CON IA ===== -->
+  <div class="card">
+    <div class="card-title">Síntesis clínica integrada</div>
+    <div class="ai-bar">
+      <div class="ai-bar-text">✦ <span>IA disponible</span> — con los condicionantes marcados, la IA redactará el párrafo de situaciones relevantes para la ficha.</div>
+      <button class="btn btn-sm" id="btnSintesis" onclick="generarSintesis()">Generar síntesis</button>
+    </div>
+    <div id="sintesisIA" style="display:none;">
+      <div class="ai-suggestion" id="sintesisIATexto"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-sm btn-outline" onclick="usarSintesis()">Usar este texto</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('sintesisIA').style.display='none'">Descartar</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Síntesis de situaciones y factores relevantes</label>
+      <textarea id="sintesisFinal" placeholder="Texto clínico integrado de los condicionantes que inciden en el plan de tratamiento..." rows="6"></textarea>
+    </div>
+
+    <div class="export-bar" style="margin-top:14px;">
+      <span class="export-text">Listo para copiar a la ficha clínica.</span>
+      <button class="btn btn-outline btn-sm" onclick="copiarSintesis()">📋 Copiar síntesis</button>
+    </div>
+  </div>
+
+
+<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
+<div class="pq-cierre">
+  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
+  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
+
+  <div class="pq-f">
+    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
+    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
+    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
+    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
+    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  </div>
+
+  <div class="pq-f">
+    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
+    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
+    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API_URL = window.FICHA_USS_API;
+let factorCounts = { soc: 0, sis: 0, od: 0 };
+
+// ---- Agregar fila de condicionante libre ----
+function addFactor(listId, prefix) {
+  const n = factorCounts[prefix]++;
+  const id = prefix + '_' + n;
+  const div = document.createElement('div');
+  div.className = 'factor-row';
+  div.id = 'frow_' + id;
+  div.innerHTML = `
+    <div class="field"><label>Condicionante</label><input type="text" id="${id}_desc" placeholder="Describir condicionante..."></div>
+    <div class="field"><label>Impacto en el tratamiento</label><input type="text" id="${id}_imp" placeholder="Ej: limita cirugía, requiere derivación..."></div>
+    <button class="btn-remove" onclick="document.getElementById('frow_${id}').remove()">×</button>`;
+  document.getElementById(listId).appendChild(div);
+}
+
+// ---- Actualizar resumen visual ----
+function actualizarResumen() {
+  // Sociales
+  const socChecks = [
+    ...['cs1','cs2','cs3','cs4','cs5','cs6'].filter(id => document.getElementById(id)?.checked)
+      .map(id => document.querySelector('label[for="' + id + '"]').textContent.trim()),
+    ...[...document.getElementById('listSociales').querySelectorAll('input[type="text"]:first-of-type')]
+      .map(el => el.value.trim()).filter(Boolean)
+  ];
+  document.getElementById('resBloqueSoc').innerHTML = socChecks.length
+    ? socChecks.map(s => `<div>• ${s}</div>`).join('')
+    : '<em>Sin condicionantes marcadas</em>';
+
+  // Sistémicas
+  const sisChecks = [
+    ...['ss1','ss2','ss3','ss4','ss5','ss6','ss7','ss8','ss9','ss10','ss11','ss12']
+      .filter(id => document.getElementById(id)?.checked)
+      .map(id => document.querySelector('label[for="' + id + '"]').textContent.trim()),
+    ...[...document.getElementById('listSistemicas').querySelectorAll('input[type="text"]:first-of-type')]
+      .map(el => el.value.trim()).filter(Boolean)
+  ];
+  document.getElementById('resBloqueSis').innerHTML = sisChecks.length
+    ? sisChecks.map(s => `<div>• ${s}</div>`).join('')
+    : '<em>Sin condicionantes marcadas</em>';
+
+  // Odontológicas
+  const odChecks = [
+    ...['od1','od2','od3','od4','od5','od6','od7','od8','od9','od10','od11','od12']
+      .filter(id => document.getElementById(id)?.checked)
+      .map(id => document.querySelector('label[for="' + id + '"]').textContent.trim()),
+    ...[...document.getElementById('listOdonto').querySelectorAll('input[type="text"]:first-of-type')]
+      .map(el => el.value.trim()).filter(Boolean)
+  ];
+  document.getElementById('resBloqueOd').innerHTML = odChecks.length
+    ? odChecks.map(s => `<div>• ${s}</div>`).join('')
+    : '<em>Sin condicionantes marcadas</em>';
+}
+
+// ---- IA síntesis ----
+async function generarSintesis() {
+  actualizarResumen();
+
+  const getSel = id => document.getElementById(id)?.value || '';
+  const getChecked = ids => ids.filter(id => document.getElementById(id)?.checked)
+    .map(id => document.querySelector('label[for="' + id + '"]').textContent.trim());
+  const getLibres = listId => [...document.getElementById(listId).querySelectorAll('input[type="text"]:first-of-type')]
+    .map(el => el.value.trim()).filter(Boolean);
+
+  const social = [
+    getSel('socNivelEdu'), getSel('socLaboral'), getSel('socResidencia'),
+    getSel('socPrevision'), getSel('socAcceso'),
+    ...getChecked(['cs1','cs2','cs3','cs4','cs5','cs6']),
+    ...getLibres('listSociales'),
+    document.getElementById('obsSocial').value.trim()
+  ].filter(Boolean);
+
+  const sistemica = [
+    getSel('sisControl'), getSel('sisPolifarmacia'),
+    ...getChecked(['ss1','ss2','ss3','ss4','ss5','ss6','ss7','ss8','ss9','ss10','ss11','ss12']),
+    ...getLibres('listSistemicas'),
+    document.getElementById('obsSistemica').value.trim()
+  ].filter(Boolean);
+
+  const odonto = [
+    getSel('odExpProt'), getSel('odParafuncion'),
+    ...getChecked(['od1','od2','od3','od4','od5','od6','od7','od8','od9','od10','od11','od12']),
+    ...getLibres('listOdonto'),
+    document.getElementById('obsOdonto').value.trim()
+  ].filter(Boolean);
+
+  const total = [...social, ...sistemica, ...odonto];
+  if (total.length < 2) {
+    alert('Marca o completa al menos algunos condicionantes antes de generar la síntesis.');
+    return;
+  }
+
+  const btn = document.getElementById('btnSintesis');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 900,
+        messages: [{
+          role: 'user',
+          content: `Eres un clínico odontológico universitario. Redacta el apartado "Situaciones y factores relevantes que inciden en el plan de tratamiento integral" para una ficha clínica. 
+
+Organiza el texto en tres párrafos breves: condicionantes sociales, condicionantes sistémicas y condicionantes odontológicas. Usa lenguaje clínico formal, tercera persona, prosa continua. Máximo 200 palabras en total.
+
+Condicionantes sociales: ${social.join(' | ') || 'No refiere'}
+Condicionantes sistémicas: ${sistemica.join(' | ') || 'No refiere'}
+Condicionantes odontológicas: ${odonto.join(' | ') || 'No refiere'}
+
+Solo el texto, sin títulos ni encabezados.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(b => b.text || '').join('');
+    document.getElementById('sintesisIATexto').innerHTML = '<strong>✦ Síntesis clínica sugerida por IA</strong>' + texto;
+    document.getElementById('sintesisIA').style.display = 'block';
+  } catch(e) {
+    alert('Error al conectar con la IA. Intenta nuevamente.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Generar síntesis';
+  }
+}
+
+function usarSintesis() {
+  const texto = document.getElementById('sintesisIATexto').textContent
+    .replace('✦ Síntesis clínica sugerida por IA', '').trim();
+  document.getElementById('sintesisFinal').value = texto;
+  document.getElementById('sintesisIA').style.display = 'none';
+}
+
+function copiarSintesis() {
+  const texto = document.getElementById('sintesisFinal').value.trim();
+  if (!texto) { alert('Escribe o genera la síntesis primero.'); return; }
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar síntesis', 2000);
+  });
+}
+
+// Auto-actualizar resumen al hacer check
+document.addEventListener('change', e => {
+  if (e.target.type === 'checkbox') actualizarResumen();
+});
+</script>
+<script src="ficha-uss.js"></script>
+<script src="coherencia-uss.js"></script>
+<script src="sello-uss.js"></script>
+</body>
+</html>

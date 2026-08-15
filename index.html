@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente Digital de Razonamiento Clínico — Universidad San Sebastián</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F4F2EE;
+    --surface: #FFFFFF;
+    --surface-2: #F9F8F5;
+    --border: #E2DED6;
+    --border-strong: #C8C3B8;
+    --text: #1A1814;
+    --text-2: #5C5849;
+    --text-3: #9C9688;
+    --accent: #1D3A6B;
+    --accent-light: #EAF0FA;
+    --accent-mid: #4A6FA5;
+    --green: #1A5C3A;
+    --green-light: #E8F5EE;
+    --amber: #7A4A00;
+    --amber-light: #FFF4E0;
+    --red: #8B1A1A;
+    --red-light: #FDEAEA;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--accent); color: white;
+    padding: 18px 32px; display: flex; align-items: center; gap: 16px;
+  }
+  .header-logo { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; }
+  .header-text p { font-size: 12px; opacity: 0.65; margin-top: 1px; }
+  .header-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  main { max-width: 880px; margin: 0 auto; padding: 26px 24px 60px; }
+
+  /* ── Barra del caso ───────────────────────────────────────────── */
+  .caso {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 20px; margin-bottom: 18px;
+  }
+  .caso-top { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .caso-id { flex: 1; min-width: 200px; }
+  .caso-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 5px; }
+  .caso-nombre { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+  .caso-nombre.vacio { color: var(--text-3); font-weight: 400; font-size: 16px; }
+  .caso-meta { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+  .caso-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  button, .btn {
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    padding: 8px 14px; border-radius: var(--radius-sm); cursor: pointer;
+    border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  button:hover { background: var(--surface-2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary:hover { background: #16305A; }
+  .btn-danger { color: var(--red); border-color: #E4C4C4; }
+  .btn-danger:hover { background: var(--red-light); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .meta-fila { display: flex; gap: 10px; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .meta-campo { flex: 1; min-width: 170px; }
+  .meta-campo span { display: block; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 4px; }
+  .meta-campo input {
+    width: 100%; height: 34px; padding: 0 10px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--text); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+  }
+  .meta-campo input:focus { outline: none; border-color: var(--accent-mid); background: var(--surface); }
+
+  .barra-uso { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-3); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  /* ── Aviso ─────────────────────────────────────────────────────── */
+  .aviso {
+    background: var(--amber-light); border: 1px solid #E8D99A; color: var(--amber);
+    border-radius: var(--radius-sm); padding: 11px 14px; font-size: 12.5px; line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .aviso strong { font-weight: 600; }
+
+  /* ── Grupos de módulos ─────────────────────────────────────────── */
+  .grupo { margin-bottom: 24px; }
+  .grupo-titulo { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 9px; padding-left: 2px; }
+
+  .mod {
+    display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 7px;
+    transition: border-color 0.15s, transform 0.06s;
+  }
+  .mod:hover { border-color: var(--accent-mid); }
+  .mod:active { transform: translateY(1px); }
+  .mod-num {
+    font-family: 'DM Mono', monospace; font-size: 11px; width: 26px; height: 26px; flex-shrink: 0;
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-3);
+  }
+  .mod.activo .mod-num { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+  .mod-cuerpo { flex: 1; min-width: 0; }
+  .mod-nombre { font-size: 14px; font-weight: 500; }
+  .mod-desc { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+  .mod-estado { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .pill { font-size: 10.5px; font-weight: 500; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+  .pill-vacio { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-3); }
+  .pill-curso { background: var(--accent-light); border: 1px solid #C5D6EF; color: var(--accent); }
+  .pill-sello { background: var(--green-light); border: 1px solid #B9DEC9; color: var(--green); }
+  .mod-fecha { font-size: 10.5px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+
+  /* ── Modal ─────────────────────────────────────────────────────── */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(26,24,20,0.45); z-index: 100;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-bg.abierto { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: var(--radius); padding: 22px;
+    max-width: 440px; width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: var(--text-2); line-height: 1.65; margin-bottom: 14px; }
+  .modal-acciones { display: flex; gap: 8px; justify-content: flex-end; }
+
+  .toast {
+    position: fixed; right: 16px; bottom: 16px; z-index: 200;
+    background: var(--green); color: white; font-size: 12.5px;
+    padding: 9px 15px; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    opacity: 0; transition: opacity 0.25s; pointer-events: none;
+  }
+  .toast.ver { opacity: 1; }
+
+  footer { text-align: center; font-size: 11.5px; color: var(--text-3); margin-top: 32px; line-height: 1.7; }
+
+  @media (max-width: 620px) {
+    header { padding: 16px 18px; }
+    main { padding: 20px 14px 50px; }
+    .mod-desc { display: none; }
+    .mod-estado { align-items: flex-end; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">🦷</div>
+  <div class="header-text">
+    <h1>Asistente Digital</h1>
+    <p>Universidad San Sebastián — Odontología</p>
+  </div>
+  <span class="header-badge" id="badgeEstado">—</span>
+</header>
+
+<main>
+
+  <!-- ── Caso en curso ─────────────────────────────────────────── -->
+  <div class="caso">
+    <div class="caso-top">
+      <div class="caso-id">
+        <div class="caso-label">Caso en este equipo</div>
+        <div class="caso-nombre vacio" id="casoNombre">Sin caso iniciado</div>
+        <div class="caso-meta" id="casoMeta">Comienza por Identificación y antecedentes.</div>
+      </div>
+      <div class="caso-acciones">
+        <button id="btnExportar" onclick="exportarCaso()">↓ Exportar caso</button>
+        <button onclick="document.getElementById('archivoImport').click()">↑ Importar</button>
+        <button class="btn-danger" id="btnCerrar" onclick="abrirModal()">Cerrar caso</button>
+        <input type="file" id="archivoImport" accept=".json,application/json" style="display:none" onchange="importarCaso(this)">
+      </div>
+    </div>
+    <div class="meta-fila">
+      <label class="meta-campo"><span>Estudiante</span>
+        <input type="text" id="metaEstudiante" placeholder="Nombre y apellido" oninput="guardarMeta()"></label>
+      <label class="meta-campo"><span>Código del caso</span>
+        <input type="text" id="metaPaciente" placeholder="Código de ficha o iniciales" oninput="guardarMeta()"></label>
+    </div>
+    <div class="barra-uso">
+      <span id="usoEspacio">—</span>
+      <span id="ultimaAct"></span>
+    </div>
+  </div>
+
+  <div class="aviso">
+    <strong>Esto no reemplaza la ficha clínica oficial.</strong> El registro válido del
+    paciente sigue siendo el del sistema de la clínica. Aquí se recogen los datos que el
+    asistente necesita para acompañar tu razonamiento diagnóstico.
+  </div>
+
+  <div class="aviso">
+    <strong>Los datos se guardan solo en este computador.</strong> No viajan a ningún
+    servidor y no se sincronizan entre equipos. Si trabajas en un computador compartido
+    de la clínica, exporta el caso al terminar y usa «Cerrar caso» antes de dejar el
+    puesto. En modo incógnito todo se borra al cerrar la ventana.
+  </div>
+
+  <div id="listaModulos"></div>
+
+  <footer>
+    Asistente Digital de Razonamiento Clínico · Proyecto de Innovación Docente<br>
+    Registra al paciente con iniciales o código de ficha. Nunca con nombre completo ni RUT.
+  </footer>
+
+</main>
+
+<!-- ── Modal de cierre ─────────────────────────────────────────── -->
+<div class="modal-bg" id="modalCerrar">
+  <div class="modal">
+    <h3>Cerrar y borrar el caso</h3>
+    <p>
+      Se eliminarán del navegador todos los datos de los once módulos, incluidas las
+      fotografías y las fundamentaciones selladas. La acción no se puede deshacer.
+      Si aún no exportaste el caso, hazlo antes de continuar.
+    </p>
+    <div class="modal-acciones">
+      <button onclick="cerrarModal()">Cancelar</button>
+      <button onclick="exportarCaso()">Exportar primero</button>
+      <button class="btn-danger" onclick="borrarTodo()">Borrar definitivamente</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+var PREFIX = 'fichaUSS:v6:';
+
+// ── Módulos, en orden de la ficha ──────────────────────────────────
+var GRUPOS = [
+  { titulo: 'Anamnesis', mods: [
+    { id: 'identificacion_antecedentes_uss', n: '1',
+      nombre: 'Identificación y antecedentes',
+      desc: 'Anamnesis estadística, motivo de consulta, historia médica, fármacos' }
+  ]},
+  { titulo: 'Examen clínico', mods: [
+    { id: 'examen_fisico_general_uss', n: '2',
+      nombre: 'Examen físico general',
+      desc: 'Signos vitales, estado general, evaluación por sistemas' },
+    { id: 'examen_extraoral_uss', n: '3',
+      nombre: 'Examen extraoral',
+      desc: 'Cabeza y cuello, ATM, musculatura, ganglios' },
+    { id: 'examen_intraoral_uss', n: '4',
+      nombre: 'Examen intraoral',
+      desc: 'Mucosas, lengua, piso de boca, paladar, glándulas salivales, lesiones' },
+    { id: 'odontograma_uss', n: '5',
+      nombre: 'Odontograma',
+      desc: 'Registro dentario por pieza' },
+    { id: 'examenes_periodontales_uss', n: '6',
+      nombre: 'Exámenes periodontales',
+      desc: 'Periodontograma, índices, diagnóstico periodontal' }
+  ]},
+  { titulo: 'Complemento diagnóstico', mods: [
+    { id: 'examenes_complementarios_uss', n: '7',
+      nombre: 'Exámenes complementarios',
+      desc: 'Imagenología, laboratorio, interconsultas' },
+    { id: 'situaciones_relevantes_uss', n: '8',
+      nombre: 'Situaciones y factores relevantes',
+      desc: 'Factores de riesgo, determinantes sociales, condicionantes del plan' }
+  ]},
+  { titulo: 'Razonamiento y diagnóstico', mods: [
+    { id: 'diagnostico_razonamiento_guiado_uss', n: '9',
+      nombre: 'Diagnóstico, plan y pronóstico',
+      desc: 'Hipótesis, fundamentación sellada, diagnóstico integral, plan y pronóstico' }
+  ]},
+  { titulo: 'Herramientas', mods: [
+    { id: 'asistente_farmacos_uss', n: '·',
+      nombre: 'Asistente de fármacos',
+      desc: 'Consulta de interacciones y precauciones. No guarda datos del caso.' }
+  ]},
+  { titulo: 'Para el docente', mods: [
+    { id: 'registro_razonamiento_uss', n: '·',
+      nombre: 'Registro de razonamiento clínico',
+      desc: 'Documento de corrección: reconstruye el proceso a partir de lo registrado' }
+  ]}
+];
+
+// ── Lectura del almacenamiento ─────────────────────────────────────
+function leer(clave) {
+  try { return JSON.parse(localStorage.getItem(PREFIX + clave)); }
+  catch (e) { return null; }
+}
+
+function estadoModulo(id) {
+  var g = leer(id);
+  var datos = (g && g.datos) || {};
+  var campos = 0, fotos = 0;
+  Object.keys(datos).forEach(function (k) {
+    if (k.indexOf('rows|') === 0) return;
+    if (k.indexOf('img|') === 0) { fotos++; return; }
+    campos++;
+  });
+  var sello = leer('sello-' + id);
+  return {
+    campos: campos,
+    fotos: fotos,
+    sellado: !!(sello && sello.sello),
+    actualizado: g && g.actualizado ? new Date(g.actualizado) : null
+  };
+}
+
+function fechaCorta(d) {
+  if (!d) return '';
+  var hoy = new Date();
+  var mismoDia = d.toDateString() === hoy.toDateString();
+  var hora = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  return mismoDia ? hora : d.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' }) + ' ' + hora;
+}
+
+// ── Render ─────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+function pintar() {
+  var cont = document.getElementById('listaModulos');
+  var html = '';
+  var conDatos = 0, total = 0, ultima = null;
+
+  GRUPOS.forEach(function (g) {
+    html += '<div class="grupo"><div class="grupo-titulo">' + esc(g.titulo) + '</div>';
+    g.mods.forEach(function (m) {
+      var e = estadoModulo(m.id);
+      var activo = e.campos > 0 || e.fotos > 0;
+      if (g.titulo !== 'Herramientas' && g.titulo !== 'Para el docente') {
+        total++;
+        if (activo) conDatos++;
+      }
+      if (e.actualizado && (!ultima || e.actualizado > ultima)) ultima = e.actualizado;
+
+      var pills = '';
+      if (e.sellado) pills += '<span class="pill pill-sello">✓ Fundamentación sellada</span>';
+      if (activo) {
+        var t = e.campos + (e.campos === 1 ? ' campo' : ' campos');
+        if (e.fotos) t += ' · ' + e.fotos + (e.fotos === 1 ? ' foto' : ' fotos');
+        pills += '<span class="pill pill-curso">' + t + '</span>';
+      } else if (!e.sellado) {
+        pills += '<span class="pill pill-vacio">Sin iniciar</span>';
+      }
+
+      html += '<a class="mod' + (activo ? ' activo' : '') + '" href="' + m.id + '.html">' +
+        '<span class="mod-num">' + esc(m.n) + '</span>' +
+        '<span class="mod-cuerpo">' +
+          '<span class="mod-nombre" style="display:block;">' + esc(m.nombre) + '</span>' +
+          '<span class="mod-desc" style="display:block;">' + esc(m.desc) + '</span>' +
+        '</span>' +
+        '<span class="mod-estado">' + pills +
+          (e.actualizado ? '<span class="mod-fecha">' + fechaCorta(e.actualizado) + '</span>' : '') +
+        '</span>' +
+      '</a>';
+    });
+    html += '</div>';
+  });
+
+  cont.innerHTML = html;
+
+  // Cabecera del caso
+  var ident = leer('identificacion_antecedentes_uss');
+  var d = (ident && ident.datos) || {};
+  var iniciales = d['v|iniciales'] || '';
+  var edad = d['v|edad'] || '';
+  var sexo = d['v|sexo'] || '';
+
+  var nombreEl = document.getElementById('casoNombre');
+  var metaEl = document.getElementById('casoMeta');
+
+  if (iniciales) {
+    nombreEl.textContent = iniciales;
+    nombreEl.classList.remove('vacio');
+    var partes = [];
+    if (edad) partes.push(edad + ' años');
+    if (sexo) partes.push(sexo);
+    partes.push(conDatos + ' de ' + total + ' módulos con registro');
+    metaEl.textContent = partes.join(' · ');
+  } else if (conDatos > 0) {
+    nombreEl.textContent = 'Caso sin identificar';
+    nombreEl.classList.remove('vacio');
+    metaEl.textContent = conDatos + ' de ' + total + ' módulos con registro · falta completar las iniciales';
+  } else {
+    nombreEl.textContent = 'Sin caso iniciado';
+    nombreEl.classList.add('vacio');
+    metaEl.textContent = 'Comienza por Identificación y antecedentes.';
+  }
+
+  document.getElementById('badgeEstado').textContent = conDatos + '/' + total + ' módulos';
+  document.getElementById('ultimaAct').textContent = ultima
+    ? 'Última edición: ' + ultima.toLocaleDateString('es-CL') + ' ' +
+      ultima.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+    : '';
+
+  var vacio = conDatos === 0;
+  document.getElementById('btnExportar').disabled = vacio;
+  document.getElementById('btnCerrar').disabled = vacio;
+
+  // Espacio ocupado
+  var bytes = 0;
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k.indexOf(PREFIX) !== 0) continue;
+    bytes += k.length + (localStorage.getItem(k) || '').length;
+  }
+  var kb = bytes / 1024;
+  var txt = kb < 1024 ? kb.toFixed(0) + ' KB' : (kb / 1024).toFixed(1) + ' MB';
+  document.getElementById('usoEspacio').textContent =
+    'Espacio usado: ' + txt + (kb > 3500 ? ' — cerca del límite del navegador, exporta y cierra el caso' : '');
+}
+
+// ── Datos de corrección (_meta) ────────────────────────────────────
+// El documento de corrección lee estas dos claves para encabezar la pauta.
+var tMeta;
+function guardarMeta() {
+  clearTimeout(tMeta);
+  tMeta = setTimeout(function () {
+    var m = {
+      estudiante: document.getElementById('metaEstudiante').value.trim(),
+      paciente: document.getElementById('metaPaciente').value.trim()
+    };
+    try { localStorage.setItem(PREFIX + '_meta', JSON.stringify(m)); } catch (e) {}
+  }, 400);
+}
+
+function cargarMeta() {
+  var m = leer('_meta') || {};
+  document.getElementById('metaEstudiante').value = m.estudiante || '';
+  document.getElementById('metaPaciente').value = m.paciente || '';
+}
+
+// ── Exportar ───────────────────────────────────────────────────────
+function exportarCaso() {
+  var datos = {};
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k.indexOf(PREFIX) !== 0) continue;
+    datos[k] = localStorage.getItem(k);
+  }
+  if (!Object.keys(datos).length) { aviso('No hay nada que exportar.', true); return; }
+
+  var ident = leer('identificacion_antecedentes_uss');
+  var iniciales = (ident && ident.datos && ident.datos['v|iniciales']) || 'caso';
+  var paquete = {
+    formato: 'ficha-uss',
+    version: 'v6',
+    exportado: new Date().toISOString(),
+    claves: datos
+  };
+  var hoy = new Date().toISOString().slice(0, 10);
+  var nombre = 'caso_' + String(iniciales).replace(/[^\wÁÉÍÓÚÑáéíóúñ.-]+/g, '_') + '_' + hoy + '.json';
+
+  var blob = new Blob([JSON.stringify(paquete, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  aviso('Caso exportado como ' + nombre);
+}
+
+// ── Importar ───────────────────────────────────────────────────────
+function importarCaso(input) {
+  var archivo = input.files && input.files[0];
+  input.value = '';
+  if (!archivo) return;
+
+  var lector = new FileReader();
+  lector.onload = function () {
+    var paquete;
+    try { paquete = JSON.parse(lector.result); }
+    catch (e) { aviso('El archivo no es un JSON válido.', true); return; }
+
+    if (!paquete || paquete.formato !== 'ficha-uss' || !paquete.claves) {
+      aviso('El archivo no corresponde a un caso exportado desde la ficha.', true); return;
+    }
+    var hayDatos = false;
+    for (var i = 0; i < localStorage.length; i++) {
+      if (localStorage.key(i).indexOf(PREFIX) === 0) { hayDatos = true; break; }
+    }
+    if (hayDatos && !confirm('Ya hay un caso en este equipo. Al importar se reemplaza por completo. ¿Continuar?')) return;
+
+    // Limpiar y escribir
+    var borrar = [];
+    for (var j = 0; j < localStorage.length; j++) {
+      var k = localStorage.key(j);
+      if (k.indexOf(PREFIX) === 0) borrar.push(k);
+    }
+    borrar.forEach(function (k) { localStorage.removeItem(k); });
+
+    try {
+      Object.keys(paquete.claves).forEach(function (k) {
+        if (k.indexOf(PREFIX) !== 0) return;
+        localStorage.setItem(k, paquete.claves[k]);
+      });
+    } catch (e) {
+      aviso('No hubo espacio suficiente para importar todas las fotografías.', true);
+    }
+    pintar();
+    aviso('Caso importado.');
+  };
+  lector.readAsText(archivo);
+}
+
+// ── Borrar ─────────────────────────────────────────────────────────
+function abrirModal() { document.getElementById('modalCerrar').classList.add('abierto'); }
+function cerrarModal() { document.getElementById('modalCerrar').classList.remove('abierto'); }
+
+function borrarTodo() {
+  var borrar = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k.indexOf(PREFIX) === 0) borrar.push(k);
+  }
+  borrar.forEach(function (k) { localStorage.removeItem(k); });
+  cerrarModal();
+  pintar();
+  aviso('Caso cerrado. El equipo queda limpio.');
+}
+
+// ── Avisos ─────────────────────────────────────────────────────────
+var tToast;
+function aviso(texto, error) {
+  var t = document.getElementById('toast');
+  t.textContent = texto;
+  t.style.background = error ? '#8B1A1A' : '#1A5C3A';
+  t.classList.add('ver');
+  clearTimeout(tToast);
+  tToast = setTimeout(function () { t.classList.remove('ver'); }, 3200);
+}
+
+document.getElementById('modalCerrar').addEventListener('click', function (e) {
+  if (e.target === this) cerrarModal();
+});
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarModal(); });
+
+// Repintar al volver desde un módulo
+window.addEventListener('pageshow', function () { pintar(); cargarMeta(); });
+pintar();
+cargarMeta();
+</script>
+
+</body>
+</html>
