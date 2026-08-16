@@ -143,52 +143,6 @@
   .ai-result-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--amber); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
   .ai-result-actions { display: flex; gap: 8px; margin-top: 10px; }
 
-  /* ── Razonamiento previo (bloqueo de fundamentación) ── */
-  .rz-step { border-left: 3px solid var(--accent); background: #fbfcfe; border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; }
-  .rz-step.done { border-left-color: #2e7d52; background: #f6faf7; }
-  .rz-step.pending { opacity: 0.45; pointer-events: none; border-left-color: #cfd4da; background: #fafafa; }
-  .rz-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .rz-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .rz-step.done .rz-num { background: #2e7d52; }
-  .rz-step.pending .rz-num { background: #cfd4da; }
-  .rz-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .rz-hint { font-size: 11.5px; color: #6b7280; margin-bottom: 10px; line-height: 1.55; }
-  .rz-locked textarea, .rz-locked input { background: #f2f3f5 !important; color: #4b5563 !important; cursor: not-allowed; }
-  .rz-stamp { font-size: 11px; color: #2e7d52; margin-top: 8px; display: flex; align-items: center; gap: 5px; }
-  .rz-dom { border:1px solid var(--border,#E2DED6); border-radius:8px; padding:15px 16px; margin-bottom:14px;
-    background:var(--surface-2,#F9F8F5); }
-  .rz-dom-h { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
-    color:var(--accent,#1D3A6B); margin-bottom:11px; }
-  .rz-dom .field { margin-bottom:12px; }
-  .rz-dom input[type="text"] { width:100%; border:1px solid var(--border,#E2DED6); border-radius:6px;
-    padding:9px 12px; font-family:inherit; font-size:14px; background:#fff; outline:none; }
-  .rz-dom input[type="text"]:focus { border-color:var(--accent-mid,#4A6FA5); box-shadow:0 0 0 3px rgba(74,111,165,.12); }
-  .rz-part { margin-top:10px; }
-  .rz-part-l { font-size:12px; font-weight:500; color:var(--text-2,#5C5849); margin-bottom:5px; }
-  .rz-part textarea { width:100%; border:1px solid var(--border,#E2DED6); border-radius:6px; padding:8px 11px;
-    font-family:inherit; font-size:13.5px; background:#fff; outline:none; resize:vertical; line-height:1.55; }
-  .rz-part textarea:focus { border-color:var(--accent-mid,#4A6FA5); box-shadow:0 0 0 3px rgba(74,111,165,.12); }
-  .rz-locked .rz-dom { background:#F2F0EB; }
-  /* Coherencia */
-  .coh { border:1px solid #e8d99a; background:#fffdf5; border-radius:8px; padding:14px 16px; margin-bottom:12px; }
-  .coh.alta { border-color:#e0b4b4; background:#fdf6f6; }
-  .coh-t { font-size:13px; font-weight:600; color:#7A4A00; margin-bottom:9px; }
-  .coh.alta .coh-t { color:#8B1A1A; }
-  .coh-d { font-size:12.5px; color:var(--text-2,#5C5849); line-height:1.6; padding-left:15px; position:relative; margin-bottom:4px; }
-  .coh-d::before { content:"·"; position:absolute; left:4px; font-weight:700; }
-  .coh-q { font-size:13.5px; color:var(--text,#1A1814); line-height:1.6; margin-top:9px;
-    padding-top:9px; border-top:1px solid rgba(0,0,0,.07); }
-  .coh-lead { font-size:12.5px; color:var(--text-2,#5C5849); line-height:1.6; margin-bottom:12px; }
-  .coh-ok { font-size:13px; color:var(--green,#1A5C3A); background:#E8F5EE; border:1px solid #bfe0cd;
-    border-radius:8px; padding:12px 15px; line-height:1.6; margin-bottom:12px; }
-  .rz-warn { font-size: 11.5px; color: #92400e; background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--radius-sm); padding: 8px 11px; margin-top: 10px; line-height: 1.55; }
-  .rz-q { margin: 0 0 9px 0; padding-left: 18px; position: relative; }
-  .rz-q:before { content: "?"; position: absolute; left: 0; top: 0; color: var(--amber); font-weight: 700; }
-  .rz-trace { background: #fafbfc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; line-height: 1.65; }
-  .rz-trace h4 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin: 12px 0 4px; font-weight: 600; }
-  .rz-trace h4:first-child { margin-top: 0; }
-  .rz-trace p { margin: 0; white-space: pre-wrap; color: var(--text); }
-
   .btn { height: 38px; padding: 0 18px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background 0.15s, transform 0.1s; }
   .btn:hover { background: #162d54; }
   .btn:active { transform: scale(0.98); }
@@ -264,7 +218,7 @@
 
   <div class="card">
     <div class="card-title">Orden de enunciación diagnóstica — Slide 37</div>
-    <p style="font-size:12px;color:var(--text-3);margin-bottom:16px;">Según la ficha USS el diagnóstico se enuncia en este orden específico. Completa cada bloque con tus hallazgos. El asistente no redacta el diagnóstico: lo redactas tú tras responder sus preguntas.</p>
+    <p style="font-size:12px;color:var(--text-3);margin-bottom:16px;">Según la ficha USS el diagnóstico se enuncia en este orden específico. Completa cada bloque y usa la IA para generar el texto integrado.</p>
 
     <!-- 1. Sistémico -->
     <div class="diag-block" id="db1">
@@ -376,99 +330,26 @@
     </div>
   </div>
 
-  <!-- Razonamiento guiado -->
+  <!-- IA Diagnóstico -->
   <div class="card">
-    <div class="card-title">✦ Razonamiento clínico guiado</div>
+    <div class="card-title">✦ Asistente IA — Diagnóstico integral</div>
     <div class="ai-bar">
-      <span class="ai-bar-text">El asistente <span>no entrega el diagnóstico</span>. Primero registras tu hipótesis y la fundamentas; recién entonces el asistente interroga tu razonamiento para que lo revises.</span>
+      <span class="ai-bar-text">Ingresa los campos anteriores y la IA redactará el <span>diagnóstico clínico integral</span> en el orden USS, listo para copiar.</span>
+      <button class="btn btn-sm" id="btnDiag" onclick="generarDiagnostico()">Generar diagnóstico</button>
     </div>
-
-    <!-- Paso 1 -->
-    <div class="rz-step" id="rzStep1">
-      <div class="rz-head"><span class="rz-num">1</span><span class="rz-title">Tu hipótesis y su fundamentación</span></div>
-      <div class="rz-hint">Cada diagnóstico va con el dato que lo sostiene, por partes. No basta la etiqueta: un estadio, un grado y una extensión se apoyan en datos distintos. Una vez registrado, este texto queda bloqueado y no puede editarse.</div>
-
-      <div class="rz-dom">
-        <div class="rz-dom-h">Diagnóstico periodontal</div>
-        <div class="field">
-          <label>Diagnóstico</label>
-          <input type="text" id="rzPerioDx" placeholder="Ej: Periodontitis estadio III grado B generalizada">
-        </div>
-        <div class="rz-part">
-          <div class="rz-part-l">Estadio — ¿en qué dato lo sostienes?</div>
-          <textarea id="rzPerioEstadio" rows="2" placeholder="Nivel de inserción interproximal del sitio más afectado, pérdida ósea radiográfica, pérdida dentaria por causa periodontal."></textarea>
-        </div>
-        <div class="rz-part">
-          <div class="rz-part-l">Grado — ¿en qué dato lo sostienes?</div>
-          <textarea id="rzPerioGrado" rows="2" placeholder="Relación entre porcentaje de pérdida ósea y edad, y modificadores como tabaquismo o diabetes."></textarea>
-        </div>
-        <div class="rz-part">
-          <div class="rz-part-l">Extensión y distribución — ¿en qué dato las sostienes?</div>
-          <textarea id="rzPerioExtension" rows="2" placeholder="Porcentaje de sitios comprometidos y sectores donde se concentra el compromiso."></textarea>
+    <div id="diagIA" class="hidden">
+      <div class="ai-result">
+        <div class="ai-result-label">✦ Diagnóstico sugerido por IA</div>
+        <div id="diagIATexto"></div>
+        <div class="ai-result-actions">
+          <button class="btn btn-sm btn-green" onclick="usarDiagnostico()">Usar este texto</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('diagIA').classList.add('hidden')">Descartar</button>
         </div>
       </div>
-
-      <div class="rz-dom">
-        <div class="rz-dom-h">Diagnóstico de tejidos duros</div>
-        <div class="field">
-          <label>Diagnóstico</label>
-          <input type="text" id="rzDurosDx" placeholder="Ej: Enfermedad de caries activa con lesiones dentinarias en sectores posteriores">
-        </div>
-        <div class="rz-part">
-          <div class="rz-part-l">¿En qué dato lo sostienes?</div>
-          <textarea id="rzDurosJust" rows="2" placeholder="Piezas comprometidas y profundidad ICDAS, actividad de las lesiones, riesgo cariogénico determinado, hallazgos radiográficos."></textarea>
-        </div>
-      </div>
-
-      <div class="rz-dom">
-        <div class="rz-dom-h">Otros diagnósticos</div>
-        <div class="field">
-          <label>Diagnóstico articular, oclusal, sistémico u otro que corresponda</label>
-          <input type="text" id="rzOtrosDx" placeholder="Ej: Desplazamiento discal con reducción de ATM derecha; ASA II">
-        </div>
-        <div class="rz-part">
-          <div class="rz-part-l">¿En qué dato lo sostienes?</div>
-          <textarea id="rzOtrosJust" rows="2" placeholder="Signo específico que define cada diagnóstico. Si un diagnóstico es presuntivo, dilo y explica qué falta para confirmarlo."></textarea>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>¿Qué otra explicación consideraste y por qué la descartaste?</label>
-        <textarea id="rzDiferencial" rows="3" placeholder="Ej: Consideré agrandamiento gingival como causa de las profundidades registradas, pero el nivel de inserción de esos sitios muestra pérdida real, lo que lo descarta."></textarea>
-      </div>
-
-      <div class="rz-warn" id="rzWarn" style="display:none;">Completa al menos un diagnóstico con su fundamentación y el diagnóstico diferencial antes de registrar.</div>
-
-      <div style="margin-top:12px;">
-        <button class="btn btn-sm" id="btnRegistrar" onclick="registrarFundamentacion()">Registrar fundamentación y consultar al asistente</button>
-      </div>
-      <div class="rz-stamp" id="rzStamp" style="display:none;"></div>
     </div>
-
-    <!-- Paso 2 -->
-    <div class="rz-step pending" id="rzStep2">
-      <div class="rz-head"><span class="rz-num">2</span><span class="rz-title">Preguntas del asistente</span></div>
-      <div class="rz-hint">Primero, las contradicciones que el sistema detectó entre secciones de tu ficha. Después, las preguntas del asistente. Ninguno de los dos te dice cuál es el diagnóstico.</div>
-      <div id="rzCoherencia"></div>
-      <div id="rzPreguntas"></div>
-    </div>
-
-    <!-- Paso 3 -->
-    <div class="rz-step pending" id="rzStep3">
-      <div class="rz-head"><span class="rz-num">3</span><span class="rz-title">Tu respuesta y diagnóstico final</span></div>
-      <div class="rz-hint">Responde a las preguntas y redacta tú el diagnóstico clínico integral en el orden de la ficha USS. Tu fundamentación inicial se conserva íntegra para la retroalimentación docente.</div>
-
-      <div class="field">
-        <label>Respuesta a las preguntas del asistente</label>
-        <textarea id="rzRevision" rows="4" placeholder="Indica qué mantienes de tu razonamiento inicial, qué modificas y por qué..."></textarea>
-      </div>
-      <div class="field">
-        <label>Diagnóstico clínico integral — texto final (redactado por el estudiante)</label>
-        <textarea id="diagFinal" rows="6" placeholder="Redacta el diagnóstico en el orden USS: sistémico, TTM, ADM, periodontal, tejidos duros, otras patologías..."></textarea>
-      </div>
-      <div style="margin-top:10px;">
-        <button class="btn btn-sm btn-ghost" onclick="copiarRegistro()">Copiar registro de razonamiento</button>
-      </div>
+    <div class="field">
+      <label>Diagnóstico clínico integral — texto final</label>
+      <textarea id="diagFinal" rows="6" placeholder="El diagnóstico integrado aparecerá aquí o puedes redactarlo directamente..."></textarea>
     </div>
   </div>
 
@@ -512,49 +393,26 @@
     <div id="fasesContainer"></div>
   </div>
 
-  <!-- Fundamentación del plan -->
+  <!-- IA Plan -->
   <div class="card">
-    <div class="card-title">Fundamentación del plan de tratamiento</div>
-    <div class="rz-hint" style="margin-bottom:14px;">
-      El razonamiento de un plan no está en la lista de procedimientos, sino en el orden.
-      Fundamenta por qué esta secuencia y no otra; recién entonces el asistente la interroga.
-      El asistente no redacta el plan.
+    <div class="card-title">✦ Asistente IA — Síntesis del plan</div>
+    <div class="ai-bar">
+      <span class="ai-bar-text">Completa las fases y la IA redactará la <span>síntesis narrativa del plan de tratamiento</span> por fases, lista para la ficha.</span>
+      <button class="btn btn-sm" id="btnPlan" onclick="generarPlan()">Generar síntesis</button>
     </div>
-
-    <div class="field">
-      <label>¿Por qué este orden de fases en este paciente?</label>
-      <textarea id="planOrden" rows="3" placeholder="Ej: la fase higiénica va primero porque el índice de higiene deficiente compromete cualquier restauración que se haga antes de controlarlo..."></textarea>
-    </div>
-    <div class="field">
-      <label>¿Qué condición del paciente obliga a modificar el plan habitual?</label>
-      <textarea id="planCondicion" rows="2" placeholder="Ej: el tabaquismo activo obliga a reevaluar la respuesta periodontal antes de comprometer una rehabilitación fija..."></textarea>
-    </div>
-    <div class="field">
-      <label>¿Qué procedimiento podría no ser necesario y por qué lo mantienes?</label>
-      <textarea id="planDiscutible" rows="2" placeholder="Ej: la exodoncia de 4.8 es discutible porque está asintomática, pero la mantengo por su posición y el riesgo de pericoronaritis a repetición..."></textarea>
-    </div>
-
-    <div class="rz-warn" id="planWarn" style="display:none;">Fundamenta al menos el orden de las fases antes de consultar al asistente.</div>
-    <div style="margin-top:12px;">
-      <button class="btn btn-sm" id="btnPlan" onclick="interrogarPlan()">Registrar y consultar al asistente</button>
-    </div>
-    <div id="planIA" class="hidden" style="margin-top:12px;">
+    <div id="planIA" class="hidden">
       <div class="ai-result">
-        <div class="ai-result-label">✦ Preguntas sobre tu plan</div>
+        <div class="ai-result-label">✦ Síntesis del plan sugerida por IA</div>
         <div id="planIATexto"></div>
+        <div class="ai-result-actions">
+          <button class="btn btn-sm btn-green" onclick="usarPlan()">Usar este texto</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('planIA').classList.add('hidden')">Descartar</button>
+        </div>
       </div>
     </div>
-    <div class="field" style="margin-top:14px;">
-      <label>Tu respuesta a las preguntas</label>
-      <textarea id="planRevision" rows="3" placeholder="Qué mantienes del plan y qué corriges, y por qué."></textarea>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Redacción del plan para la ficha</div>
     <div class="field">
-      <label>Síntesis narrativa del plan de tratamiento — la redactas tú</label>
-      <textarea id="planFinal" rows="7" placeholder="Redacta el plan por fases, en prosa clínica, incorporando lo que hayas corregido tras las preguntas."></textarea>
+      <label>Síntesis narrativa del plan de tratamiento</label>
+      <textarea id="planFinal" rows="7" placeholder="La síntesis del plan aparecerá aquí, o puedes redactarla directamente..."></textarea>
     </div>
   </div>
 
@@ -673,43 +531,26 @@
     </div>
   </div>
 
-  <!-- Fundamentación del pronóstico -->
+  <!-- IA Pronóstico -->
   <div class="card">
-    <div class="card-title">Fundamentación del pronóstico</div>
-    <div class="rz-hint" style="margin-bottom:14px;">
-      Un pronóstico sin factores nombrados no es un pronóstico, es una expectativa.
-      Di de qué depende, y qué lo cambiaría.
+    <div class="card-title">✦ Asistente IA — Síntesis pronóstico</div>
+    <div class="ai-bar">
+      <span class="ai-bar-text">Completa los factores y la IA redactará la <span>síntesis narrativa del pronóstico</span> en lenguaje clínico formal.</span>
+      <button class="btn btn-sm" id="btnPron" onclick="generarPronostico()">Generar síntesis</button>
     </div>
-    <div class="field">
-      <label>¿De qué depende que este pronóstico se cumpla?</label>
-      <textarea id="pronDepende" rows="3" placeholder="Ej: depende de que la paciente suspenda el tabaco y de que la respuesta a la fase higiénica reduzca el sangrado bajo el 10%..."></textarea>
-    </div>
-    <div class="field">
-      <label>¿Qué pieza tiene el peor pronóstico y por qué?</label>
-      <textarea id="pronPeor" rows="2" placeholder="Ej: 3.7, por pérdida de inserción de 7 mm con compromiso de furca grado II y movilidad grado 2..."></textarea>
-    </div>
-
-    <div class="rz-warn" id="pronWarn" style="display:none;">Fundamenta de qué depende el pronóstico antes de consultar al asistente.</div>
-    <div style="margin-top:12px;">
-      <button class="btn btn-sm" id="btnPron" onclick="interrogarPronostico()">Registrar y consultar al asistente</button>
-    </div>
-    <div id="pronIA" class="hidden" style="margin-top:12px;">
+    <div id="pronIA" class="hidden">
       <div class="ai-result">
-        <div class="ai-result-label">✦ Preguntas sobre tu pronóstico</div>
+        <div class="ai-result-label">✦ Síntesis del pronóstico sugerida por IA</div>
         <div id="pronIATexto"></div>
+        <div class="ai-result-actions">
+          <button class="btn btn-sm btn-green" onclick="usarPronostico()">Usar este texto</button>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('pronIA').classList.add('hidden')">Descartar</button>
+        </div>
       </div>
     </div>
-    <div class="field" style="margin-top:14px;">
-      <label>Tu respuesta a las preguntas</label>
-      <textarea id="pronRevision" rows="3" placeholder="Qué mantienes y qué corriges, y por qué."></textarea>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Redacción del pronóstico para la ficha</div>
     <div class="field">
-      <label>Síntesis narrativa del pronóstico — la redactas tú</label>
-      <textarea id="pronFinal" rows="6" placeholder="Redacta el pronóstico nombrando los factores de los que depende."></textarea>
+      <label>Síntesis narrativa del pronóstico</label>
+      <textarea id="pronFinal" rows="6" placeholder="La síntesis del pronóstico aparecerá aquí, o puedes redactarla directamente..."></textarea>
     </div>
   </div>
 
@@ -764,10 +605,7 @@ function markFilled(id, el) {
   if (block) block.classList.toggle('filled', el.value.trim() !== '');
 }
 
-// ---- Razonamiento guiado: registro bloqueado + interrogación ----
-const RZ = { hipotesis: '', evidencia: '', diferencial: '', preguntas: '', sello: '' };
-
-function recogerHallazgos() {
+async function generarDiagnostico() {
   const campos = {
     'Sistémico': document.getElementById('diagSistemico').value.trim(),
     'TTM': document.getElementById('diagTTM').value.trim(),
@@ -776,175 +614,45 @@ function recogerHallazgos() {
     'Tejidos duros': [document.getElementById('diagCaries').value, document.getElementById('diagDesgaste').value, document.getElementById('diagFracturas').value].filter(Boolean).join(' | '),
     'Otras patologías': document.getElementById('diagOtras').value.trim(),
   };
-  return Object.entries(campos).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`);
-}
+  const datos = Object.entries(campos).filter(([,v]) => v).map(([k,v]) => `${k}: ${v}`);
+  if (datos.length < 2) { alert('Completa al menos 2 campos del diagnóstico para usar el asistente.'); return; }
 
-const RZ_CAMPOS = ['rzPerioDx','rzPerioEstadio','rzPerioGrado','rzPerioExtension','rzDurosDx','rzDurosJust','rzOtrosDx','rzOtrosJust','rzDiferencial'];
-
-function valorCampo(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-
-/* Arma el texto de la fundamentación por partes, omitiendo los dominios vacíos */
-function armarFundamentacion() {
-  const bloques = [];
-  const perio = ['rzPerioEstadio', 'rzPerioGrado', 'rzPerioExtension'].map(valorCampo);
-  if (valorCampo('rzPerioDx')) {
-    bloques.push('DIAGNÓSTICO PERIODONTAL: ' + valorCampo('rzPerioDx') +
-      '\n  · Estadio sostenido en: ' + (perio[0] || '(sin fundamentar)') +
-      '\n  · Grado sostenido en: ' + (perio[1] || '(sin fundamentar)') +
-      '\n  · Extensión sostenida en: ' + (perio[2] || '(sin fundamentar)'));
-  }
-  if (valorCampo('rzDurosDx')) {
-    bloques.push('DIAGNÓSTICO DE TEJIDOS DUROS: ' + valorCampo('rzDurosDx') +
-      '\n  · Sostenido en: ' + (valorCampo('rzDurosJust') || '(sin fundamentar)'));
-  }
-  if (valorCampo('rzOtrosDx')) {
-    bloques.push('OTROS DIAGNÓSTICOS: ' + valorCampo('rzOtrosDx') +
-      '\n  · Sostenido en: ' + (valorCampo('rzOtrosJust') || '(sin fundamentar)'));
-  }
-  return bloques.join('\n\n');
-}
-
-/* Contradicciones entre secciones. Se muestran después del sello, nunca antes:
-   señalan el conflicto entre dos datos del propio estudiante, sin resolverlo. */
-function mostrarCoherencia() {
-  const cont = document.getElementById('rzCoherencia');
-  if (!cont || typeof CoherenciaUSS === 'undefined') return;
-
-  let alertas = [];
-  try { alertas = CoherenciaUSS.evaluar(); } catch (e) { alertas = []; }
-  RZ.coherencia = alertas.map(a => a.id);
-
-  if (!alertas.length) {
-    cont.innerHTML = '<div class="coh-ok">La revisión automática no encontró contradicciones entre las ' +
-      'secciones de tu ficha. Eso no confirma que el diagnóstico sea correcto: solo indica que los datos ' +
-      'registrados no se contradicen entre sí.</div>';
-    return;
-  }
-
-  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-  cont.innerHTML =
-    '<div class="coh-lead">La revisión automática encontró ' + alertas.length +
-    (alertas.length === 1 ? ' contradicción' : ' contradicciones') +
-    ' entre datos que registraste en secciones distintas. No se indica cuál de los dos está bien: ' +
-    'eso lo resuelves tú en el paso 3.</div>' +
-    alertas.map(a =>
-      '<div class="coh ' + esc(a.gravedad) + '">' +
-        '<div class="coh-t">' + esc(a.titulo) + '</div>' +
-        (a.dato_a ? '<div class="coh-d">' + esc(a.dato_a) + '</div>' : '') +
-        (a.dato_b ? '<div class="coh-d">' + esc(a.dato_b) + '</div>' : '') +
-        '<div class="coh-q">' + esc(a.pregunta) + '</div>' +
-      '</div>').join('');
-}
-
-async function registrarFundamentacion() {
-  const warn = document.getElementById('rzWarn');
-  const d = valorCampo('rzDiferencial');
-  const hayDx = ['rzPerioDx', 'rzDurosDx', 'rzOtrosDx'].some(valorCampo);
-  const hayJust = ['rzPerioEstadio', 'rzPerioGrado', 'rzPerioExtension', 'rzDurosJust', 'rzOtrosJust'].some(valorCampo);
-
-  if (!hayDx || !hayJust || !d) { warn.style.display = 'block'; return; }
-  warn.style.display = 'none';
-
-  const h = ['rzPerioDx', 'rzDurosDx', 'rzOtrosDx'].map(valorCampo).filter(Boolean).join('; ');
-  const e = armarFundamentacion();
-
-  // Bloqueo irreversible del razonamiento inicial
-  RZ.hipotesis = h; RZ.evidencia = e; RZ.diferencial = d;
-  RZ.partes = {};
-  RZ_CAMPOS.forEach(id => { RZ.partes[id] = valorCampo(id); });
-  RZ.sello = new Date().toLocaleString('es-CL');
-
-  RZ_CAMPOS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.readOnly = true;
-  });
-  const step1 = document.getElementById('rzStep1');
-  step1.classList.add('done', 'rz-locked');
-  document.getElementById('btnRegistrar').style.display = 'none';
-  const stamp = document.getElementById('rzStamp');
-  stamp.textContent = '✓ Fundamentación registrada y bloqueada — ' + RZ.sello;
-  stamp.style.display = 'flex';
-
-  document.getElementById('rzStep2').classList.remove('pending');
-  mostrarCoherencia();
-  const cont = document.getElementById('rzPreguntas');
-  cont.innerHTML = '<div class="ai-result"><div class="ai-result-label">Consultando…</div><div class="spinner"></div></div>';
-
-  const hallazgos = recogerHallazgos();
-
+  const btn = document.getElementById('btnDiag');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
   try {
     const resp = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 900,
+        max_tokens: 1000,
         messages: [{
           role: 'user',
-          content: `Actúas como docente supervisor de una clínica odontológica universitaria en Chile, guiando el razonamiento de un estudiante de tercer año.
+          content: `Eres clínico odontológico universitario en Chile. Redacta el "Diagnóstico Clínico Integral" para la ficha clínica de la Universidad San Sebastián (USS). El diagnóstico se enuncia en este orden obligatorio según la ficha USS:
+1. Enfermedades generales / sistémico
+2. TTM
+3. ADM
+4. Periodontal
+5. Tejidos duros
+6. Otras patologías
 
-REGLA ABSOLUTA: NO entregues un diagnóstico, ni siquiera parcial, ni sugerido, ni "a modo de referencia". NO confirmes ni corrijas la hipótesis del estudiante. NO nombres patologías que el estudiante no haya nombrado. Tu única función es formular preguntas que obliguen al estudiante a examinar su propio razonamiento.
+Datos del paciente:
+${datos.join('\n')}
 
-HALLAZGOS REGISTRADOS EN LA FICHA:
-${hallazgos.length ? hallazgos.join('\n') : '(el estudiante no registró hallazgos en los campos previos)'}
-
-RAZONAMIENTO DEL ESTUDIANTE:
-Hipótesis: ${h}
-Evidencia que invoca: ${e}
-Diferencial considerado y descarte: ${d}
-
-Formula entre 3 y 5 preguntas, cada una en una línea, sin numerar y sin ningún texto introductorio ni de cierre. Distribúyelas así:
-- Al menos una que confronte la correspondencia entre los hallazgos consignados en la ficha y la evidencia que el estudiante invoca, en particular si omitió algún hallazgo relevante o invocó evidencia que no está registrada.
-- Al menos una que ponga a prueba la suficiencia del descarte del diagnóstico diferencial.
-- Al menos una sobre qué información adicional necesitaría para aumentar o disminuir su confianza en la hipótesis.
-
-Cada pregunta debe ser breve, concreta, referirse a los datos específicos de este caso y estar formulada en segunda persona. No uses lenguaje que revele la respuesta esperada.`
+Redacta en prosa clínica formal, tercera persona, integrando todos los datos en ese orden. Máximo 200 palabras. Solo el texto del diagnóstico, sin títulos ni numeración.`
         }]
       })
     });
     const data = await resp.json();
-    const texto = data.content.map(b => b.text || '').join('').trim();
-    RZ.preguntas = texto;
-
-    const lineas = texto.split('\n').map(l => l.replace(/^[-•\d.\s]+/, '').trim()).filter(Boolean);
-    cont.innerHTML = '<div class="ai-result"><div class="ai-result-label">✦ Preguntas para revisar tu razonamiento</div>'
-      + lineas.map(l => `<p class="rz-q">${l.replace(/[<>]/g, '')}</p>`).join('')
-      + '</div>';
-  } catch (err) {
-    RZ.preguntas = '(sin conexión con el asistente)';
-    cont.innerHTML = '<div class="rz-warn">No fue posible conectar con el asistente. Tu fundamentación quedó registrada igualmente; continúa con el paso 3 y responde con tu propio análisis.</div>';
-  }
-
-  document.getElementById('rzStep3').classList.remove('pending');
+    const texto = data.content.map(b => b.text || '').join('');
+    document.getElementById('diagIATexto').textContent = texto;
+    document.getElementById('diagIA').classList.remove('hidden');
+  } catch(e) { alert('Error al conectar con el asistente. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Generar diagnóstico'; }
 }
-
-function copiarRegistro() {
-  const txt = [
-    'REGISTRO DE RAZONAMIENTO CLÍNICO',
-    'Fundamentación inicial registrada el ' + (RZ.sello || '—'),
-    '',
-    'Hipótesis diagnóstica: ' + (RZ.hipotesis || '—'),
-    'Evidencia invocada: ' + (RZ.evidencia || '—'),
-    'Diferencial y descarte: ' + (RZ.diferencial || '—'),
-    '',
-    'Preguntas del asistente:',
-    RZ.preguntas || '—',
-    '',
-    'Respuesta del estudiante:',
-    document.getElementById('rzRevision').value.trim() || '—',
-    '',
-    'Diagnóstico final redactado por el estudiante:',
-    document.getElementById('diagFinal').value.trim() || '—',
-  ].join('\n');
-  navigator.clipboard.writeText(txt).then(
-    () => alert('Registro de razonamiento copiado.'),
-    () => alert('No se pudo copiar automáticamente.')
-  );
+function usarDiagnostico() {
+  document.getElementById('diagFinal').value = document.getElementById('diagIATexto').textContent.trim();
+  document.getElementById('diagIA').classList.add('hidden');
 }
 
 // ---- Plan de tratamiento - Fases ----
@@ -1015,15 +723,7 @@ function removeProc(id) {
   if (el) el.remove();
 }
 
-/* El asistente interroga el plan; no lo redacta. */
-async function interrogarPlan() {
-  const orden = document.getElementById('planOrden').value.trim();
-  const condicion = document.getElementById('planCondicion').value.trim();
-  const discutible = document.getElementById('planDiscutible').value.trim();
-  const warn = document.getElementById('planWarn');
-  if (!orden) { warn.style.display = 'block'; return; }
-  warn.style.display = 'none';
-
+async function generarPlan() {
   const derivaciones = [...document.querySelectorAll('#derivGrid input:checked')].map(i => i.value);
   const faseData = FASES.map(f => {
     const rows = [...document.querySelectorAll(`#tbody-${f.id} tr`)];
@@ -1037,6 +737,8 @@ async function interrogarPlan() {
     return procs.length ? `Fase ${f.num} (${f.titulo}): ${procs.join(' | ')}` : null;
   }).filter(Boolean);
 
+  if (faseData.length < 2) { alert('Completa al menos 2 fases del plan de tratamiento antes de usar el asistente.'); return; }
+
   const btn = document.getElementById('btnPlan');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
   try {
@@ -1045,51 +747,44 @@ async function interrogarPlan() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 700,
-        messages: [{ role: 'user', content:
-`Eres docente de clínica odontológica en una universidad chilena, supervisando a un estudiante de pregrado.
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Eres clínico odontológico universitario en Chile. Redacta la síntesis narrativa del "Plan de Tratamiento" organizado por fases para la ficha clínica USS.
 
-El estudiante propuso este plan de tratamiento:
-${faseData.join('\n') || '(no registró fases)'}
-${derivaciones.length ? 'Derivaciones: ' + derivaciones.join(', ') : ''}
+${derivaciones.length ? 'Derivaciones: ' + derivaciones.join(', ') + '\n' : ''}${faseData.join('\n')}
 
-Y lo fundamentó así:
-Orden de las fases: ${orden}
-Condición que obliga a modificarlo: ${condicion || '(no respondió)'}
-Procedimiento discutible que mantiene: ${discutible || '(no respondió)'}
-
-${RZ.sello ? 'Su diagnóstico sellado fue: ' + (RZ.hipotesis || '') : ''}
-
-Formula exactamente tres preguntas que pongan a prueba el plan. Reglas estrictas:
-- No propongas un plan, no lo corrijas, no indiques qué procedimiento falta ni en qué orden debería ir.
-- Una pregunta sobre la correspondencia entre el diagnóstico y los procedimientos propuestos: si hay un diagnóstico sin procedimiento asociado, o un procedimiento sin diagnóstico que lo justifique, pregunta por eso sin decir cuál es.
-- Una sobre la secuencia: qué ocurriría si una fase se adelantara o retrasara.
-- Una sobre la factibilidad en este paciente: adherencia, condición sistémica, costo o tiempo.
-Segunda persona, breve, referida a los datos de este caso. Una pregunta por línea, sin numeración ni preámbulo.` }]
+Redacta en prosa clínica formal, tercera persona, organizado secuencialmente por fase. Describe los objetivos de cada fase y los procedimientos principales. Máximo 300 palabras. Solo el texto narrativo.`
+        }]
       })
     });
     const data = await resp.json();
-    const texto = data.content.map(b => b.text || '').join('').trim();
-    RZ.planPreguntas = texto;
-    const lineas = texto.split('\n').map(l => l.replace(/^[-•\d.\s]+/, '').trim()).filter(Boolean);
-    document.getElementById('planIATexto').innerHTML = lineas.map(l => `<p class="rz-q">${l.replace(/[<>]/g, '')}</p>`).join('');
+    const texto = data.content.map(b => b.text || '').join('');
+    document.getElementById('planIATexto').textContent = texto;
     document.getElementById('planIA').classList.remove('hidden');
-  } catch(e) {
-    document.getElementById('planIATexto').innerHTML = '<p class="rz-q">No fue posible conectar con el asistente. Revisa tu plan por tu cuenta: ¿cada diagnóstico tiene un procedimiento asociado, y cada procedimiento un diagnóstico que lo justifique?</p>';
-    document.getElementById('planIA').classList.remove('hidden');
-  }
-  finally { btn.disabled = false; btn.innerHTML = 'Registrar y consultar al asistente'; }
+  } catch(e) { alert('Error al conectar con el asistente. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Generar síntesis'; }
+}
+function usarPlan() {
+  document.getElementById('planFinal').value = document.getElementById('planIATexto').textContent.trim();
+  document.getElementById('planIA').classList.add('hidden');
 }
 
 // ---- Pronóstico ----
-async function interrogarPronostico() {
-  const depende = document.getElementById('pronDepende').value.trim();
-  const peor = document.getElementById('pronPeor').value.trim();
-  const warn = document.getElementById('pronWarn');
-  if (!depende) { warn.style.display = 'block'; return; }
-  warn.style.display = 'none';
-
+async function generarPronostico() {
   const pron = document.querySelector('input[name="pronostico"]:checked')?.value || '';
+  const datos = [
+    pron ? 'Pronóstico general: ' + pron : '',
+    document.getElementById('pronPsicosocial').value ? 'Cooperación del paciente: ' + document.getElementById('pronPsicosocial').value : '',
+    document.getElementById('pronCaries').value ? 'Riesgo cariogénico: ' + document.getElementById('pronCaries').value : '',
+    document.getElementById('pronComplejidad').value ? 'Complejidad: ' + document.getElementById('pronComplejidad').value : '',
+    document.getElementById('pronFactibilidad').value ? 'Factibilidad: ' + document.getElementById('pronFactibilidad').value : '',
+    document.getElementById('pronSistemicos').value.trim() ? 'Factores sistémicos/hábitos: ' + document.getElementById('pronSistemicos').value.trim() : '',
+    document.getElementById('pronEspecialidades').value.trim() ? 'Por especialidad: ' + document.getElementById('pronEspecialidades').value.trim() : '',
+  ].filter(Boolean);
+
+  if (datos.length < 2) { alert('Completa al menos 2 factores del pronóstico antes de usar el asistente.'); return; }
+
   const btn = document.getElementById('btnPron');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
   try {
@@ -1098,33 +793,28 @@ async function interrogarPronostico() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 600,
-        messages: [{ role: 'user', content:
-`Eres docente de clínica odontológica en una universidad chilena, supervisando a un estudiante de pregrado.
+        max_tokens: 800,
+        messages: [{
+          role: 'user',
+          content: `Eres clínico odontológico universitario en Chile. Redacta la síntesis narrativa del "Pronóstico" para la ficha clínica USS.
 
-Pronóstico general que asignó: ${pron || '(no lo asignó)'}
-De qué depende, según el estudiante: ${depende}
-Pieza con peor pronóstico: ${peor || '(no respondió)'}
+Datos del pronóstico:
+${datos.join('\n')}
 
-Formula exactamente tres preguntas que pongan a prueba este pronóstico. Reglas estrictas:
-- No asignes tú un pronóstico, no lo corrijas, no indiques si es demasiado optimista o pesimista.
-- Una pregunta sobre qué factor tendría que cambiar para que el pronóstico fuera distinto.
-- Una sobre el criterio con que asignó el peor pronóstico a esa pieza y no a otra.
-- Una sobre cómo sabrá, en el control, si el pronóstico se está cumpliendo.
-Segunda persona, breve. Una pregunta por línea, sin numeración ni preámbulo.` }]
+Redacta en prosa clínica formal, tercera persona. Fundamenta brevemente el pronóstico mencionando los principales factores favorables y desfavorables identificados. Finaliza con la clasificación pronóstica global. Máximo 180 palabras. Solo el texto narrativo.`
+        }]
       })
     });
     const data = await resp.json();
-    const texto = data.content.map(b => b.text || '').join('').trim();
-    RZ.pronPreguntas = texto;
-    const lineas = texto.split('\n').map(l => l.replace(/^[-•\d.\s]+/, '').trim()).filter(Boolean);
-    document.getElementById('pronIATexto').innerHTML = lineas.map(l => `<p class="rz-q">${l.replace(/[<>]/g, '')}</p>`).join('');
+    const texto = data.content.map(b => b.text || '').join('');
+    document.getElementById('pronIATexto').textContent = texto;
     document.getElementById('pronIA').classList.remove('hidden');
-  } catch(e) {
-    document.getElementById('pronIATexto').innerHTML = '<p class="rz-q">No fue posible conectar con el asistente. Revisa por tu cuenta: ¿qué tendría que ocurrir para que este pronóstico cambiara?</p>';
-    document.getElementById('pronIA').classList.remove('hidden');
-  }
-  finally { btn.disabled = false; btn.innerHTML = 'Registrar y consultar al asistente'; }
+  } catch(e) { alert('Error al conectar con el asistente. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Generar síntesis'; }
+}
+function usarPronostico() {
+  document.getElementById('pronFinal').value = document.getElementById('pronIATexto').textContent.trim();
+  document.getElementById('pronIA').classList.add('hidden');
 }
 
 // ---- Resumen final ----
@@ -1155,14 +845,6 @@ function buildResumen() {
       ['Tejidos duros (fracturas)', getVal('diagFracturas')],
       ['Otras patologías', getVal('diagOtras')],
       ['Diagnóstico integral (texto)', getVal('diagFinal')],
-    ]},
-    { title: 'Registro de razonamiento clínico — evidencia formativa', rows: [
-      ['Fundamentación registrada el', RZ.sello || '—'],
-      ['Hipótesis diagnóstica inicial', RZ.hipotesis || '—'],
-      ['Evidencia invocada', RZ.evidencia || '—'],
-      ['Diferencial considerado y descarte', RZ.diferencial || '—'],
-      ['Preguntas del asistente', RZ.preguntas || '—'],
-      ['Respuesta del estudiante', getVal('rzRevision')],
     ]},
     { title: 'Slides 38–39 — Plan de tratamiento', rows: [
       ['Derivaciones', derivaciones],
@@ -1210,72 +892,7 @@ function copiarResumen() {
 // Init
 buildFases();
 </script>
-<script src="coherencia-uss.js"></script>
 <script src="ficha-uss.js"></script>
 <script src="preguntas-uss.js"></script>
-<script>
-/* Persistencia del sello de fundamentación.
-   El texto sellado se restaura tal cual quedó registrado y vuelve a bloquearse,
-   de modo que recargar la página no permita reescribir el razonamiento inicial. */
-(function () {
-  var K = 'fichaUSS:v6:rz-sello';
-
-  function guardarSello() {
-    try {
-      var paquete = {
-        sello: RZ.sello, hipotesis: RZ.hipotesis, evidencia: RZ.evidencia,
-        diferencial: RZ.diferencial, coherencia: RZ.coherencia || [],
-        preguntas: (document.getElementById('rzPreguntas') || {}).innerHTML || '',
-        alertas: (document.getElementById('rzCoherencia') || {}).innerHTML || ''
-      };
-      RZ_CAMPOS.forEach(function (id) { paquete[id] = (RZ.partes || {})[id] || ''; });
-      localStorage.setItem(K, JSON.stringify(paquete));
-    } catch (e) {}
-  }
-
-  var original = window.registrarFundamentacion;
-  window.registrarFundamentacion = function () {
-    var r = original.apply(this, arguments);
-    Promise.resolve(r).then(function () { if (RZ.sello) guardarSello(); });
-    return r;
-  };
-
-  function aplicarSello() {
-    var d;
-    try { d = JSON.parse(localStorage.getItem(K)); } catch (e) { return; }
-    if (!d || !d.sello) return;
-
-    RZ.hipotesis = d.hipotesis; RZ.evidencia = d.evidencia;
-    RZ.diferencial = d.diferencial; RZ.sello = d.sello;
-    RZ.partes = {};
-
-    RZ_CAMPOS.forEach(function (id) {
-      RZ.partes[id] = d[id] || '';
-      var el = document.getElementById(id);
-      if (!el) return;
-      el.value = d[id] || '';
-      el.readOnly = true;
-    });
-
-    var step1 = document.getElementById('rzStep1');
-    if (step1) step1.classList.add('done', 'rz-locked');
-    var btn = document.getElementById('btnRegistrar');
-    if (btn) btn.style.display = 'none';
-    var stamp = document.getElementById('rzStamp');
-    if (stamp) {
-      stamp.textContent = '\u2713 Fundamentaci\u00f3n registrada y bloqueada \u2014 ' + d.sello;
-      stamp.style.display = 'flex';
-    }
-    var step2 = document.getElementById('rzStep2');
-    if (step2) step2.classList.remove('pending');
-    var alertas = document.getElementById('rzCoherencia');
-    if (alertas && d.alertas) alertas.innerHTML = d.alertas;
-    var preg = document.getElementById('rzPreguntas');
-    if (preg && d.preguntas) preg.innerHTML = d.preguntas;
-  }
-
-  window.addEventListener('load', function () { setTimeout(aplicarSello, 800); });
-})();
-</script>
 </body>
 </html>

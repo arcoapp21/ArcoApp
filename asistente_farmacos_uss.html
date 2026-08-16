@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Asistente de Fármacos — Asistente Digital USS</title>
+<title>Asistente de Fármacos — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -379,7 +379,7 @@
   <div class="header-logo">💊</div>
   <div class="header-text">
     <h1>Asistente de Fármacos</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slide 5 — IA</span>
 </header>
@@ -422,7 +422,7 @@
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 const drugs = [];
 let viewMode = 'cards';
 
@@ -486,7 +486,7 @@ Los efectos_odonto deben ser específicos y relevantes. Si no hay efectos odonto
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-5',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }]
     })
@@ -672,7 +672,6 @@ function copyTable() {
 }
 </script>
 <script src="ficha-uss.js"></script>
-<script src="coherencia-uss.js"></script>
-<script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

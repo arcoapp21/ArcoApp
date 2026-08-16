@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Examen Clínico Físico General — Asistente Digital USS</title>
+<title>Examen Clínico Físico General — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -89,6 +89,23 @@
   .imc-range { font-size: 12px; color: var(--text-3); margin-top: 2px; }
 
   /* ASA badge */
+  .asa-datos { background:#FFF4E0; border:1px solid #e8d99a; border-radius:8px;
+    padding:12px 15px; margin-bottom:14px; font-size:13px; color:#7A4A00; line-height:1.6; }
+  .asa-datos-l { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+  .asa-datos ul { margin:0 0 6px; padding-left:18px; }
+  .asa-datos-n { font-size:11.5px; opacity:.85; }
+  .asa-e { display:flex; align-items:flex-start; gap:8px; margin-top:14px; font-size:12.5px;
+    color:var(--text-2,#5C5849); line-height:1.5; cursor:pointer; }
+  .asa-e input { width:15px; height:15px; margin-top:1px; accent-color:var(--accent,#1D3A6B); flex-shrink:0; }
+  .asa-ref { margin-top:16px; border-top:1px solid var(--border,#E2DED6); padding-top:12px; }
+  .asa-ref summary { font-size:12.5px; font-weight:500; color:var(--accent,#1D3A6B); cursor:pointer; }
+  .asa-ej-box { margin-top:12px; }
+  .asa-ej { display:grid; grid-template-columns:52px 1fr; gap:12px; padding:8px 0;
+    border-bottom:1px solid var(--border,#E2DED6); font-size:12.5px; line-height:1.55; }
+  .asa-ej:last-child { border-bottom:none; }
+  .asa-ej-n { font-family:"DM Mono",monospace; font-weight:500; color:var(--accent,#1D3A6B); }
+  .asa-ej-t { color:var(--text-2,#5C5849); }
+  .asa-ref-n { font-size:11.5px; color:var(--text-3,#9C9688); line-height:1.55; margin-top:10px; }
   .asa-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
   .asa-option input { display: none; }
   .asa-option label { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; background: var(--surface-2); text-align: center; }
@@ -152,36 +169,6 @@
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
 </head>
 <body>
 
@@ -189,7 +176,7 @@
   <div class="header-logo">🩺</div>
   <div class="header-text">
     <h1>Examen Clínico Físico General</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slides 7–8</span>
 </header>
@@ -201,17 +188,6 @@
 </div>
 
 <main>
-
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
 
 <!-- ===== TAB 0: Examen general ===== -->
 <div id="tab-0">
@@ -573,47 +549,98 @@
   <!-- Clasificación ASA -->
   <div class="card">
     <div class="card-title">Clasificación ASA</div>
+    <p style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:14px;">
+      La clase ASA no es un dato que se observa, es un juicio que se argumenta. La literatura documenta amplia
+      variabilidad entre evaluadores: en un estudio, un mismo caso fue clasificado en las cinco categorías
+      posibles por distintos profesionales. Por eso aquí no basta con marcarla.
+    </p>
+
+    <div class="asa-datos" id="asaDatos" style="display:none;">
+      <div class="asa-datos-l">Lo que ya registraste en antecedentes</div>
+      <ul id="asaDatosLista"></ul>
+      <div class="asa-datos-n">Tu clasificación tiene que ser compatible con esto. Si no lo es, corrige uno de los dos.</div>
+    </div>
+
     <div class="asa-grid">
       <div class="asa-option">
-        <input type="radio" name="asa" id="asa1" value="ASA I">
+        <input type="radio" name="asa" id="asa1" value="ASA I" onchange="asaCambio()">
         <label for="asa1">
           <span class="asa-num">I</span>
-          <span class="asa-desc">Sano, sin alteración sistémica</span>
+          <span class="asa-desc">Paciente sano</span>
         </label>
       </div>
       <div class="asa-option">
-        <input type="radio" name="asa" id="asa2" value="ASA II">
+        <input type="radio" name="asa" id="asa2" value="ASA II" onchange="asaCambio()">
         <label for="asa2">
           <span class="asa-num">II</span>
-          <span class="asa-desc">Alteración sistémica leve, bien controlada</span>
+          <span class="asa-desc">Enfermedad sistémica leve, sin limitación funcional sustantiva</span>
         </label>
       </div>
       <div class="asa-option">
-        <input type="radio" name="asa" id="asa3" value="ASA III">
+        <input type="radio" name="asa" id="asa3" value="ASA III" onchange="asaCambio()">
         <label for="asa3">
           <span class="asa-num">III</span>
-          <span class="asa-desc">Alteración sistémica grave pero no incapacitante</span>
+          <span class="asa-desc">Enfermedad sistémica grave, con limitación funcional sustantiva</span>
         </label>
       </div>
       <div class="asa-option">
-        <input type="radio" name="asa" id="asa4" value="ASA IV">
+        <input type="radio" name="asa" id="asa4" value="ASA IV" onchange="asaCambio()">
         <label for="asa4">
           <span class="asa-num">IV</span>
-          <span class="asa-desc">Riesgo vital constante, alteración incapacitante</span>
+          <span class="asa-desc">Enfermedad sistémica grave que constituye una amenaza vital constante</span>
         </label>
       </div>
       <div class="asa-option">
-        <input type="radio" name="asa" id="asa5" value="ASA V">
+        <input type="radio" name="asa" id="asa5" value="ASA V" onchange="asaCambio()">
         <label for="asa5">
           <span class="asa-num">V</span>
-          <span class="asa-desc">Moribundo, no se espera que sobreviva sin cirugía</span>
+          <span class="asa-desc">Paciente moribundo que no se espera que sobreviva sin la intervención</span>
+        </label>
+      </div>
+      <div class="asa-option">
+        <input type="radio" name="asa" id="asa6" value="ASA VI" onchange="asaCambio()">
+        <label for="asa6">
+          <span class="asa-num">VI</span>
+          <span class="asa-desc">Donante con muerte cerebral declarada</span>
         </label>
       </div>
     </div>
-    <div class="field" style="margin-top:14px;">
-      <label>Justificación clasificación ASA</label>
-      <textarea id="asaJustif" placeholder="Ej: Paciente clasificado ASA II por HTA en tratamiento farmacológico controlado, sin otras complicaciones sistémicas..." rows="2" oninput="autoSave()"></textarea>
+
+    <label class="asa-e"><input type="checkbox" id="asaEmergencia"><span>Modificador E — la intervención es de urgencia y el retraso aumentaría la amenaza para la vida o para un órgano</span></label>
+
+    <div class="field" style="margin-top:16px;">
+      <label>¿Qué condición sistémica sostiene esta clasificación?</label>
+      <textarea id="asaJustif" rows="2" placeholder="Nombra la condición y su estado de control. Ej: hipertensión arterial en tratamiento con losartán, con cifras controladas en los últimos seis meses." oninput="autoSave()"></textarea>
     </div>
+    <div class="field" style="margin-top:14px;">
+      <label>¿Por qué esta clase y no la contigua?</label>
+      <div style="font-size:11.5px;color:var(--text-3);line-height:1.5;margin-bottom:5px;">
+        Es la pregunta que decide. Lo que separa ASA II de ASA III no es la enfermedad sino el control y la
+        limitación funcional que produce.
+      </div>
+      <textarea id="asaContigua" rows="2" placeholder="Ej: no es ASA III porque la hipertensión está controlada y no produce limitación funcional; no es ASA I porque existe una enfermedad sistémica en tratamiento."></textarea>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>¿Qué cambia en la atención odontológica por esta clasificación?</label>
+      <textarea id="asaConsecuencia" rows="2" placeholder="Ej: control de presión antes de cada sesión, sesiones cortas en la mañana, y límite de dos tubos de anestésico con vasoconstrictor."></textarea>
+    </div>
+
+    <details class="asa-ref">
+      <summary>Definiciones y ejemplos de la clasificación vigente</summary>
+      <div class="asa-ej-box">
+      <div class="asa-ej"><span class="asa-ej-n">I</span><span class="asa-ej-t">Sano, no fumador, consumo de alcohol nulo o mínimo.</span></div>
+      <div class="asa-ej"><span class="asa-ej-n">II</span><span class="asa-ej-t">Fumador actual. Bebedor social. Embarazo. Obesidad con IMC entre 30 y 40. Diabetes o hipertensión bien controladas. Enfermedad pulmonar leve.</span></div>
+      <div class="asa-ej"><span class="asa-ej-n">III</span><span class="asa-ej-t">Diabetes o hipertensión mal controladas. EPOC. Obesidad con IMC de 40 o más. Hepatitis activa. Dependencia o abuso de alcohol. Marcapasos. Enfermedad renal en diálisis programada. Infarto, accidente cerebrovascular, crisis isquémica transitoria o stent coronario hace más de tres meses.</span></div>
+      <div class="asa-ej"><span class="asa-ej-n">IV</span><span class="asa-ej-t">Infarto, accidente cerebrovascular, crisis isquémica transitoria o stent coronario en los últimos tres meses. Isquemia cardíaca en curso o disfunción valvular grave. Sepsis. Enfermedad renal terminal sin diálisis programada.</span></div>
+      <div class="asa-ej"><span class="asa-ej-n">V</span><span class="asa-ej-t">Rotura de aneurisma. Trauma masivo. Hemorragia intracraneal con efecto de masa. Falla multiorgánica.</span></div>
+      <div class="asa-ej"><span class="asa-ej-n">VI</span><span class="asa-ej-t">No aplica en atención odontológica ambulatoria; se incluye por completitud de la clasificación.</span></div>
+      </div>
+      <p class="asa-ref-n">
+        Ejemplos aprobados por la American Society of Anesthesiologists, versión vigente desde 2020. La lista no es
+        exhaustiva. La clasificación por sí sola no predice el riesgo perioperatorio: describe el estado basal del
+        paciente, no la complejidad del procedimiento.
+      </p>
+    </details>
   </div>
 
   <div class="nav-footer">
@@ -635,35 +662,10 @@
   </div>
 </div>
 
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
-  </div>
-</div>
-
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 let currentTab = 0;
 
 function goTab(n) {
@@ -675,6 +677,55 @@ function goTab(n) {
   if (n === 2) renderSummary();
   window.scrollTo(0, 0);
 }
+
+
+// ---- Clasificación ASA ----
+/* Trae lo que el estudiante ya registró en antecedentes. Muestra los datos,
+   no la clase: la clasificación la decide y la argumenta él. */
+function asaDatosPrevios() {
+  const PREFIX = 'fichaUSS:v6:';
+  const leer = mod => {
+    try {
+      const crudo = localStorage.getItem(PREFIX + mod);
+      return crudo ? (JSON.parse(crudo).datos || {}) : {};
+    } catch (e) { return {}; }
+  };
+  const ident = leer('identificacion_antecedentes_uss');
+  const avisos = [];
+
+  const tab = ident['r|tabEstado'];
+  const cig = ident['v|tabCantidad'];
+  if (tab === 'Fumador actual') {
+    avisos.push('Fumador actual' + (cig ? ', ' + cig + ' cigarrillos al día' : ''));
+  } else if (tab === 'Exfumador') {
+    avisos.push('Exfumador' + (ident['v|tabCese'] ? ', dejó hace ' + ident['v|tabCese'] : ''));
+  }
+
+  const tragos = parseFloat(ident['v|alcTragos']);
+  if (!isNaN(tragos) && tragos > 0) {
+    avisos.push('Consumo de alcohol: ' + tragos + ' tragos por ocasión' +
+      (tragos >= 5 ? ' (consumo episódico excesivo)' : ''));
+  }
+
+  if (ident['r|susEstado'] === 'Consumo actual') {
+    const cuales = [['susCannabis','cannabis'],['susCocaina','cocaína o pasta base'],
+      ['susEstimulantes','estimulantes'],['susOpioides','opioides'],['susBenzo','benzodiacepinas'],
+      ['susOtras','otras sustancias']]
+      .filter(([id]) => ident['c|' + id] === true).map(([, n]) => n);
+    avisos.push('Consumo actual de sustancias' + (cuales.length ? ': ' + cuales.join(', ') : ''));
+  }
+
+  const caja = document.getElementById('asaDatos');
+  const lista = document.getElementById('asaDatosLista');
+  if (!caja || !lista) return;
+  if (!avisos.length) { caja.style.display = 'none'; return; }
+  lista.innerHTML = avisos.map(a => '<li>' + a + '</li>').join('');
+  caja.style.display = 'block';
+}
+
+function asaCambio() { asaDatosPrevios(); }
+
+window.addEventListener('load', () => setTimeout(asaDatosPrevios, 900));
 
 function autoSave() {}
 
@@ -782,7 +833,7 @@ async function analizarPiel() {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         messages: [{
           role: 'user',
@@ -888,7 +939,6 @@ function copiarResumen() {
 }
 </script>
 <script src="ficha-uss.js"></script>
-<script src="coherencia-uss.js"></script>
-<script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

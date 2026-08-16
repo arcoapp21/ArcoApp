@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Identificación y Antecedentes — Asistente Digital USS</title>
+<title>Identificación y Antecedentes — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,6 +58,55 @@
   .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
 
   /* Form fields */
+  .sus-sub { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--accent,#1D3A6B); padding-bottom:6px; margin-bottom:12px;
+    border-bottom:1px solid var(--border,#E2DED6); }
+  .sus-calc { background:var(--surface-2,#F9F8F5); border:1px solid var(--border,#E2DED6);
+    border-radius:6px; padding:12px 14px; margin-top:14px; }
+  .sus-calc-l { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-3,#9C9688); }
+  .sus-calc-v { font-family:"DM Mono",monospace; font-size:19px; font-weight:500;
+    color:var(--text,#1A1814); margin:3px 0 4px; }
+  .sus-calc-n { font-size:11.5px; color:var(--text-3,#9C9688); line-height:1.5; }
+  .sus-calc.riesgo { background:#FFF4E0; border-color:#e8d99a; }
+  .sus-calc.riesgo .sus-calc-v, .sus-calc.riesgo .sus-calc-n { color:#7A4A00; }
+  .sus-chk { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:4px; }
+  .sus-c { display:flex; align-items:center; gap:7px; font-size:13.5px;
+    color:var(--text-2,#5C5849); cursor:pointer; }
+  .sus-c input { width:15px; height:15px; accent-color:var(--accent,#1D3A6B); cursor:pointer; }
+  .sus-alert { background:#FDEAEA; border:1px solid #e0b4b4; border-radius:8px;
+    padding:13px 15px; margin-top:16px; font-size:13px; color:#8B1A1A; line-height:1.6; }
+  .sus-alert strong { display:block; font-size:11px; text-transform:uppercase;
+    letter-spacing:.05em; margin-bottom:6px; }
+  .sus-alert ul { margin:0; padding-left:18px; }
+  .sus-alert li { margin-bottom:3px; }
+  @media (max-width:700px) { .sus-chk { grid-template-columns:1fr; } }
+  .dol-item { border-bottom:1px solid var(--border,#E2DED6); padding:14px 0; }
+  .dol-item:first-of-type { padding-top:0; }
+  .dol-l { display:flex; align-items:center; gap:9px; font-size:13px; font-weight:600;
+    color:var(--text,#1A1814); margin-bottom:4px; }
+  .dol-k { width:22px; height:22px; border-radius:5px; background:var(--accent,#1D3A6B); color:#fff;
+    font-family:"DM Mono",monospace; font-size:12px; display:flex; align-items:center;
+    justify-content:center; flex-shrink:0; }
+  .dol-help { font-size:11.5px; color:var(--text-3,#9C9688); line-height:1.55; margin-bottom:8px; padding-left:31px; }
+  .dol-item .field-grid { padding-left:31px; }
+  .dol-eva-l { font-size:11.5px; color:var(--text-2,#5C5849); margin-bottom:6px; }
+  .dol-eva-l span { font-family:"DM Mono",monospace; font-weight:500; color:var(--text,#1A1814); }
+  .dol-eva { width:100%; accent-color:var(--accent,#1D3A6B); }
+  .dol-extra { background:var(--surface-2,#F9F8F5); border:1px solid var(--border,#E2DED6);
+    border-radius:8px; padding:15px 16px; margin-top:16px; }
+  .dol-extra-t { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--accent,#1D3A6B); margin-bottom:6px; }
+  .dol-extra .dol-help { padding-left:0; }
+  .dol-chk { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .dol-c { display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text-2,#5C5849); cursor:pointer; }
+  .dol-c input { width:15px; height:15px; accent-color:var(--accent,#1D3A6B); cursor:pointer; }
+  .dol-prev { background:var(--surface-2,#F9F8F5); border:1px solid var(--border,#E2DED6);
+    border-radius:6px; padding:13px 15px; margin-top:16px; font-size:13.5px; line-height:1.65; }
+  .dol-prev-l { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--text-3,#9C9688); margin-bottom:6px; }
+  .dol-prev-t .ph { color:var(--text-3,#9C9688); font-style:italic; }
+  @media (max-width:700px) { .dol-help, .dol-item .field-grid { padding-left:0; } .dol-chk { grid-template-columns:1fr; } }
   .field-grid { display: grid; gap: 14px; }
   .field-grid-2 { grid-template-columns: 1fr 1fr; }
   .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -167,36 +216,6 @@
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
 </head>
 <body>
 
@@ -204,7 +223,7 @@
   <div class="header-logo">🗂</div>
   <div class="header-text">
     <h1>Identificación y Antecedentes</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slides 2–6</span>
 </header>
@@ -219,17 +238,6 @@
 </div>
 
 <main>
-
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
 
 <!-- ======= TAB 0: Anamnesis estadística ======= -->
 <div id="tab-0">
@@ -338,6 +346,204 @@
     <div class="field" style="margin-top:12px;">
       <label>Historia elaborada</label>
       <textarea id="historiaFinal" placeholder="Aquí quedará la historia del motivo de consulta..." rows="5" oninput="autoSave()"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Caracterización del dolor — ILIDICEF</div>
+    <div class="field">
+      <label>¿El paciente refiere dolor?</label>
+      <div class="radio-group">
+        <span class="radio-pill"><input type="radio" name="dolorPresente" id="dolNo" value="No refiere dolor" onchange="dolorCambio()"><label for="dolNo">No refiere dolor</label></span>
+        <span class="radio-pill"><input type="radio" name="dolorPresente" id="dolSi" value="Refiere dolor" onchange="dolorCambio()"><label for="dolSi">Refiere dolor</label></span>
+      </div>
+    </div>
+
+    <div id="dolorBloque" class="hidden" style="margin-top:16px;">
+      <p style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:16px;">
+        Recorre las ocho letras en orden. La regla existe para que no se te olvide ninguna: el dato que falta
+        suele ser justamente el que decide el diagnóstico.
+      </p>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">I</span>Inicio</div>
+        <div class="dol-help">Cómo y cuándo empezó: brusco, súbito o insidioso.</div>
+        <div class="field-grid field-grid-2">
+          <select id="dolInicioTipo" onchange="componerDolor()">
+            <option value="">Forma de inicio…</option>
+            <option>Súbito</option>
+            <option>Brusco</option>
+            <option>Insidioso o gradual</option>
+            <option>Posterior a un procedimiento odontológico</option>
+            <option>Posterior a un traumatismo</option>
+          </select>
+          <input type="text" id="dolInicioCuando" placeholder="Cuándo empezó. Ej: hace 5 días" oninput="componerDolor()">
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">L</span>Localización</div>
+        <div class="dol-help">Dónde exactamente. Pide al paciente que lo señale con un dedo: si no puede localizarlo con precisión, eso también es un dato.</div>
+        <div class="field-grid field-grid-2">
+          <input type="text" id="dolLocalizacion" placeholder="Ej: molar inferior derecho, zona de 4.6" oninput="componerDolor()">
+          <select id="dolPrecision" onchange="componerDolor()">
+            <option value="">Precisión…</option>
+            <option>Bien localizado, señala una pieza</option>
+            <option>Localizado a una zona o sector</option>
+            <option>Difuso, no logra precisarlo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">I</span>Intensidad</div>
+        <div class="dol-help">Escala visual análoga de 0 a 10. Registra el momento actual y el peor momento.</div>
+        <div class="field-grid field-grid-2">
+          <div>
+            <div class="dol-eva-l">Ahora: <span id="dolEvaActualV">—</span></div>
+            <input type="range" id="dolEvaActual" min="0" max="10" step="1" value="0" class="dol-eva" oninput="evaCambio()">
+          </div>
+          <div>
+            <div class="dol-eva-l">Peor momento: <span id="dolEvaPeorV">—</span></div>
+            <input type="range" id="dolEvaPeor" min="0" max="10" step="1" value="0" class="dol-eva" oninput="evaCambio()">
+          </div>
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">D</span>Duración</div>
+        <div class="dol-help">Cuánto dura cada episodio. En dolor dental este dato es decisivo: la permanencia del dolor tras retirar el estímulo distingue una pulpitis reversible de una irreversible.</div>
+        <div class="field-grid field-grid-2">
+          <select id="dolDuracion" onchange="componerDolor()">
+            <option value="">Duración del episodio…</option>
+            <option>Segundos, cede al retirar el estímulo</option>
+            <option>Menos de 30 segundos tras el estímulo</option>
+            <option>Más de 30 segundos tras el estímulo</option>
+            <option>Minutos</option>
+            <option>Horas</option>
+            <option>Continuo, no cede</option>
+          </select>
+          <input type="text" id="dolDuracionObs" placeholder="Detalle. Ej: se prolonga unos 2 minutos tras tomar agua fría" oninput="componerDolor()">
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">I</span>Irradiación</div>
+        <div class="dol-help">Si se extiende hacia otra zona: oído, sien, cuello, hemicara, arcada antagonista.</div>
+        <div class="field-grid field-grid-2">
+          <select id="dolIrradia" onchange="componerDolor()">
+            <option value="">Irradiación…</option>
+            <option>No irradia</option>
+            <option>Irradia</option>
+          </select>
+          <input type="text" id="dolIrradiaDonde" placeholder="Hacia dónde. Ej: hacia el oído y la región temporal del mismo lado" oninput="componerDolor()">
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">C</span>Carácter</div>
+        <div class="dol-help">Cómo se siente. Usa las palabras del paciente si son claras.</div>
+        <div class="field-grid field-grid-2">
+          <select id="dolCaracter" onchange="componerDolor()">
+            <option value="">Tipo de dolor…</option>
+            <option>Punzante</option>
+            <option>Pulsátil o latente</option>
+            <option>Opresivo</option>
+            <option>Quemante o urente</option>
+            <option>Eléctrico o lancinante</option>
+            <option>Sordo o difuso</option>
+            <option>Cólico</option>
+          </select>
+          <input type="text" id="dolCaracterPaciente" placeholder="Con las palabras del paciente. Ej: «como un latido»" oninput="componerDolor()">
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">E</span>Evolución</div>
+        <div class="dol-help">Cómo ha cambiado desde que empezó hasta hoy.</div>
+        <div class="field-grid field-grid-2">
+          <select id="dolEvolucion" onchange="componerDolor()">
+            <option value="">Evolución…</option>
+            <option>En aumento progresivo</option>
+            <option>Estable desde el inicio</option>
+            <option>En disminución</option>
+            <option>Intermitente, con crisis</option>
+            <option>Cambió de carácter en el curso</option>
+          </select>
+          <input type="text" id="dolEvolucionObs" placeholder="Detalle. Ej: los primeros días solo con frío, ahora aparece solo" oninput="componerDolor()">
+        </div>
+      </div>
+
+      <div class="dol-item">
+        <div class="dol-l"><span class="dol-k">F</span>Frecuencia</div>
+        <div class="dol-help">Cada cuánto aparece, y si hay un momento del día en que predomina.</div>
+        <div class="field-grid field-grid-2">
+          <select id="dolFrecuencia" onchange="componerDolor()">
+            <option value="">Frecuencia…</option>
+            <option>Único episodio</option>
+            <option>Varias veces al día</option>
+            <option>Una vez al día</option>
+            <option>Algunas veces por semana</option>
+            <option>Solo ante el estímulo</option>
+            <option>Permanente</option>
+          </select>
+          <select id="dolNocturno" onchange="componerDolor()">
+            <option value="">Predominio horario…</option>
+            <option>Sin predominio horario</option>
+            <option>Predominio nocturno</option>
+            <option>Lo despierta durante la noche</option>
+            <option>Predominio matinal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dol-extra">
+        <div class="dol-extra-t">Factores que lo modifican</div>
+        <div class="dol-help" style="margin-bottom:10px;">No forma parte de la regla, pero en dolor dental es lo que
+          más orienta el diagnóstico: qué lo desencadena y qué lo alivia.</div>
+        <div class="field-grid field-grid-2">
+          <div class="field">
+            <label>Lo desencadena o lo agrava</label>
+            <div class="dol-chk">
+              <label class="dol-c"><input type="checkbox" id="dolFrio"><span>Frío</span></label>
+              <label class="dol-c"><input type="checkbox" id="dolCalor"><span>Calor</span></label>
+              <label class="dol-c"><input type="checkbox" id="dolDulce"><span>Dulce</span></label>
+              <label class="dol-c"><input type="checkbox" id="dolMastic"><span>Masticar</span></label>
+              <label class="dol-c"><input type="checkbox" id="dolPresion"><span>Presión o roce</span></label>
+              <label class="dol-c"><input type="checkbox" id="dolDecubito"><span>Acostarse</span></label>
+              <label class="dol-c"><input type="checkbox" id="dolEspontaneo"><span>Aparece solo</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Lo alivia</label>
+            <input type="text" id="dolAlivia" placeholder="Ej: cede con frío; cede parcialmente con ibuprofeno 400 mg">
+            <label style="margin-top:10px;">Analgésicos que ha tomado y respuesta</label>
+            <input type="text" id="dolAnalgesia" placeholder="Ej: paracetamol 1 g cada 8 h desde hace 3 días, sin alivio">
+          </div>
+        </div>
+      </div>
+
+      <div class="dol-prev">
+        <div class="dol-prev-l">Caracterización compuesta</div>
+        <div class="dol-prev-t" id="dolPreview"><span class="ph">Completa los campos para ver el enunciado.</span></div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Caracterización del dolor — texto final</label>
+        <textarea id="dolorFinal" rows="3" placeholder="Ajusta aquí el enunciado con tus palabras."></textarea>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-sm btn-outline" onclick="usarDolor()">Usar el texto compuesto</button>
+      </div>
+
+      <div class="bib-box" style="margin-top:16px;">
+        <strong>📚 Qué decide cada dato en dolor de origen dentario</strong>
+        Un dolor provocado que cede al retirar el estímulo orienta a pulpitis reversible; uno que persiste más allá
+        de treinta segundos, a irreversible. El dolor espontáneo, nocturno y mal localizado sugiere compromiso
+        pulpar; el bien localizado y agravado por la masticación o la percusión, compromiso periapical. El alivio
+        con frío es característico de la pulpitis irreversible con necrosis parcial. Ninguno de estos datos basta
+        por sí solo: se confirman con las pruebas de sensibilidad y percusión del examen endodóntico.
+      </div>
     </div>
   </div>
 
@@ -450,6 +656,179 @@
   </div>
 
   <div class="card">
+    <div class="card-title">Consumo de tabaco, alcohol y otras sustancias</div>
+    <p style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:16px;">
+      Pregunta sin juicio y en concreto: no «¿fuma?» sino «¿cuántos cigarrillos fuma al día y desde qué edad?».
+      La pregunta abierta subestima el consumo. Estos datos determinan la clasificación ASA, el grado del
+      diagnóstico periodontal y precauciones anestésicas, así que se registran con cantidad y tiempo, no solo
+      con un sí o un no.
+    </p>
+
+    <!-- TABACO -->
+    <div class="sus-sub">Tabaco</div>
+    <div class="field">
+      <label>Situación actual</label>
+      <div class="radio-group">
+        <span class="radio-pill"><input type="radio" name="tabEstado" id="tabN" value="Nunca ha fumado" onchange="tabEstadoCambio()"><label for="tabN">Nunca ha fumado</label></span>
+        <span class="radio-pill"><input type="radio" name="tabEstado" id="tabA" value="Fumador actual" onchange="tabEstadoCambio()"><label for="tabA">Fumador actual</label></span>
+        <span class="radio-pill"><input type="radio" name="tabEstado" id="tabE" value="Exfumador" onchange="tabEstadoCambio()"><label for="tabE">Exfumador</label></span>
+      </div>
+    </div>
+
+    <div id="tabDetalle" class="hidden" style="margin-top:14px;">
+      <div class="field-grid field-grid-3">
+        <div class="field">
+          <label>Qué fuma</label>
+          <select id="tabTipo" onchange="autoSave()">
+            <option value="">Seleccionar</option>
+            <option>Cigarrillos industriales</option>
+            <option>Tabaco de liar</option>
+            <option>Pipa</option>
+            <option>Puros o cigarros</option>
+            <option>Cigarrillo electrónico o vapeador</option>
+            <option>Tabaco calentado</option>
+            <option>Más de una forma</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Cantidad al día</label>
+          <input type="number" id="tabCantidad" min="0" step="1" placeholder="Ej: 10" oninput="calcPaqueteAnio()">
+        </div>
+        <div class="field">
+          <label>Años de consumo</label>
+          <input type="number" id="tabAnios" min="0" step="1" placeholder="Ej: 12" oninput="calcPaqueteAnio()">
+        </div>
+      </div>
+
+      <div class="field-grid field-grid-2" style="margin-top:14px;">
+        <div class="field">
+          <label>Edad de inicio</label>
+          <input type="number" id="tabEdadInicio" min="5" max="99" placeholder="Ej: 18">
+        </div>
+        <div class="field" id="tabCeseWrap">
+          <label>Tiempo desde que dejó de fumar</label>
+          <input type="text" id="tabCese" placeholder="Ej: 3 años / 8 meses">
+        </div>
+      </div>
+
+      <div class="sus-calc" id="tabCalc">
+        <div class="sus-calc-l">Índice paquete-año</div>
+        <div class="sus-calc-v" id="tabPaqueteAnio">—</div>
+        <div class="sus-calc-n" id="tabPaqueteNota">Cigarrillos al día ÷ 20 × años de consumo.</div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Disposición a dejar de fumar</label>
+        <select id="tabCesacion" onchange="autoSave()">
+          <option value="">Seleccionar</option>
+          <option>No se lo ha planteado</option>
+          <option>Lo ha pensado, sin fecha</option>
+          <option>Quiere dejarlo en los próximos meses</option>
+          <option>Ha intentado dejarlo antes sin éxito</option>
+          <option>En proceso de cesación</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ALCOHOL -->
+    <div class="sus-sub" style="margin-top:22px;">Alcohol</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Frecuencia de consumo</label>
+        <select id="alcFrecuencia" onchange="calcAlcohol()">
+          <option value="">Seleccionar</option>
+          <option value="0">Nunca</option>
+          <option value="0.5">Una vez al mes o menos</option>
+          <option value="3">Dos a cuatro veces al mes</option>
+          <option value="10">Dos a tres veces por semana</option>
+          <option value="18">Cuatro o más veces por semana</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tragos por ocasión</label>
+        <input type="number" id="alcTragos" min="0" step="1" placeholder="Ej: 3" oninput="calcAlcohol()">
+      </div>
+    </div>
+    <div class="field-grid field-grid-2" style="margin-top:14px;">
+      <div class="field">
+        <label>Tipo de bebida habitual</label>
+        <input type="text" id="alcTipo" placeholder="Ej: cerveza, vino, destilados">
+      </div>
+      <div class="field">
+        <label>Desde hace cuánto</label>
+        <input type="text" id="alcTiempo" placeholder="Ej: 10 años">
+      </div>
+    </div>
+    <div class="sus-calc" id="alcCalc">
+      <div class="sus-calc-l">Tragos estándar por mes, estimado</div>
+      <div class="sus-calc-v" id="alcTotal">—</div>
+      <div class="sus-calc-n" id="alcNota">Estimación a partir de frecuencia y cantidad por ocasión. No reemplaza a un instrumento de tamizaje.</div>
+    </div>
+
+    <!-- OTRAS SUSTANCIAS -->
+    <div class="sus-sub" style="margin-top:22px;">Otras sustancias</div>
+    <div class="field">
+      <label>Consumo de otras sustancias</label>
+      <div class="radio-group">
+        <span class="radio-pill"><input type="radio" name="susEstado" id="susNo" value="No refiere" onchange="susEstadoCambio()"><label for="susNo">No refiere</label></span>
+        <span class="radio-pill"><input type="radio" name="susEstado" id="susSi" value="Consumo actual" onchange="susEstadoCambio()"><label for="susSi">Consumo actual</label></span>
+        <span class="radio-pill"><input type="radio" name="susEstado" id="susEx" value="Consumo previo" onchange="susEstadoCambio()"><label for="susEx">Consumo previo</label></span>
+      </div>
+    </div>
+
+    <div id="susDetalle" class="hidden" style="margin-top:14px;">
+      <div class="field">
+        <label>Sustancias</label>
+        <div class="sus-chk">
+          <label class="sus-c"><input type="checkbox" id="susCannabis"><span>Cannabis</span></label>
+          <label class="sus-c"><input type="checkbox" id="susCocaina"><span>Cocaína o pasta base</span></label>
+          <label class="sus-c"><input type="checkbox" id="susEstimulantes"><span>Estimulantes tipo anfetamina</span></label>
+          <label class="sus-c"><input type="checkbox" id="susOpioides"><span>Opioides sin prescripción</span></label>
+          <label class="sus-c"><input type="checkbox" id="susBenzo"><span>Benzodiacepinas sin receta</span></label>
+          <label class="sus-c"><input type="checkbox" id="susOtras"><span>Otras</span></label>
+        </div>
+      </div>
+      <div class="field-grid field-grid-3" style="margin-top:14px;">
+        <div class="field">
+          <label>Vía de consumo</label>
+          <input type="text" id="susVia" placeholder="Ej: inhalada, fumada">
+        </div>
+        <div class="field">
+          <label>Frecuencia</label>
+          <input type="text" id="susFrecuencia" placeholder="Ej: fines de semana">
+        </div>
+        <div class="field">
+          <label>Desde hace cuánto</label>
+          <input type="text" id="susTiempo" placeholder="Ej: 4 años">
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label>Último consumo</label>
+        <input type="text" id="susUltimo" placeholder="Ej: hace 3 días">
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px;">
+      <label>Observaciones</label>
+      <textarea id="susObs" rows="2" placeholder="Contexto del consumo, intentos de cesación previos, tratamiento actual, lo que el paciente relata con sus palabras."></textarea>
+    </div>
+
+    <div class="sus-alert" id="susAlerta" style="display:none;">
+      <strong>Precauciones que se derivan de lo registrado</strong>
+      <ul id="susAlertaLista"></ul>
+    </div>
+
+    <div class="bib-box" style="margin-top:14px;">
+      <strong>📚 Por qué se pregunta con cantidad y tiempo</strong>
+      El fumador activo es ASA II por definición, aunque no tenga ninguna otra patología. En el diagnóstico
+      periodontal el tabaquismo es modificador de grado: menos de 10 cigarrillos al día desplaza a grado B, y
+      10 o más a grado C. El consumo de cocaína o estimulantes contraindica el uso de anestésico con
+      vasoconstrictor en las horas siguientes, por riesgo cardiovascular. Nada de eso se puede establecer con
+      un sí o un no.
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title">Hábitos de higiene oral</div>
     <div class="field-grid field-grid-2" style="margin-bottom:14px;">
       <div class="field">
@@ -513,35 +892,10 @@
   </div>
 </div>
 
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
-  </div>
-</div>
-
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 let currentTab = 0;
 const TABS = 6;
 
@@ -568,7 +922,217 @@ function renderDots() {
 }
 
 // ---- Autosave stub ----
-function autoSave() { /* data lives in DOM for this prototype */ }
+
+// ---- Caracterización del dolor (ILIDICEF) ----
+function dolorCambio() {
+  const v = document.querySelector('input[name="dolorPresente"]:checked')?.value || '';
+  document.getElementById('dolorBloque').classList.toggle('hidden', v !== 'Refiere dolor');
+  componerDolor();
+}
+
+function evaCambio() {
+  const a = document.getElementById('dolEvaActual');
+  const p = document.getElementById('dolEvaPeor');
+  document.getElementById('dolEvaActualV').textContent = a.value + '/10';
+  document.getElementById('dolEvaPeorV').textContent = p.value + '/10';
+  componerDolor();
+}
+
+/* Arma la caracterización en prosa a partir de las ocho letras. */
+function componerDolor() {
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const prev = document.getElementById('dolPreview');
+  if (!prev) return;
+
+  const loc = g('dolLocalizacion');
+  const inicioTipo = g('dolInicioTipo');
+  const inicioCuando = g('dolInicioCuando');
+  if (!loc && !inicioTipo && !inicioCuando) {
+    prev.innerHTML = '<span class="ph">Completa los campos para ver el enunciado.</span>';
+    return;
+  }
+
+  const partes = [];
+  let frase = 'Dolor';
+  if (g('dolCaracter')) frase += ' ' + g('dolCaracter').toLowerCase();
+  if (loc) frase += ' localizado en ' + loc;
+  if (g('dolPrecision')) frase += ', ' + g('dolPrecision').toLowerCase();
+  partes.push(frase);
+
+  let ini = 'De inicio';
+  if (inicioTipo) ini += ' ' + inicioTipo.toLowerCase();
+  if (inicioCuando) ini += ', ' + inicioCuando;
+  if (inicioTipo || inicioCuando) partes.push(ini);
+
+  const eva = document.getElementById('dolEvaActual')?.value;
+  const evaP = document.getElementById('dolEvaPeor')?.value;
+  if (evaP && evaP !== '0') partes.push('EVA ' + eva + '/10 al momento de la consulta, con máximo de ' + evaP + '/10');
+  else if (eva && eva !== '0') partes.push('EVA ' + eva + '/10');
+
+  if (g('dolDuracion')) {
+    let d = 'Cada episodio dura ' + g('dolDuracion').toLowerCase();
+    if (g('dolDuracionObs')) d += ' (' + g('dolDuracionObs') + ')';
+    partes.push(d);
+  }
+
+  if (g('dolIrradia') === 'No irradia') partes.push('No irradia');
+  else if (g('dolIrradia') === 'Irradia' && g('dolIrradiaDonde')) partes.push('Irradia ' + g('dolIrradiaDonde'));
+
+  if (g('dolCaracterPaciente')) partes.push('El paciente lo describe como ' + g('dolCaracterPaciente'));
+
+  if (g('dolEvolucion')) {
+    let e = g('dolEvolucion');
+    if (g('dolEvolucionObs')) e += ': ' + g('dolEvolucionObs');
+    partes.push(e);
+  }
+
+  const frec = [g('dolFrecuencia'), g('dolNocturno')].filter(Boolean);
+  if (frec.length) partes.push('Aparece ' + frec.join(', ').toLowerCase());
+
+  const desencadenantes = [['dolFrio','frío'],['dolCalor','calor'],['dolDulce','dulce'],
+    ['dolMastic','masticación'],['dolPresion','presión o roce'],['dolDecubito','decúbito'],
+    ['dolEspontaneo','aparición espontánea']]
+    .filter(([id]) => document.getElementById(id)?.checked).map(([, n]) => n);
+  if (desencadenantes.length) partes.push('Desencadenado por ' + desencadenantes.join(', '));
+  if (g('dolAlivia')) partes.push('Alivia con ' + g('dolAlivia'));
+  if (g('dolAnalgesia')) partes.push('Analgesia recibida: ' + g('dolAnalgesia'));
+
+  prev.textContent = partes.join('. ') + '.';
+}
+
+function usarDolor() {
+  const t = document.getElementById('dolPreview').textContent;
+  if (!t || t.indexOf('Completa los campos') === 0) { alert('Completa primero la caracterización.'); return; }
+  const ta = document.getElementById('dolorFinal');
+  ta.value = t;
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+document.addEventListener('change', e => {
+  if (e.target && e.target.id && e.target.id.indexOf('dol') === 0) componerDolor();
+});
+window.addEventListener('load', () => setTimeout(() => { dolorCambio(); evaCambio(); }, 850));
+
+function autoSave() { /* el guardado lo maneja ficha-uss.js */ }
+
+// ---- Consumo de tabaco, alcohol y otras sustancias ----
+function tabEstadoCambio() {
+  const estado = document.querySelector('input[name="tabEstado"]:checked')?.value || '';
+  const detalle = document.getElementById('tabDetalle');
+  detalle.classList.toggle('hidden', estado === '' || estado === 'Nunca ha fumado');
+  document.getElementById('tabCeseWrap').style.display = (estado === 'Exfumador') ? '' : 'none';
+  calcPaqueteAnio();
+  actualizarAlertas();
+}
+
+/* Índice paquete-año: unidad estándar de exposición acumulada al tabaco */
+function calcPaqueteAnio() {
+  const cig = parseFloat(document.getElementById('tabCantidad').value);
+  const anios = parseFloat(document.getElementById('tabAnios').value);
+  const box = document.getElementById('tabCalc');
+  const valor = document.getElementById('tabPaqueteAnio');
+  const nota = document.getElementById('tabPaqueteNota');
+
+  if (isNaN(cig) || isNaN(anios) || cig <= 0 || anios <= 0) {
+    valor.textContent = '—';
+    nota.textContent = 'Cigarrillos al día ÷ 20 × años de consumo.';
+    box.classList.remove('riesgo');
+    actualizarAlertas();
+    return;
+  }
+  const pa = Math.round((cig / 20) * anios * 10) / 10;
+  valor.textContent = pa + ' paquetes-año';
+
+  const grado = cig >= 10
+    ? 'Con 10 o más cigarrillos diarios, el tabaquismo desplaza el diagnóstico periodontal a grado C.'
+    : 'Con menos de 10 cigarrillos diarios, el tabaquismo desplaza el diagnóstico periodontal a grado B.';
+  nota.textContent = grado;
+  box.classList.toggle('riesgo', pa >= 10 || cig >= 10);
+  actualizarAlertas();
+}
+
+/* Estimación de tragos estándar mensuales a partir de frecuencia y cantidad */
+function calcAlcohol() {
+  const frec = parseFloat(document.getElementById('alcFrecuencia').value);
+  const tragos = parseFloat(document.getElementById('alcTragos').value);
+  const box = document.getElementById('alcCalc');
+  const valor = document.getElementById('alcTotal');
+  const nota = document.getElementById('alcNota');
+
+  if (isNaN(frec) || isNaN(tragos) || frec <= 0 || tragos <= 0) {
+    valor.textContent = '—';
+    nota.textContent = 'Estimación a partir de frecuencia y cantidad por ocasión. No reemplaza a un instrumento de tamizaje.';
+    box.classList.remove('riesgo');
+    actualizarAlertas();
+    return;
+  }
+  const total = Math.round(frec * tragos);
+  valor.textContent = total + ' tragos al mes, aproximadamente';
+  if (tragos >= 5) {
+    nota.textContent = 'Cinco o más tragos en una misma ocasión constituye consumo episódico excesivo. Considera aplicar un tamizaje formal.';
+    box.classList.add('riesgo');
+  } else {
+    nota.textContent = 'Estimación a partir de frecuencia y cantidad por ocasión. No reemplaza a un instrumento de tamizaje.';
+    box.classList.remove('riesgo');
+  }
+  actualizarAlertas();
+}
+
+function susEstadoCambio() {
+  const estado = document.querySelector('input[name="susEstado"]:checked')?.value || '';
+  document.getElementById('susDetalle').classList.toggle('hidden', estado === '' || estado === 'No refiere');
+  actualizarAlertas();
+}
+
+/* Precauciones que se derivan de lo registrado. No diagnostica: enuncia consecuencias. */
+function actualizarAlertas() {
+  const avisos = [];
+  const tabEstado = document.querySelector('input[name="tabEstado"]:checked')?.value || '';
+  const cig = parseFloat(document.getElementById('tabCantidad')?.value);
+  const susEstado = document.querySelector('input[name="susEstado"]:checked')?.value || '';
+  const marcada = id => document.getElementById(id)?.checked;
+  const tragos = parseFloat(document.getElementById('alcTragos')?.value);
+
+  if (tabEstado === 'Fumador actual') {
+    avisos.push('El fumador activo corresponde a ASA II, aunque no tenga otra patología sistémica. Revisa la clasificación en el examen físico general.');
+    avisos.push('El tabaco reduce el sangrado al sondaje por vasoconstricción: el índice de sangrado puede subestimar la inflamación real.');
+    if (!isNaN(cig) && cig >= 10) {
+      avisos.push('Con 10 o más cigarrillos diarios, el grado del diagnóstico periodontal debe asignarse como C.');
+    } else if (!isNaN(cig) && cig > 0) {
+      avisos.push('Con menos de 10 cigarrillos diarios, el grado del diagnóstico periodontal debe asignarse al menos como B.');
+    }
+  }
+  if (susEstado === 'Consumo actual') {
+    if (marcada('susCocaina') || marcada('susEstimulantes')) {
+      avisos.push('El consumo reciente de cocaína o estimulantes contraindica el anestésico con vasoconstrictor por riesgo cardiovascular. Consigna la fecha del último consumo antes de anestesiar.');
+    }
+    if (marcada('susCannabis')) {
+      avisos.push('El cannabis fumado se asocia a xerostomía y a mayor riesgo cariogénico; considéralo al determinar el riesgo.');
+    }
+    if (marcada('susOpioides') || marcada('susBenzo')) {
+      avisos.push('Registra el consumo de opioides o benzodiacepinas antes de indicar analgesia o sedación, por riesgo de interacción y depresión respiratoria.');
+    }
+    avisos.push('El consumo activo de sustancias corresponde al menos a ASA II. Revisa la clasificación en el examen físico general.');
+  }
+  if (!isNaN(tragos) && tragos >= 5) {
+    avisos.push('El consumo episódico excesivo de alcohol se asocia a alteración de la hemostasia y de la cicatrización; considéralo antes de un procedimiento quirúrgico.');
+  }
+
+  const caja = document.getElementById('susAlerta');
+  const lista = document.getElementById('susAlertaLista');
+  if (!caja || !lista) return;
+  if (!avisos.length) { caja.style.display = 'none'; return; }
+  lista.innerHTML = avisos.map(a => '<li>' + a + '</li>').join('');
+  caja.style.display = 'block';
+}
+
+document.addEventListener('change', e => {
+  if (e.target && e.target.id && e.target.id.indexOf('sus') === 0) actualizarAlertas();
+});
+window.addEventListener('load', () => setTimeout(() => {
+  tabEstadoCambio(); susEstadoCambio(); calcAlcohol();
+}, 800));
+
 
 // ---- Historia clínica IA ----
 async function generarHistoria() {
@@ -583,7 +1147,7 @@ async function generarHistoria() {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
         messages: [{
           role: 'user',
@@ -690,7 +1254,7 @@ async function analizarTratamientos() {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 800,
         messages: [{
           role: 'user',
@@ -791,7 +1355,6 @@ addQuirurgico();
 addFamiliar();
 </script>
 <script src="ficha-uss.js"></script>
-<script src="coherencia-uss.js"></script>
-<script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

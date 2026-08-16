@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exámenes Periodontales — Asistente Digital USS</title>
+<title>Exámenes Periodontales — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,6 +41,8 @@
   .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
 
   .field-grid { display: grid; gap: 14px; }
+  .field-grid-2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 700px) { .field-grid-2 { grid-template-columns: 1fr; } }
   .fg2 { grid-template-columns: 1fr 1fr; }
   .fg3 { grid-template-columns: 1fr 1fr 1fr; }
 
@@ -157,36 +159,6 @@
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
 </head>
 <body>
 
@@ -194,7 +166,7 @@
   <div class="header-logo">🦷</div>
   <div class="header-text">
     <h1>Exámenes Periodontales</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slides 19–25</span>
 </header>
@@ -207,17 +179,6 @@
 </div>
 
 <main>
-
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
 
 <!-- ===== TAB 0: Índice de higiene (S19) ===== -->
 <div id="tab-0">
@@ -501,6 +462,56 @@
 
   <!-- Diagnóstico periodontal + IA -->
   <div class="card">
+    <div class="card-title">Profundidad al sondaje y pérdida de inserción</div>
+    <p style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:14px;">
+      Estos son los datos que sostienen el estadio y la extensión del diagnóstico periodontal, y los que
+      permiten distinguir un saco verdadero de una pseudobolsa. Complétalos desde el periodontograma.
+    </p>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Sitios con profundidad al sondaje ≥ 4 mm</label>
+        <input type="number" id="sitiosPS4" min="0" placeholder="0">
+      </div>
+      <div class="field">
+        <label>Profundidad al sondaje máxima registrada (mm)</label>
+        <input type="number" id="psMaxima" min="0" step="1" placeholder="—">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Piezas y sitios comprometidos</label>
+      <input type="text" id="piezasPS4" placeholder="Ej: 3.6 distal 5 mm, 3.7 mesial 5 mm, 1.6 distopalatino 4 mm">
+    </div>
+    <div class="field-grid field-grid-2" style="margin-top:14px;">
+      <div class="field">
+        <label>Nivel de inserción clínica interproximal del sitio más afectado (mm)</label>
+        <input type="number" id="nicMaximo" min="0" step="1" placeholder="—">
+      </div>
+      <div class="field">
+        <label>Porcentaje de sitios con pérdida de inserción</label>
+        <input type="number" id="pctSitiosNIC" min="0" max="100" step="1" placeholder="—">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Pérdida ósea radiográfica en el sitio más afectado</label>
+      <select id="perdidaOsea">
+        <option value="">Seleccionar…</option>
+        <option>Sin pérdida ósea evidente</option>
+        <option>Tercio coronal — menos del 15%</option>
+        <option>Tercio coronal — 15% a 33%</option>
+        <option>Tercio medio radicular</option>
+        <option>Tercio apical</option>
+      </select>
+    </div>
+    <div class="bib-note" style="margin-top:14px;">
+      📚 <strong>Por qué se piden estos datos:</strong>
+      La profundidad al sondaje por sí sola no distingue periodontitis de agrandamiento gingival: lo que define
+      la periodontitis es la pérdida de inserción interproximal. El estadio se establece por el nivel de inserción
+      del sitio más afectado y la pérdida ósea; el grado, por la relación entre pérdida ósea y edad; la extensión,
+      por el porcentaje de sitios comprometidos.
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title">Descripción clínica y diagnóstico gingival presuntivo</div>
     <div class="ai-bar">
       <div class="ai-bar-text">✦ <span>IA disponible</span> — con los parámetros marcados, la IA redactará la descripción clínica de la encía.</div>
@@ -633,35 +644,10 @@
   </div>
 </div>
 
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
-  </div>
-</div>
-
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 let currentTab = 0;
 
 function goTab(n) {
@@ -803,7 +789,7 @@ async function generarDescripcionEncia() {
   try {
     const resp = await fetch(API_URL, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 700,
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 700,
         messages: [{ role: 'user', content:
           `Eres periodoncista clínico. Redacta la sección "Examen clínico de la encía" para una ficha clínica universitaria odontológica con estos parámetros:
 ${datos.join('\n')}
@@ -890,8 +876,9 @@ function copiarResumen() {
   });
 }
 </script>
-<script src="ficha-uss.js"></script>
 <script src="coherencia-uss.js"></script>
+<script src="ficha-uss.js"></script>
 <script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

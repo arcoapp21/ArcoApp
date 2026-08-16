@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe del caso — Ficha Clínica USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#F4F2EE; --surface:#FFF; --surface-2:#F9F8F5; --border:#E2DED6; --border-strong:#C8C3B8;
+    --text:#1A1814; --text-2:#5C5849; --text-3:#9C9688;
+    --accent:#1D3A6B; --accent-light:#EAF0FA; --accent-mid:#4A6FA5;
+    --green:#1A5C3A; --amber:#7A4A00; --amber-light:#FFF4E0; --red:#8B1A1A;
+    --radius:10px; --radius-sm:6px;
+  }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); }
+
+  header { background:var(--accent); color:#fff; padding:18px 32px; display:flex; align-items:center; gap:16px; }
+  .hl { width:36px; height:36px; background:rgba(255,255,255,.15); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:18px; }
+  header h1 { font-size:15px; font-weight:600; }
+  header p { font-size:12px; opacity:.65; margin-top:1px; }
+  .badge { margin-left:auto; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+    font-size:11px; padding:4px 10px; border-radius:20px; font-weight:500; }
+
+  main { max-width:900px; margin:0 auto; padding:26px 24px 70px; }
+
+  .bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:var(--surface);
+    border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:18px; }
+  .bar-t { font-size:12.5px; color:var(--text-2); flex:1; min-width:220px; line-height:1.55; }
+  .btn { height:36px; padding:0 15px; background:var(--accent); color:#fff; border:none;
+    border-radius:var(--radius-sm); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px; }
+  .btn:hover { background:#162d54; }
+  .btn:disabled { background:var(--text-3); cursor:not-allowed; }
+  .btn-outline { background:transparent; color:var(--accent); border:1px solid var(--border-strong); }
+  .btn-outline:hover { background:var(--accent-light); }
+
+  .opciones { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 18px; margin-bottom:18px; }
+  .opciones-t { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-3); margin-bottom:10px; }
+  .op { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-2);
+    cursor:pointer; margin-bottom:7px; }
+  .op input { width:15px; height:15px; accent-color:var(--accent); cursor:pointer; }
+
+  .sec { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; margin-bottom:14px; }
+  .sec-h { font-size:15px; font-weight:600; letter-spacing:-.01em; padding-bottom:10px;
+    margin-bottom:12px; border-bottom:1px solid var(--border); }
+  .grp { font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--accent); margin:14px 0 7px; }
+  .grp:first-of-type { margin-top:0; }
+  .row { display:grid; grid-template-columns:250px 1fr; gap:14px; padding:5px 0;
+    border-bottom:1px solid var(--border); font-size:13px; line-height:1.55; }
+  .row:last-child { border-bottom:none; }
+  .row-k { color:var(--text-2); }
+  .row-v { color:var(--text); white-space:pre-wrap; }
+  .imgs { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+  .imgs figure { margin:0; }
+  .imgs img { width:100%; border-radius:6px; border:1px solid var(--border); display:block; }
+  .imgs figcaption { font-size:10.5px; color:var(--text-3); margin-top:4px; }
+
+  .vacio { background:var(--amber-light); border:1px solid #e8d99a; border-radius:var(--radius);
+    padding:22px; text-align:center; font-size:13.5px; color:var(--amber); line-height:1.65; }
+  .cargando { text-align:center; padding:40px 20px; color:var(--text-3); font-size:13px; }
+  .spin { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent);
+    border-radius:50%; animation:sp .7s linear infinite; margin:0 auto 12px; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  .toast { position:fixed; right:16px; bottom:16px; z-index:60; background:var(--green); color:#fff;
+    font-size:12px; padding:8px 14px; border-radius:20px; box-shadow:0 2px 12px rgba(0,0,0,.2);
+    opacity:0; transition:opacity .25s; pointer-events:none; }
+  .nota { font-size:12px; color:var(--text-2); line-height:1.65; background:var(--surface-2);
+    border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-top:20px; }
+  .nota strong { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-3); margin-bottom:5px; }
+  @media (max-width:700px) { .row { grid-template-columns:1fr; gap:2px; } .imgs { grid-template-columns:1fr 1fr; }
+    header { padding:14px 16px; } main { padding:16px 14px 50px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">📤</div>
+  <div><h1>Informe del caso</h1><p>Exportación editable · Ficha Clínica Adulto 2026 · Universidad San Sebastián</p></div>
+  <span class="badge">Markdown y PowerPoint</span>
+</header>
+
+<main>
+  <div class="bar">
+    <span class="bar-t">Reúne todo lo registrado en los módulos y lo exporta en un formato que puedas seguir editando.</span>
+    <button class="btn btn-outline" onclick="construir()">🔄 Actualizar</button>
+    <button class="btn" id="btnMd" onclick="exportarMarkdown()">⬇ Markdown (.md)</button>
+    <button class="btn" id="btnPptx" onclick="exportarPptx()">⬇ PowerPoint (.pptx)</button>
+  </div>
+
+  <div class="opciones">
+    <div class="opciones-t">Qué incluir</div>
+    <label class="op"><input type="checkbox" id="optVacios"><span>Incluir los campos que quedaron sin completar</span></label>
+    <label class="op"><input type="checkbox" id="optImagenes" checked><span>Incluir fotografías y radiografías</span></label>
+    <label class="op"><input type="checkbox" id="optRazonamiento" checked><span>Incluir el registro de razonamiento y las fundamentaciones selladas</span></label>
+  </div>
+
+  <div id="contenido"><div class="cargando"><div class="spin"></div>Leyendo los módulos…</div></div>
+
+  <div class="nota">
+    <strong>Sobre los formatos</strong>
+    El archivo Markdown se abre en Word, Google Docs, Obsidian o cualquier editor de texto, y es el más cómodo
+    para seguir escribiendo. El PowerPoint arma una diapositiva por sección siguiendo el formato de presentación
+    de caso, con las imágenes incrustadas: sirve como punto de partida, no como presentación terminada.
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<script>
+const PREFIX = 'fichaUSS:v6:';
+
+/* Orden de la ficha. El título es el que aparece en el informe. */
+const MODULOS = [
+  ['identificacion_antecedentes_uss', 'Identificación y antecedentes'],
+  ['asistente_farmacos_uss',          'Fármacos'],
+  ['examen_fisico_general_uss',       'Examen físico general'],
+  ['examen_extraoral_uss',            'Examen extraoral'],
+  ['examen_intraoral_uss',            'Examen intraoral'],
+  ['odontograma_uss',                 'Odontograma'],
+  ['examenes_periodontales_uss',      'Exámenes periodontales'],
+  ['examenes_complementarios_uss',    'Exámenes complementarios'],
+  ['situaciones_relevantes_uss',      'Situaciones relevantes'],
+  ['diagnostico_razonamiento_guiado_uss', 'Razonamiento diagnóstico'],
+  ['diagnostico_plan_pronostico_uss', 'Diagnóstico, plan y pronóstico'],
+];
+
+let CASO = null;   // estructura construida
+
+// ── Lectura del almacenamiento ─────────────────────────────────────────
+function datos(mod) {
+  try {
+    const crudo = localStorage.getItem(PREFIX + mod);
+    return crudo ? (JSON.parse(crudo).datos || {}) : {};
+  } catch (e) { return {}; }
+}
+function meta() {
+  try { return JSON.parse(localStorage.getItem(PREFIX + '_meta')) || {}; } catch (e) { return {}; }
+}
+function selloIntegral() {
+  try { return JSON.parse(localStorage.getItem(PREFIX + 'rz-sello')); } catch (e) { return null; }
+}
+function selloParcial(mod) {
+  try { return JSON.parse(localStorage.getItem(PREFIX + 'sello-' + mod)); } catch (e) { return null; }
+}
+function esc(t) {
+  return String(t == null ? '' : t).replace(/[&<>"]/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+/* Las etiquetas se leen del propio módulo, no de una lista aparte:
+   así el informe no se desactualiza cuando se editan los formularios. */
+async function leerEtiquetas(mod) {
+  const doc = new DOMParser().parseFromString(await (await fetch(mod + '.html')).text(), 'text/html');
+  const main = doc.querySelector('main') || doc.body;
+  const grupos = [];
+  let actual = { titulo: 'General', campos: [], imagenes: [] };
+  const vistos = new Set();
+
+  const etiquetaDe = el => {
+    const f = el.closest('.field, .ep-f, .sl-f, .met-in, .ry-c, .dol-item, .est-row, .gl-row, .tb-row, .metric');
+    if (f) {
+      const l = f.querySelector('label, .ep-f label, .dol-l, .est-n, .gl-n, .ry-c-n, .metric-label, .sl-l');
+      if (l && l.textContent.trim()) return l.textContent.trim().replace(/\s+/g, ' ');
+    }
+    const prev = el.previousElementSibling;
+    if (prev && /^(LABEL|DIV|SPAN)$/.test(prev.tagName) && prev.textContent.trim().length < 90) {
+      return prev.textContent.trim().replace(/\s+/g, ' ');
+    }
+    return el.id || el.name || 'Campo';
+  };
+
+  main.querySelectorAll('.card-title, input, select, textarea, img[id], .ry-block, .sl-card, .pq-card')
+    .forEach(el => {
+      if (el.classList && el.classList.contains('card-title')) {
+        if (actual.campos.length || actual.imagenes.length) grupos.push(actual);
+        actual = { titulo: el.textContent.trim().replace(/\s+/g, ' '), campos: [], imagenes: [] };
+        return;
+      }
+      if (el.tagName === 'IMG') {
+        const zona = el.closest('.upload-zone');
+        const cap = zona && zona.parentElement
+          ? zona.parentElement.querySelector('.photo-cap, .rx-cap')
+          : null;
+        actual.imagenes.push({ id: el.id, titulo: cap ? cap.textContent.trim() : (el.alt || el.id) });
+        return;
+      }
+      if (!el.tagName || !/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) return;
+      if (el.type === 'file' || el.type === 'hidden' || el.type === 'range' && false) return;
+
+      if (el.type === 'radio') {
+        if (!el.name || vistos.has('r|' + el.name)) return;
+        vistos.add('r|' + el.name);
+        const cont = el.closest('.field, .ep-f, .dol-item, .sl-f');
+        const l = cont ? cont.querySelector('label:not([for]), .dol-l') : null;
+        actual.campos.push({ clave: 'r|' + el.name, etiqueta: (l && l.textContent.trim()) || el.name });
+        return;
+      }
+      if (el.type === 'checkbox') {
+        if (!el.id) return;
+        const lab = doc.querySelector('label[for="' + el.id + '"]');
+        const texto = lab ? lab.textContent.trim() : (el.value || el.id);
+        actual.campos.push({ clave: 'c|' + el.id, etiqueta: texto, esCheck: true });
+        return;
+      }
+      if (!el.id) return;
+      actual.campos.push({ clave: 'v|' + el.id, etiqueta: etiquetaDe(el) });
+    });
+
+  if (actual.campos.length || actual.imagenes.length) grupos.push(actual);
+  return grupos;
+}
+
+// ── Construcción del informe ───────────────────────────────────────────
+async function construir() {
+  const cont = document.getElementById('contenido');
+  cont.innerHTML = '<div class="cargando"><div class="spin"></div>Leyendo los módulos…</div>';
+
+  const incluirVacios = document.getElementById('optVacios').checked;
+  const incluirImgs = document.getElementById('optImagenes').checked;
+  const incluirRz = document.getElementById('optRazonamiento').checked;
+
+  const m = meta();
+  const secciones = [];
+
+  for (const [mod, titulo] of MODULOS) {
+    if (mod.indexOf('razonamiento') !== -1 && !incluirRz) continue;
+    const d = datos(mod);
+    let grupos;
+    try { grupos = await leerEtiquetas(mod); } catch (e) { continue; }
+
+    const bloques = [];
+    grupos.forEach(g => {
+      const filas = [];
+      g.campos.forEach(c => {
+        let v = d[c.clave];
+        if (c.esCheck) { if (v === true) filas.push([c.etiqueta, 'Sí']); return; }
+        if (v == null || String(v).trim() === '') { if (incluirVacios) filas.push([c.etiqueta, '—']); return; }
+        filas.push([c.etiqueta, String(v).trim()]);
+      });
+      const imgs = incluirImgs
+        ? g.imagenes.map(i => ({ titulo: i.titulo, src: d['img|' + i.id] })).filter(i => i.src)
+        : [];
+      if (filas.length || imgs.length) bloques.push({ titulo: g.titulo, filas, imagenes: imgs });
+    });
+
+    // Fundamentaciones selladas de los diagnósticos parciales
+    const sp = selloParcial(mod);
+    if (sp && incluirRz) {
+      const filas = Object.keys(sp)
+        .filter(k => !['modulo', 'titulo', 'sello', 'coherencia', 'alertas', 'preguntas', 'preguntasHTML'].includes(k))
+        .filter(k => String(sp[k] || '').trim())
+        .map(k => [k, String(sp[k]).trim()]);
+      if (filas.length) bloques.push({
+        titulo: (sp.titulo || 'Fundamentación') + ' — sellada el ' + (sp.sello || ''),
+        filas, imagenes: []
+      });
+    }
+
+    if (bloques.length) secciones.push({ titulo, bloques });
+  }
+
+  // Fundamentación integral sellada
+  const si = selloIntegral();
+  if (si && si.sello && incluirRz) {
+    const pares = [
+      ['Diagnóstico periodontal', si.rzPerioDx], ['Estadio sostenido en', si.rzPerioEstadio],
+      ['Grado sostenido en', si.rzPerioGrado], ['Extensión sostenida en', si.rzPerioExtension],
+      ['Diagnóstico de tejidos duros', si.rzDurosDx], ['Sostenido en', si.rzDurosJust],
+      ['Otros diagnósticos', si.rzOtrosDx], ['Sostenido en', si.rzOtrosJust],
+      ['Diagnóstico diferencial', si.diferencial],
+    ].filter(([, v]) => v && String(v).trim());
+    if (pares.length) {
+      secciones.push({
+        titulo: 'Fundamentación diagnóstica sellada',
+        bloques: [{ titulo: 'Registrada el ' + si.sello + ', no editable desde ese momento', filas: pares, imagenes: [] }]
+      });
+    }
+  }
+
+  CASO = { meta: m, secciones, generado: new Date() };
+  render();
+}
+
+function render() {
+  const cont = document.getElementById('contenido');
+  if (!CASO.secciones.length) {
+    cont.innerHTML = '<div class="vacio">No hay datos registrados en este navegador.<br>' +
+      'Completa los módulos de la ficha, o importa un caso desde el índice.</div>';
+    return;
+  }
+  const m = CASO.meta;
+  cont.innerHTML =
+    '<div class="sec"><div class="sec-h">Datos del caso</div>' +
+      '<div class="row"><span class="row-k">Código del paciente</span><span class="row-v">' + (esc(m.paciente) || '—') + '</span></div>' +
+      '<div class="row"><span class="row-k">Estudiante</span><span class="row-v">' + (esc(m.estudiante) || '—') + '</span></div>' +
+      '<div class="row"><span class="row-k">Informe generado</span><span class="row-v">' +
+        CASO.generado.toLocaleDateString('es-CL') + '</span></div></div>' +
+    CASO.secciones.map(s =>
+      '<div class="sec"><div class="sec-h">' + esc(s.titulo) + '</div>' +
+      s.bloques.map(b =>
+        '<div class="grp">' + esc(b.titulo) + '</div>' +
+        b.filas.map(([k, v]) =>
+          '<div class="row"><span class="row-k">' + esc(k) + '</span><span class="row-v">' + esc(v) + '</span></div>').join('') +
+        (b.imagenes.length
+          ? '<div class="imgs">' + b.imagenes.map(i =>
+              '<figure><img src="' + i.src + '" alt="' + esc(i.titulo) + '">' +
+              '<figcaption>' + esc(i.titulo) + '</figcaption></figure>').join('') + '</div>'
+          : '')
+      ).join('') + '</div>').join('');
+}
+
+// ── Markdown ───────────────────────────────────────────────────────────
+function generarMarkdown() {
+  const m = CASO.meta;
+  const L = [];
+  L.push('# Ficha Clínica Adulto — Caso ' + (m.paciente || 'sin código'));
+  L.push('');
+  L.push('- **Estudiante:** ' + (m.estudiante || '—'));
+  L.push('- **Código del paciente:** ' + (m.paciente || '—'));
+  L.push('- **Informe generado:** ' + CASO.generado.toLocaleDateString('es-CL'));
+  L.push('');
+  CASO.secciones.forEach(s => {
+    L.push('## ' + s.titulo);
+    L.push('');
+    s.bloques.forEach(b => {
+      L.push('### ' + b.titulo);
+      L.push('');
+      if (b.filas.length) {
+        L.push('| Campo | Registro |');
+        L.push('| --- | --- |');
+        b.filas.forEach(([k, v]) =>
+          L.push('| ' + k.replace(/\|/g, '\\|') + ' | ' + String(v).replace(/\n/g, '<br>').replace(/\|/g, '\\|') + ' |'));
+        L.push('');
+      }
+      b.imagenes.forEach(i => { L.push('![' + i.titulo + '](' + i.src + ')'); L.push(''); L.push('*' + i.titulo + '*'); L.push(''); });
+    });
+  });
+  L.push('---');
+  L.push('');
+  L.push('*Generado desde la Ficha Clínica Digital con Asistencia de IA · Universidad San Sebastián.*');
+  return L.join('\n');
+}
+
+function exportarMarkdown() {
+  if (!CASO || !CASO.secciones.length) { toast('No hay datos que exportar.', '#8B1A1A'); return; }
+  descargar(generarMarkdown(), 'text/markdown', '.md');
+  toast('Markdown descargado.');
+}
+
+// ── PowerPoint ─────────────────────────────────────────────────────────
+async function exportarPptx() {
+  if (!CASO || !CASO.secciones.length) { toast('No hay datos que exportar.', '#8B1A1A'); return; }
+  if (typeof PptxGenJS === 'undefined') {
+    toast('No se pudo cargar el generador de PowerPoint. Usa Markdown.', '#8B1A1A');
+    return;
+  }
+  const btn = document.getElementById('btnPptx');
+  btn.disabled = true; btn.textContent = 'Generando…';
+
+  try {
+    const pptx = new PptxGenJS();
+    pptx.layout = 'LAYOUT_16x9';
+    const AZUL = '1D3A6B', GRIS = '5C5849';
+    const m = CASO.meta;
+
+    const portada = pptx.addSlide();
+    portada.addText('Caso Clínico', { x: 0.6, y: 1.7, w: 8.8, fontSize: 40, bold: true, color: AZUL });
+    portada.addText('Ficha Clínica Adulto 2026 · Universidad San Sebastián',
+      { x: 0.6, y: 2.7, w: 8.8, fontSize: 16, color: GRIS });
+    portada.addText([
+      { text: 'Paciente: ' + (m.paciente || '—') + '\n' },
+      { text: 'Estudiante: ' + (m.estudiante || '—') + '\n' },
+      { text: 'Fecha: ' + CASO.generado.toLocaleDateString('es-CL') }
+    ], { x: 0.6, y: 3.6, w: 8.8, fontSize: 13, color: GRIS, lineSpacingMultiple: 1.3 });
+
+    CASO.secciones.forEach(s => {
+      const div = pptx.addSlide();
+      div.addText(s.titulo, { x: 0.6, y: 2.3, w: 8.8, fontSize: 30, bold: true, color: AZUL });
+      div.addShape(pptx.ShapeType.rect, { x: 0.6, y: 3.1, w: 1.6, h: 0.06, fill: { color: '4A6FA5' } });
+
+      s.bloques.forEach(b => {
+        // Texto en tandas de doce filas por diapositiva
+        for (let i = 0; i < b.filas.length; i += 12) {
+          const trozo = b.filas.slice(i, i + 12);
+          const sl = pptx.addSlide();
+          sl.addText(s.titulo, { x: 0.5, y: 0.3, w: 9, fontSize: 11, color: '9C9688' });
+          sl.addText(b.titulo + (i ? ' (continúa)' : ''),
+            { x: 0.5, y: 0.6, w: 9, fontSize: 19, bold: true, color: AZUL });
+          sl.addText(trozo.map(([k, v]) => ({
+            text: k + ': ' + String(v).replace(/\n/g, ' '),
+            options: { bullet: true, fontSize: 12, color: '1A1814', breakLine: true }
+          })), { x: 0.6, y: 1.25, w: 8.8, h: 4, valign: 'top' });
+        }
+        // Una diapositiva por par de imágenes
+        for (let i = 0; i < b.imagenes.length; i += 2) {
+          const par = b.imagenes.slice(i, i + 2);
+          const sl = pptx.addSlide();
+          sl.addText(b.titulo, { x: 0.5, y: 0.35, w: 9, fontSize: 17, bold: true, color: AZUL });
+          par.forEach((img, k) => {
+            const x = par.length === 1 ? 2.6 : 0.6 + k * 4.6;
+            const w = par.length === 1 ? 4.8 : 4.2;
+            try {
+              sl.addImage({ data: img.src, x, y: 1.1, w, h: 3.5, sizing: { type: 'contain', w, h: 3.5 } });
+            } catch (e) { /* imagen ilegible: se omite */ }
+            sl.addText(img.titulo, { x, y: 4.7, w, fontSize: 10, color: '9C9688', align: 'center' });
+          });
+        }
+      });
+    });
+
+    const nombre = 'caso_' + String(m.paciente || 'sin_codigo').replace(/[^\w\-]+/g, '_') +
+      '_' + new Date().toISOString().slice(0, 10) + '.pptx';
+    await pptx.writeFile({ fileName: nombre });
+    toast('PowerPoint descargado.');
+  } catch (e) {
+    toast('No se pudo generar el PowerPoint. Usa Markdown.', '#8B1A1A');
+  } finally {
+    btn.disabled = false; btn.textContent = '⬇ PowerPoint (.pptx)';
+  }
+}
+
+// ── Utilidades ─────────────────────────────────────────────────────────
+function descargar(texto, tipo, ext) {
+  const m = CASO.meta;
+  const nombre = 'caso_' + String(m.paciente || 'sin_codigo').replace(/[^\w\-]+/g, '_') +
+    '_' + new Date().toISOString().slice(0, 10) + ext;
+  const blob = new Blob([texto], { type: tipo + ';charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+let tTimer;
+function toast(t, color) {
+  const el = document.getElementById('toast');
+  el.textContent = t;
+  el.style.background = color || '#1A5C3A';
+  el.style.opacity = '1';
+  clearTimeout(tTimer);
+  tTimer = setTimeout(() => el.style.opacity = '0', 2800);
+}
+
+['optVacios', 'optImagenes', 'optRazonamiento'].forEach(id =>
+  document.getElementById(id).addEventListener('change', construir));
+
+construir();
+</script>
+<script src="ficha-uss.js"></script>
+</body>
+</html>

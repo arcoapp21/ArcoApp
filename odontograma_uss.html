@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Odontograma — Asistente Digital USS</title>
+<title>Odontograma — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -126,6 +126,35 @@
   .summary-label { color: var(--text-2); flex-shrink: 0; max-width: 40%; }
   .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 58%; }
 
+  .ry-lead { font-size:12.5px; color:var(--text-2); line-height:1.6; margin-bottom:14px; }
+  .ry-hint { font-size:11.5px; color:var(--text-3); line-height:1.55; margin-bottom:6px; }
+  .ry-fotos { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ry-foto-cap { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-3); margin-bottom:6px; }
+  .ry-foto-box { border:1px solid var(--border); border-radius:8px; background:var(--surface-2);
+    min-height:130px; display:flex; align-items:center; justify-content:center; padding:8px; }
+  .ry-foto-box img { max-width:100%; max-height:280px; border-radius:6px; display:block; }
+  .ry-foto-vacio { font-size:12px; color:var(--text-3); font-style:italic; text-align:center; }
+  .ry-foto-nota { font-size:11.5px; color:var(--text-3); }
+  .ry-block { border:1px solid var(--border); border-radius:8px; padding:15px 16px; margin-bottom:12px; background:var(--surface-2); }
+  .ry-head { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; align-items:end; margin-bottom:12px; }
+  .ry-head label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--text-3); display:block; margin-bottom:4px; }
+  .ry-head input, .ry-head select { width:100%; height:34px; border:1px solid var(--border); border-radius:6px;
+    padding:4px 9px; font-family:inherit; font-size:12.5px; background:#fff; outline:none; }
+  .ry-del { height:34px; padding:0 11px; background:transparent; border:1px solid var(--border-strong);
+    color:var(--red); border-radius:6px; font-family:inherit; font-size:12px; cursor:pointer; }
+  .ry-del:hover { background:var(--red-light); }
+  .ry-crit { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 16px; }
+  .ry-c { display:grid; grid-template-columns:1fr 150px; gap:8px; align-items:center;
+    padding:5px 0; border-bottom:1px solid var(--border); }
+  .ry-c:last-child, .ry-c:nth-last-child(2) { border-bottom:none; }
+  .ry-c-n { font-size:12.5px; color:var(--text-2); }
+  .ry-c select { height:30px; border:1px solid var(--border); border-radius:6px; padding:2px 8px;
+    font-family:inherit; font-size:12px; background:#fff; outline:none; }
+  .ry-veredicto { margin-top:12px; padding:10px 13px; border-radius:6px; font-size:12.5px; line-height:1.55; }
+  .ry-veredicto.alfa { background:var(--green-light,#E8F5EE); color:var(--green,#1A5C3A); border:1px solid #bfe0cd; }
+  .ry-veredicto.bravo { background:#FFF4E0; color:#7A4A00; border:1px solid #e8d99a; }
+  .ry-veredicto.charlie { background:var(--red-light,#FDEAEA); color:var(--red,#8B1A1A); border:1px solid #e0b4b4; }
+  @media (max-width:760px) { .ry-fotos, .ry-crit, .ry-head { grid-template-columns:1fr; } .ry-c { grid-template-columns:1fr; } }
   .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
   .hidden { display: none !important; }
 
@@ -137,36 +166,6 @@
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
 </head>
 <body>
 
@@ -174,7 +173,7 @@
   <div class="header-logo">🦷</div>
   <div class="header-text">
     <h1>Odontograma</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slides 18–19</span>
 </header>
@@ -182,21 +181,11 @@
 <div class="tab-nav">
   <button class="tab-btn active" onclick="goTab(0)"><span class="snum">S18</span>Odontograma</button>
   <button class="tab-btn" onclick="goTab(1)"><span class="snum">S19</span>Descripción por cuadrante</button>
-  <button class="tab-btn" onclick="goTab(2)"><span class="snum">✓</span>Resumen</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="snum">S18</span>Restauraciones (Ryge)</button>
+  <button class="tab-btn" onclick="goTab(3)"><span class="snum">✓</span>Resumen</button>
 </div>
 
 <main>
-
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
 
 <!-- ===== TAB 0: Odontograma imagen (S18) ===== -->
 <div id="tab-0">
@@ -372,12 +361,75 @@
 
   <div class="nav-footer">
     <button class="btn btn-outline" onclick="goTab(0)">← Odontograma</button>
-    <button class="btn" onclick="goTab(2)">Ver resumen →</button>
+    <button class="btn" onclick="goTab(2)">Siguiente → Restauraciones</button>
   </div>
 </div>
 
 <!-- ===== TAB 2: Resumen ===== -->
+<!-- ===== TAB 2: Evaluación de restauraciones (Ryge) ===== -->
 <div id="tab-2" class="hidden">
+  <div class="section-header">
+    <h2>Evaluación de restauraciones</h2>
+    <p>Criterios Ryge modificados (USPHS). Una restauración presente no es lo mismo que una restauración aceptable.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografías de las arcadas</div>
+    <p class="ry-lead">
+      Se traen automáticamente desde el examen intraoral. Muchos criterios —color, brillo, tinción marginal,
+      forma anatómica— se evalúan mejor sobre la fotografía ampliada que a ojo desnudo en el sillón.
+    </p>
+    <div class="ry-fotos">
+      <div class="ry-foto">
+        <div class="ry-foto-cap">Arcada superior</div>
+        <div class="ry-foto-box" id="fotoSupBox"><span class="ry-foto-vacio">Sin fotografía en el examen intraoral</span></div>
+      </div>
+      <div class="ry-foto">
+        <div class="ry-foto-cap">Arcada inferior</div>
+        <div class="ry-foto-box" id="fotoInfBox"><span class="ry-foto-vacio">Sin fotografía en el examen intraoral</span></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-outline" onclick="traerFotosIntraoral()">🔄 Actualizar desde examen intraoral</button>
+      <span class="ry-foto-nota" id="fotoNota">Se cargan solas al abrir esta pestaña.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Restauraciones evaluadas</div>
+    <p class="ry-lead">
+      Evalúa cada restauración presente en los diez criterios. Registra una restauración por bloque.
+    </p>
+    <div id="rygeLista"></div>
+    <input type="hidden" id="rygeCount" value="0">
+    <button class="btn btn-sm btn-outline" style="margin-top:12px;" onclick="agregarRestauracion()">+ Agregar restauración</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Conclusión</div>
+    <div class="field">
+      <label>¿Qué decides hacer con las restauraciones evaluadas y por qué?</label>
+      <div class="ry-hint">Un criterio Bravo no justifica por sí solo el recambio: muchas veces se corrige con
+        pulido o reacondicionamiento. Argumenta cada decisión de mantener, reparar o recambiar.</div>
+      <textarea id="rygeConclusion" rows="4" placeholder="Ej: la restauración de 3.6 presenta Bravo en rugosidad y brillo, sin caries secundaria ni desadaptación; se decide pulir y controlar en seis meses en vez de recambiar."></textarea>
+    </div>
+  </div>
+
+  <div class="bib-box">
+    <strong>📚 Cómo se leen los criterios</strong>
+    Una restauración óptima cumple nivel Alfa en los diez criterios. Un Bravo indica que la restauración sigue
+    prestando servicio clínico y con frecuencia puede volver a Alfa mediante medidas de mínima intervención. Un
+    Charlie indica que mantenerla producirá daño —fractura, pérdida de tejido, compromiso del diente o de la encía—
+    y exige reparación o recambio. La caries secundaria es la excepción: no admite nivel Bravo.
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(1)">← Descripción por cuadrante</button>
+    <button class="btn" onclick="goTab(3)">Ver resumen →</button>
+  </div>
+</div>
+
+<div id="tab-3" class="hidden">
   <div class="section-header">
     <h2>Resumen del módulo</h2>
     <p>Consolidado del odontograma y descripción por cuadrante.</p>
@@ -394,40 +446,15 @@
   </div>
 
   <div class="nav-footer">
-    <button class="btn btn-outline" onclick="goTab(1)">← Descripción por cuadrante</button>
+    <button class="btn btn-outline" onclick="goTab(2)">← Restauraciones</button>
     <div style="font-size:12px;color:var(--text-3);">Módulo Slides 18–19 completo</div>
-  </div>
-</div>
-
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
   </div>
 </div>
 
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 
 // ---- Tabs ----
 function goTab(n) {
@@ -437,7 +464,7 @@ function goTab(n) {
   document.querySelectorAll('.tab-btn').forEach((btn, i) => {
     btn.classList.toggle('active', i === n);
   });
-  if (n === 2) buildResumen();
+  if (n === 3) buildResumen();
 }
 
 // ---- Imagen upload ----
@@ -482,6 +509,145 @@ function removeImg(id) {
 }
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
+
+// ---- Evaluación de restauraciones: criterios Ryge modificados ----
+/* Diez criterios, cada uno con Alfa, Bravo o Charlie. Una restauración óptima
+   es Alfa en los diez. La caries secundaria no admite Bravo. */
+const RYGE_CRITERIOS = [
+  ['color',      'Color',                       ['Coincide con el diente', 'Discrepancia dentro de rango aceptable', 'Discrepancia fuera de rango']],
+  ['adaptacion', 'Adaptación marginal',         ['Sin surco al paso de la sonda', 'La sonda engancha, sin exponer dentina', 'Surco con dentina o base expuesta']],
+  ['anatomia',   'Forma anatómica',             ['Sigue el contorno del diente', 'No sigue el contorno, sin exponer dentina', 'Presenta hombro o expone dentina']],
+  ['rugosidad',  'Rugosidad superficial',       ['Lisa, como el esmalte', 'Levemente rugosa, pulible', 'Rugosa, no pulible']],
+  ['tincionM',   'Tinción de los márgenes',     ['Sin tinción', 'Tinción sin penetrar hacia pulpar', 'Tinción que penetra hacia pulpar']],
+  ['tincionMasa','Tinción de la masa',          ['Sin cambio de color', 'Cambio leve de color', 'Cambio evidente y estéticamente inaceptable']],
+  ['contactos',  'Contactos',                   ['Presentes y adecuados', 'Débiles o parciales', 'Ausentes']],
+  ['sensibilidad','Sensibilidad',               ['Ausente', 'Presente y transitoria', 'Presente y persistente']],
+  ['caries',     'Caries secundaria',           ['Sin evidencia', null, 'Caries presente']],
+  ['brillo',     'Brillo',                      ['Superficie brillante', 'Superficie opaca', 'Opaca y estéticamente desagradable']],
+];
+const RYGE_NIVELES = ['Alfa', 'Bravo', 'Charlie'];
+
+function bloqueRestauracion(n) {
+  const crit = RYGE_CRITERIOS.map(([id, nombre, desc]) => {
+    const ops = RYGE_NIVELES.map((niv, k) => desc[k] === null ? '' :
+      `<option value="${niv}">${niv} — ${desc[k]}</option>`).join('');
+    return `<div class="ry-c"><span class="ry-c-n">${nombre}</span>
+      <select id="ry${n}_${id}" onchange="evaluarRestauracion(${n})"><option value="">Sin evaluar</option>${ops}</select></div>`;
+  }).join('');
+
+  return `<div class="ry-block" id="ryBlock${n}">
+    <div class="ry-head">
+      <div><label>Pieza (FDI)</label><input type="text" id="ry${n}_pieza" placeholder="Ej: 3.6"></div>
+      <div><label>Material</label><select id="ry${n}_material">
+        <option value="">Seleccionar…</option><option>Resina compuesta</option><option>Amalgama</option>
+        <option>Ionómero de vidrio</option><option>Incrustación cerámica</option><option>Corona metal-cerámica</option>
+        <option>Corona cerámica</option><option>Provisorio</option><option>Otro</option></select></div>
+      <div><label>Caras comprometidas</label><input type="text" id="ry${n}_caras" placeholder="Ej: oclusodistal"></div>
+      <div><button class="ry-del" onclick="eliminarRestauracion(${n})">Quitar</button></div>
+    </div>
+    <div class="ry-crit">${crit}</div>
+    <div class="ry-veredicto" id="ryVer${n}" style="display:none;"></div>
+  </div>`;
+}
+
+function agregarRestauracion() {
+  const cont = document.getElementById('rygeLista');
+  const campo = document.getElementById('rygeCount');
+  const n = parseInt(campo.value || '0', 10) + 1;
+  cont.insertAdjacentHTML('beforeend', bloqueRestauracion(n));
+  campo.value = n;
+  campo.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function eliminarRestauracion(n) {
+  const b = document.getElementById('ryBlock' + n);
+  if (!b) return;
+  if (!confirm('¿Quitar esta restauración de la evaluación?')) return;
+  b.querySelectorAll('input, select').forEach(el => { el.value = ''; });
+  b.remove();
+  document.getElementById('rygeCount').dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/* El veredicto se deriva de los criterios: no lo decide el estudiante ni la IA. */
+function evaluarRestauracion(n) {
+  const valores = RYGE_CRITERIOS.map(([id]) => document.getElementById(`ry${n}_${id}`)?.value || '');
+  const evaluados = valores.filter(Boolean);
+  const caja = document.getElementById('ryVer' + n);
+  if (!caja) return;
+  if (evaluados.length < 3) { caja.style.display = 'none'; return; }
+
+  const charlies = RYGE_CRITERIOS.filter(([id], i) => valores[i] === 'Charlie').map(([, nombre]) => nombre);
+  const bravos = RYGE_CRITERIOS.filter(([id], i) => valores[i] === 'Bravo').map(([, nombre]) => nombre);
+  const faltan = RYGE_CRITERIOS.length - evaluados.length;
+  const pend = faltan > 0 ? ` Quedan ${faltan} criterios sin evaluar.` : '';
+
+  if (charlies.length) {
+    caja.className = 'ry-veredicto charlie';
+    caja.textContent = 'Charlie en ' + charlies.join(', ') + '. Mantener la restauración así producirá daño: ' +
+      'corresponde repararla o recambiarla. Fundamenta cuál de las dos y por qué.' + pend;
+  } else if (bravos.length) {
+    caja.className = 'ry-veredicto bravo';
+    caja.textContent = 'Bravo en ' + bravos.join(', ') + '. La restauración sigue prestando servicio clínico. ' +
+      'Evalúa si estos criterios pueden volver a Alfa con mínima intervención antes de indicar recambio.' + pend;
+  } else {
+    caja.className = 'ry-veredicto alfa';
+    caja.textContent = 'Alfa en todos los criterios evaluados: restauración clínicamente óptima.' + pend;
+  }
+  caja.style.display = 'block';
+}
+
+/* Reconstruye los bloques guardados antes de que ficha-uss.js restaure los valores */
+function reconstruirRestauraciones() {
+  let n = 0;
+  try {
+    const crudo = localStorage.getItem('fichaUSS:v6:odontograma_uss');
+    if (crudo) n = parseInt((JSON.parse(crudo).datos || {})['v|rygeCount'] || '0', 10);
+  } catch (e) { n = 0; }
+  if (!n) return;
+  const cont = document.getElementById('rygeLista');
+  let html = '';
+  for (let i = 1; i <= n; i++) html += bloqueRestauracion(i);
+  cont.innerHTML = html;
+  document.getElementById('rygeCount').value = n;
+  setTimeout(() => { for (let i = 1; i <= n; i++) evaluarRestauracion(i); }, 900);
+}
+
+// ---- Fotografías traídas del examen intraoral ----
+function traerFotosIntraoral() {
+  let datos = {};
+  try {
+    const crudo = localStorage.getItem('fichaUSS:v6:examen_intraoral_uss');
+    datos = crudo ? (JSON.parse(crudo).datos || {}) : {};
+  } catch (e) { datos = {}; }
+
+  const pares = [['fotoSupBox', 'img|img-ocsup', 'Arcada superior'], ['fotoInfBox', 'img|img-ocinf', 'Arcada inferior']];
+  let encontradas = 0;
+  pares.forEach(([boxId, clave, alt]) => {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+    const src = datos[clave];
+    if (src) {
+      box.innerHTML = '<img src="' + src + '" alt="' + alt + '">';
+      encontradas++;
+    } else {
+      box.innerHTML = '<span class="ry-foto-vacio">Sin fotografía en el examen intraoral</span>';
+    }
+  });
+
+  const nota = document.getElementById('fotoNota');
+  if (!nota) return;
+  nota.textContent = encontradas === 2
+    ? 'Ambas fotografías cargadas desde el examen intraoral.'
+    : encontradas === 1
+      ? 'Una fotografía cargada. La otra falta en el examen intraoral.'
+      : 'No hay fotografías de las arcadas en el examen intraoral. Cárgalas allí y vuelve a actualizar.';
+}
+
+window.addEventListener('load', () => {
+  reconstruirRestauraciones();
+  setTimeout(traerFotosIntraoral, 300);
+});
+
 // ---- IA Síntesis ----
 async function generarSintesis() {
   const datos = {
@@ -507,7 +673,7 @@ async function generarSintesis() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 900,
         messages: [{
           role: 'user',
@@ -536,6 +702,22 @@ function usarSintesis() {
 // ---- Resumen ----
 function getVal(id) { return document.getElementById(id)?.value?.trim() || '—'; }
 
+function resumenRyge() {
+  const n = parseInt(document.getElementById('rygeCount')?.value || '0', 10);
+  const out = [];
+  for (let i = 1; i <= n; i++) {
+    const pieza = document.getElementById(`ry${i}_pieza`)?.value?.trim();
+    if (!pieza) continue;
+    const mat = document.getElementById(`ry${i}_material`)?.value || '';
+    const malos = RYGE_CRITERIOS
+      .map(([id, nombre]) => [nombre, document.getElementById(`ry${i}_${id}`)?.value || ''])
+      .filter(([, v]) => v === 'Bravo' || v === 'Charlie')
+      .map(([nombre, v]) => nombre + ': ' + v);
+    out.push(pieza + (mat ? ' (' + mat + ')' : '') + ' — ' + (malos.length ? malos.join(', ') : 'Alfa en todos los criterios'));
+  }
+  return out;
+}
+
 function buildResumen() {
   const imgLoaded = document.getElementById('previewOdont').src && !document.getElementById('previewOdont').classList.contains('hidden');
 
@@ -555,6 +737,11 @@ function buildResumen() {
       ['Cuadrante 4 — Inf. derecho', getVal('cuad4')],
       ['Síntesis narrativa', getVal('sintesisOdont')],
     ]},
+    { title: 'Evaluación de restauraciones — criterios Ryge modificados', rows: (() => {
+        const r = resumenRyge();
+        return (r.length ? r.map((t, i) => ['Restauración ' + (i + 1), t]) : [['Restauraciones evaluadas', '—']])
+          .concat([['Conclusión y decisión', getVal('rygeConclusion')]]);
+      })() },
   ];
 
   const html = sections.map(s => `
@@ -583,8 +770,9 @@ function copiarResumen() {
   });
 }
 </script>
-<script src="ficha-uss.js"></script>
 <script src="coherencia-uss.js"></script>
+<script src="ficha-uss.js"></script>
 <script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

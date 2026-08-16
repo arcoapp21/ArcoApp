@@ -1,5 +1,5 @@
 /**
- * ficha-uss.js — Guardado automático de la Asistente Digital de Razonamiento Clínico USS
+ * ficha-uss.js — Guardado automático de la Ficha Clínica Adulto USS
  *
  * Se incluye al final de cada módulo con:  <script src="ficha-uss.js"></script>
  *
@@ -9,8 +9,6 @@
  *  · Expone window.FichaUSS para que index.html pueda leer el estado y exportar el caso.
  *
  * Dónde se guarda: localStorage del navegador, bajo la clave fichaUSS:v6:<modulo>.
- * El prefijo conserva el nombre antiguo a propósito: cambiarlo dejaría ilegibles
- * los casos ya guardados y exportados. Es una clave interna, nadie la ve.
  * Los datos no salen del computador. Se pierden si se limpia el navegador o se usa
  * modo incógnito: por eso el índice ofrece exportar el caso a un archivo .json.
  */
@@ -172,6 +170,43 @@
   }
   function avisoError(texto) { mostrarAviso(texto, '#8B1A1A', 5000); }
 
+  // ── Aviso si el asistente no está conectado ────────────────────────────
+  /* El proxy es lo único que conoce la clave de la API. Si quedó sin
+     configurar, los módulos con IA fallarían sin explicación: mejor decirlo. */
+  function avisoProxy() {
+    if (window.FICHA_USS_API_CONFIGURADA !== false) return;
+    if (!/api.anthropic|FICHA_USS_API/.test(document.documentElement.innerHTML)) return;
+    var main = document.querySelector('main');
+    if (!main) return;
+    var d = document.createElement('div');
+    d.style.cssText = 'background:#FFF4E0;border:1px solid #e8d99a;border-radius:8px;padding:11px 14px;' +
+      'margin-bottom:16px;font-size:12.5px;color:#7A4A00;line-height:1.6;';
+    d.textContent = 'El asistente todavía no está conectado: falta poner la dirección del Worker en ' +
+      'config-uss.js. Todo lo demás del módulo funciona y se guarda con normalidad.';
+    main.insertBefore(d, main.firstChild);
+  }
+
+  // ── Botón de vuelta al índice ──────────────────────────────────────────
+  /* Solo aparece cuando el módulo corre dentro del índice. No guarda nada
+     al pulsarlo porque el guardado ya ocurrió: solo cambia la vista. */
+  function botonVolver() {
+    if (window.parent === window) return;   // abierto suelto, no hay índice al que volver
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = '\u2190 Volver al índice';
+    b.setAttribute('aria-label', 'Volver al índice de la ficha');
+    b.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9998;font-family:inherit;' +
+      'font-size:12.5px;font-weight:500;padding:9px 15px;border-radius:20px;border:1px solid #C8C3B8;' +
+      'background:#fff;color:#1D3A6B;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.12);';
+    b.addEventListener('mouseenter', function () { b.style.background = '#EAF0FA'; });
+    b.addEventListener('mouseleave', function () { b.style.background = '#fff'; });
+    b.addEventListener('click', function () {
+      guardar();
+      try { window.parent.postMessage({ fichaUSS: 'volver-al-indice' }, '*'); } catch (e) {}
+    });
+    document.body.appendChild(b);
+  }
+
   // ── API pública ────────────────────────────────────────────────────────
   window.FichaUSS = {
     modulo: MODULO,
@@ -186,6 +221,8 @@
     document.addEventListener('input', guardarDiferido, true);
     document.addEventListener('change', guardarDiferido, true);
     window.addEventListener('beforeunload', guardar);
+    botonVolver();
+    avisoProxy();
     // Segunda pasada para módulos que construyen campos después de cargar
     setTimeout(restaurar, 600);
   }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exámenes Complementarios — Asistente Digital USS</title>
+<title>Exámenes Complementarios — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -146,6 +146,30 @@
   .lab-row-add { display: flex; gap: 8px; margin-top: 8px; }
 
   /* Photo / image note */
+  .rx-grid { display:grid; gap:12px; margin-top:12px; }
+  .rx-grid.cols-1 { grid-template-columns:1fr; }
+  .rx-grid.cols-2 { grid-template-columns:1fr 1fr; }
+  .rx-cap { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--text-3); margin-bottom:6px; }
+  .upload-zone { border:2px dashed var(--border-strong); border-radius:var(--radius); padding:26px 16px;
+    text-align:center; background:var(--surface-2); cursor:pointer; transition:all .2s; position:relative; }
+  .upload-zone:hover { border-color:var(--accent-mid); background:var(--accent-light); }
+  .upload-zone.has-image { border-style:solid; border-color:var(--accent-mid); padding:8px; }
+  .upload-input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-icon { font-size:22px; margin-bottom:5px; }
+  .upload-title { font-size:12.5px; font-weight:500; color:var(--text-2); }
+  .upload-subtitle { font-size:11px; color:var(--text-3); margin-top:3px; line-height:1.45; }
+  .preview-img { max-width:100%; max-height:320px; border-radius:var(--radius-sm); display:block; margin:0 auto; }
+  .remove-btn { position:absolute; top:7px; right:7px; background:var(--red); color:#fff; border:none;
+    border-radius:50%; width:26px; height:26px; font-size:15px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; z-index:2; }
+  .remove-btn:hover { background:#6b1010; }
+  .rx-nota { font-size:11.5px; color:var(--text-2); line-height:1.6; background:var(--surface-2);
+    border-left:3px solid var(--accent-mid); border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    padding:10px 13px; margin-top:12px; }
+  .rx-intro { font-size:12.5px; color:var(--text-2); line-height:1.6; margin-bottom:4px; }
+  .rx-nota-inline { font-size:11.5px; color:var(--text-3); margin-left:8px; }
+  @media (max-width:700px) { .rx-grid.cols-2 { grid-template-columns:1fr; } }
   .img-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 10px; }
 
   /* Bib note */
@@ -177,36 +201,6 @@
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
 </head>
 <body>
 
@@ -214,7 +208,7 @@
   <div class="header-logo">🔬</div>
   <div class="header-text">
     <h1>Exámenes Complementarios</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slides 27–35</span>
 </header>
@@ -231,17 +225,6 @@
 </div>
 
 <main>
-
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
 
 <!-- ===== TAB 0: Resumen exámenes solicitados (S27) ===== -->
 <div id="tab-0">
@@ -301,7 +284,17 @@
       <label>Informe radiográfico panorámica</label>
       <textarea id="informePanoramica" placeholder="Descripción clínica del examen radiográfico panorámico..." rows="5"></textarea>
     </div>
-    <div class="img-note">📸 Adjuntar imagen de la radiografía panorámica digitalizada</div>
+    <div class="rx-grid cols-1">
+      <div>
+        <div class="rx-cap">Radiografía panorámica</div>
+        <div class="upload-zone" id="zone-pano" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'pano')">
+          <input type="file" accept="image/*" class="upload-input" id="file-pano" onchange="onFileChange('pano')">
+          <div class="upload-ph" id="ph-pano"><div class="upload-icon">🖼</div><div class="upload-title">Radiografía panorámica</div><div class="upload-subtitle">Imagen digitalizada completa</div></div>
+          <img id="img-pano" class="preview-img hidden" alt="Radiografía panorámica">
+          <button class="remove-btn hidden" id="rm-pano" onclick="removeImg('pano')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="nav-footer">
@@ -352,7 +345,49 @@
       <label>Informe radiográfico bitewing</label>
       <textarea id="informeBitewing" placeholder="Descripción clínica del examen de radiografías Bitewing..." rows="4"></textarea>
     </div>
-    <div class="img-note">📸 Adjuntar imágenes de las 4 radiografías Bitewing digitalizadas</div>
+    <div class="rx-grid cols-2">
+      <div>
+        <div class="rx-cap">Bitewing derecha — molar</div>
+        <div class="upload-zone" id="zone-bwDerMol" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'bwDerMol')">
+          <input type="file" accept="image/*" class="upload-input" id="file-bwDerMol" onchange="onFileChange('bwDerMol')">
+          <div class="upload-ph" id="ph-bwDerMol"><div class="upload-icon">🖼</div><div class="upload-title">Bitewing derecha — molar</div><div class="upload-subtitle">Cuadrantes 1 y 4, sector molar</div></div>
+          <img id="img-bwDerMol" class="preview-img hidden" alt="Bitewing derecha — molar">
+          <button class="remove-btn hidden" id="rm-bwDerMol" onclick="removeImg('bwDerMol')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Bitewing derecha — premolar</div>
+        <div class="upload-zone" id="zone-bwDerPre" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'bwDerPre')">
+          <input type="file" accept="image/*" class="upload-input" id="file-bwDerPre" onchange="onFileChange('bwDerPre')">
+          <div class="upload-ph" id="ph-bwDerPre"><div class="upload-icon">🖼</div><div class="upload-title">Bitewing derecha — premolar</div><div class="upload-subtitle">Cuadrantes 1 y 4, sector premolar</div></div>
+          <img id="img-bwDerPre" class="preview-img hidden" alt="Bitewing derecha — premolar">
+          <button class="remove-btn hidden" id="rm-bwDerPre" onclick="removeImg('bwDerPre')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Bitewing izquierda — premolar</div>
+        <div class="upload-zone" id="zone-bwIzqPre" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'bwIzqPre')">
+          <input type="file" accept="image/*" class="upload-input" id="file-bwIzqPre" onchange="onFileChange('bwIzqPre')">
+          <div class="upload-ph" id="ph-bwIzqPre"><div class="upload-icon">🖼</div><div class="upload-title">Bitewing izquierda — premolar</div><div class="upload-subtitle">Cuadrantes 2 y 3, sector premolar</div></div>
+          <img id="img-bwIzqPre" class="preview-img hidden" alt="Bitewing izquierda — premolar">
+          <button class="remove-btn hidden" id="rm-bwIzqPre" onclick="removeImg('bwIzqPre')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Bitewing izquierda — molar</div>
+        <div class="upload-zone" id="zone-bwIzqMol" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'bwIzqMol')">
+          <input type="file" accept="image/*" class="upload-input" id="file-bwIzqMol" onchange="onFileChange('bwIzqMol')">
+          <div class="upload-ph" id="ph-bwIzqMol"><div class="upload-icon">🖼</div><div class="upload-title">Bitewing izquierda — molar</div><div class="upload-subtitle">Cuadrantes 2 y 3, sector molar</div></div>
+          <img id="img-bwIzqMol" class="preview-img hidden" alt="Bitewing izquierda — molar">
+          <button class="remove-btn hidden" id="rm-bwIzqMol" onclick="removeImg('bwIzqMol')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
+    <div class="rx-nota">
+      Las cuatro aletas se montan en el mismo orden en que se toman: de derecha a izquierda del paciente.
+      Verifica que en cada una se vean las crestas óseas y los puntos de contacto sin superposición: una aleta
+      con contactos superpuestos no permite descartar caries interproximal.
+    </div>
   </div>
 
   <div class="nav-footer">
@@ -385,7 +420,48 @@
       <label>Hallazgos zona anterior con Rx periapicales</label>
       <textarea id="fotoAnt" placeholder="Ej: caries grado I en 11 cara mesial, reabsorción radicular externa en 21..." rows="2"></textarea>
     </div>
-    <div class="img-note">📸 Fotografia oclusal superior + inferior + zona anterior frontal + Rx periapicales anteriores</div>
+    <div class="rx-grid cols-2">
+      <div>
+        <div class="rx-cap">Oclusal superior</div>
+        <div class="upload-zone" id="zone-s30OclSup" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s30OclSup')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s30OclSup" onchange="onFileChange('s30OclSup')">
+          <div class="upload-ph" id="ph-s30OclSup"><div class="upload-icon">🖼</div><div class="upload-title">Oclusal superior</div><div class="upload-subtitle">Se puede traer del examen intraoral</div></div>
+          <img id="img-s30OclSup" class="preview-img hidden" alt="Oclusal superior">
+          <button class="remove-btn hidden" id="rm-s30OclSup" onclick="removeImg('s30OclSup')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Oclusal inferior</div>
+        <div class="upload-zone" id="zone-s30OclInf" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s30OclInf')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s30OclInf" onchange="onFileChange('s30OclInf')">
+          <div class="upload-ph" id="ph-s30OclInf"><div class="upload-icon">🖼</div><div class="upload-title">Oclusal inferior</div><div class="upload-subtitle">Se puede traer del examen intraoral</div></div>
+          <img id="img-s30OclInf" class="preview-img hidden" alt="Oclusal inferior">
+          <button class="remove-btn hidden" id="rm-s30OclInf" onclick="removeImg('s30OclInf')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Zona anterior, vista frontal</div>
+        <div class="upload-zone" id="zone-s30Ant" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s30Ant')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s30Ant" onchange="onFileChange('s30Ant')">
+          <div class="upload-ph" id="ph-s30Ant"><div class="upload-icon">🖼</div><div class="upload-title">Zona anterior, vista frontal</div></div>
+          <img id="img-s30Ant" class="preview-img hidden" alt="Zona anterior, vista frontal">
+          <button class="remove-btn hidden" id="rm-s30Ant" onclick="removeImg('s30Ant')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Radiografías periapicales anteriores</div>
+        <div class="upload-zone" id="zone-s30RxAnt" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s30RxAnt')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s30RxAnt" onchange="onFileChange('s30RxAnt')">
+          <div class="upload-ph" id="ph-s30RxAnt"><div class="upload-icon">🖼</div><div class="upload-title">Radiografías periapicales anteriores</div></div>
+          <img id="img-s30RxAnt" class="preview-img hidden" alt="Radiografías periapicales anteriores">
+          <button class="remove-btn hidden" id="rm-s30RxAnt" onclick="removeImg('s30RxAnt')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="btn btn-sm btn-outline" onclick="traerOclusales()">🔄 Traer oclusales del examen intraoral</button>
+      <span class="rx-nota-inline" id="oclNota"></span>
+    </div>
   </div>
 
   <!-- Slide 31: Lado derecho -->
@@ -401,7 +477,26 @@
         <textarea id="rxDer" placeholder="Ej: lesión periapical en 16, pérdida ósea horizontal sector posterior..." rows="3"></textarea>
       </div>
     </div>
-    <div class="img-note">📸 Fotografía lateral derecha + radiografías periapicales del sector</div>
+    <div class="rx-grid cols-2">
+      <div>
+        <div class="rx-cap">Fotografía lateral derecha</div>
+        <div class="upload-zone" id="zone-s31Foto" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s31Foto')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s31Foto" onchange="onFileChange('s31Foto')">
+          <div class="upload-ph" id="ph-s31Foto"><div class="upload-icon">🖼</div><div class="upload-title">Fotografía lateral derecha</div></div>
+          <img id="img-s31Foto" class="preview-img hidden" alt="Fotografía lateral derecha">
+          <button class="remove-btn hidden" id="rm-s31Foto" onclick="removeImg('s31Foto')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Periapicales del sector derecho</div>
+        <div class="upload-zone" id="zone-s31Rx" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s31Rx')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s31Rx" onchange="onFileChange('s31Rx')">
+          <div class="upload-ph" id="ph-s31Rx"><div class="upload-icon">🖼</div><div class="upload-title">Periapicales del sector derecho</div></div>
+          <img id="img-s31Rx" class="preview-img hidden" alt="Periapicales del sector derecho">
+          <button class="remove-btn hidden" id="rm-s31Rx" onclick="removeImg('s31Rx')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Slide 32: Lado izquierdo -->
@@ -417,7 +512,26 @@
         <textarea id="rxIzq" placeholder="Ej: sin alteraciones periapicales evidentes, ligero ensanchamiento del espacio periodontal en 26..." rows="3"></textarea>
       </div>
     </div>
-    <div class="img-note">📸 Fotografía lateral izquierda + radiografías periapicales del sector</div>
+    <div class="rx-grid cols-2">
+      <div>
+        <div class="rx-cap">Fotografía lateral izquierda</div>
+        <div class="upload-zone" id="zone-s32Foto" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s32Foto')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s32Foto" onchange="onFileChange('s32Foto')">
+          <div class="upload-ph" id="ph-s32Foto"><div class="upload-icon">🖼</div><div class="upload-title">Fotografía lateral izquierda</div></div>
+          <img id="img-s32Foto" class="preview-img hidden" alt="Fotografía lateral izquierda">
+          <button class="remove-btn hidden" id="rm-s32Foto" onclick="removeImg('s32Foto')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Periapicales del sector izquierdo</div>
+        <div class="upload-zone" id="zone-s32Rx" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'s32Rx')">
+          <input type="file" accept="image/*" class="upload-input" id="file-s32Rx" onchange="onFileChange('s32Rx')">
+          <div class="upload-ph" id="ph-s32Rx"><div class="upload-icon">🖼</div><div class="upload-title">Periapicales del sector izquierdo</div></div>
+          <img id="img-s32Rx" class="preview-img hidden" alt="Periapicales del sector izquierdo">
+          <button class="remove-btn hidden" id="rm-s32Rx" onclick="removeImg('s32Rx')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="nav-footer">
@@ -610,7 +724,132 @@
       <label>Conclusión análisis de modelos</label>
       <textarea id="conclusionModelos" placeholder="Descripción clínica integrada del análisis de modelos en articulador..." rows="3"></textarea>
     </div>
-    <div class="img-note">📸 Adjuntar fotografías de modelos montados en articulador (frontal, lateral D/I, oclusal S/I)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografías de los modelos montados en articulador</div>
+    <p class="rx-intro">
+      Registro de la relación intermaxilar tal como quedó montada. Tomar con los modelos en máxima
+      intercuspidación y el articulador cerrado.
+    </p>
+    <div class="rx-grid cols-2">
+      <div>
+        <div class="rx-cap">Articulados — vista frontal</div>
+        <div class="upload-zone" id="zone-mFrontal" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'mFrontal')">
+          <input type="file" accept="image/*" class="upload-input" id="file-mFrontal" onchange="onFileChange('mFrontal')">
+          <div class="upload-ph" id="ph-mFrontal"><div class="upload-icon">🖼</div><div class="upload-title">Articulados — vista frontal</div></div>
+          <img id="img-mFrontal" class="preview-img hidden" alt="Modelos articulados — vista frontal">
+          <button class="remove-btn hidden" id="rm-mFrontal" onclick="removeImg('mFrontal')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Articulados — lateral derecha</div>
+        <div class="upload-zone" id="zone-mLatDer" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'mLatDer')">
+          <input type="file" accept="image/*" class="upload-input" id="file-mLatDer" onchange="onFileChange('mLatDer')">
+          <div class="upload-ph" id="ph-mLatDer"><div class="upload-icon">🖼</div><div class="upload-title">Articulados — lateral derecha</div></div>
+          <img id="img-mLatDer" class="preview-img hidden" alt="Modelos articulados — lateral derecha">
+          <button class="remove-btn hidden" id="rm-mLatDer" onclick="removeImg('mLatDer')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Articulados — lateral izquierda</div>
+        <div class="upload-zone" id="zone-mLatIzq" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'mLatIzq')">
+          <input type="file" accept="image/*" class="upload-input" id="file-mLatIzq" onchange="onFileChange('mLatIzq')">
+          <div class="upload-ph" id="ph-mLatIzq"><div class="upload-icon">🖼</div><div class="upload-title">Articulados — lateral izquierda</div></div>
+          <img id="img-mLatIzq" class="preview-img hidden" alt="Modelos articulados — lateral izquierda">
+          <button class="remove-btn hidden" id="rm-mLatIzq" onclick="removeImg('mLatIzq')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Articulados — oclusal superior</div>
+        <div class="upload-zone" id="zone-mOclSup" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'mOclSup')">
+          <input type="file" accept="image/*" class="upload-input" id="file-mOclSup" onchange="onFileChange('mOclSup')">
+          <div class="upload-ph" id="ph-mOclSup"><div class="upload-icon">🖼</div><div class="upload-title">Articulados — oclusal superior</div></div>
+          <img id="img-mOclSup" class="preview-img hidden" alt="Modelos articulados — oclusal superior">
+          <button class="remove-btn hidden" id="rm-mOclSup" onclick="removeImg('mOclSup')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Articulados — oclusal inferior</div>
+        <div class="upload-zone" id="zone-mOclInf" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'mOclInf')">
+          <input type="file" accept="image/*" class="upload-input" id="file-mOclInf" onchange="onFileChange('mOclInf')">
+          <div class="upload-ph" id="ph-mOclInf"><div class="upload-icon">🖼</div><div class="upload-title">Articulados — oclusal inferior</div></div>
+          <img id="img-mOclInf" class="preview-img hidden" alt="Modelos articulados — oclusal inferior">
+          <button class="remove-btn hidden" id="rm-mOclInf" onclick="removeImg('mOclInf')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografías de los modelos individuales</div>
+    <p class="rx-intro">
+      Cada modelo por separado, fuera del articulador. Son las que permiten evaluar forma de arcada,
+      apiñamiento, curvas de compensación y desgastes, que en el montaje quedan ocultos por el modelo antagonista.
+    </p>
+    <div class="rx-grid cols-2">
+      <div>
+        <div class="rx-cap">Modelo superior — oclusal</div>
+        <div class="upload-zone" id="zone-miSupOcl" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'miSupOcl')">
+          <input type="file" accept="image/*" class="upload-input" id="file-miSupOcl" onchange="onFileChange('miSupOcl')">
+          <div class="upload-ph" id="ph-miSupOcl"><div class="upload-icon">🖼</div><div class="upload-title">Modelo superior — oclusal</div><div class="upload-subtitle">Forma de arcada, apiñamiento, giroversiones</div></div>
+          <img id="img-miSupOcl" class="preview-img hidden" alt="Modelo superior — oclusal">
+          <button class="remove-btn hidden" id="rm-miSupOcl" onclick="removeImg('miSupOcl')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Modelo inferior — oclusal</div>
+        <div class="upload-zone" id="zone-miInfOcl" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'miInfOcl')">
+          <input type="file" accept="image/*" class="upload-input" id="file-miInfOcl" onchange="onFileChange('miInfOcl')">
+          <div class="upload-ph" id="ph-miInfOcl"><div class="upload-icon">🖼</div><div class="upload-title">Modelo inferior — oclusal</div><div class="upload-subtitle">Forma de arcada, curva de Wilson</div></div>
+          <img id="img-miInfOcl" class="preview-img hidden" alt="Modelo inferior — oclusal">
+          <button class="remove-btn hidden" id="rm-miInfOcl" onclick="removeImg('miInfOcl')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Modelo superior — vestibular</div>
+        <div class="upload-zone" id="zone-miSupVest" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'miSupVest')">
+          <input type="file" accept="image/*" class="upload-input" id="file-miSupVest" onchange="onFileChange('miSupVest')">
+          <div class="upload-ph" id="ph-miSupVest"><div class="upload-icon">🖼</div><div class="upload-title">Modelo superior — vestibular</div><div class="upload-subtitle">Altura de cúspides y desgastes</div></div>
+          <img id="img-miSupVest" class="preview-img hidden" alt="Modelo superior — vestibular">
+          <button class="remove-btn hidden" id="rm-miSupVest" onclick="removeImg('miSupVest')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Modelo inferior — vestibular</div>
+        <div class="upload-zone" id="zone-miInfVest" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'miInfVest')">
+          <input type="file" accept="image/*" class="upload-input" id="file-miInfVest" onchange="onFileChange('miInfVest')">
+          <div class="upload-ph" id="ph-miInfVest"><div class="upload-icon">🖼</div><div class="upload-title">Modelo inferior — vestibular</div><div class="upload-subtitle">Curva de Spee</div></div>
+          <img id="img-miInfVest" class="preview-img hidden" alt="Modelo inferior — vestibular">
+          <button class="remove-btn hidden" id="rm-miInfVest" onclick="removeImg('miInfVest')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Modelo superior — lateral</div>
+        <div class="upload-zone" id="zone-miSupLat" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'miSupLat')">
+          <input type="file" accept="image/*" class="upload-input" id="file-miSupLat" onchange="onFileChange('miSupLat')">
+          <div class="upload-ph" id="ph-miSupLat"><div class="upload-icon">🖼</div><div class="upload-title">Modelo superior — lateral</div></div>
+          <img id="img-miSupLat" class="preview-img hidden" alt="Modelo superior — lateral">
+          <button class="remove-btn hidden" id="rm-miSupLat" onclick="removeImg('miSupLat')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="rx-cap">Modelo inferior — lateral</div>
+        <div class="upload-zone" id="zone-miInfLat" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'miInfLat')">
+          <input type="file" accept="image/*" class="upload-input" id="file-miInfLat" onchange="onFileChange('miInfLat')">
+          <div class="upload-ph" id="ph-miInfLat"><div class="upload-icon">🖼</div><div class="upload-title">Modelo inferior — lateral</div></div>
+          <img id="img-miInfLat" class="preview-img hidden" alt="Modelo inferior — lateral">
+          <button class="remove-btn hidden" id="rm-miInfLat" onclick="removeImg('miInfLat')" title="Quitar imagen">×</button>
+        </div>
+      </div>
+    </div>
+    <div class="rx-nota">
+      Fotografía cada modelo sobre fondo neutro y con la misma distancia, para que las tomas del control
+      posterior sean comparables con estas.
+    </div>
+  </div>
+
+  <div class="card">
     <div class="bib-note">
       📚 <strong>Referencia:</strong> Okeson JP. <em>Management of Temporomandibular Disorders and Occlusion</em>. 8ª ed. Elsevier; 2019. Cap. 5: Criteria for Optimum Functional Occlusion.
     </div>
@@ -635,35 +874,10 @@
   </div>
 </div>
 
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
-  </div>
-</div>
-
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 let currentTab = 0;
 
 // ---- Data ----
@@ -803,6 +1017,66 @@ function addParRow() {
   </tr>`;
 }
 
+
+// ---- Imágenes radiográficas y fotografías ----
+function onFileChange(k) {
+  const file = document.getElementById('file-' + k).files[0];
+  if (file) loadImage(k, file);
+}
+function onDragOver(e) { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--accent-mid)'; }
+function onDragLeave(e) { e.currentTarget.style.borderColor = ''; }
+function onDrop(e, k) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(k, file);
+}
+function loadImage(k, file) {
+  const reader = new FileReader();
+  reader.onload = e => mostrarImagen(k, e.target.result);
+  reader.readAsDataURL(file);
+}
+function mostrarImagen(k, src) {
+  const img = document.getElementById('img-' + k);
+  if (!img) return;
+  img.src = src;
+  img.classList.remove('hidden');
+  document.getElementById('ph-' + k).classList.add('hidden');
+  document.getElementById('rm-' + k).classList.remove('hidden');
+  document.getElementById('zone-' + k).classList.add('has-image');
+  img.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function removeImg(k) {
+  const img = document.getElementById('img-' + k);
+  img.src = '';
+  img.classList.add('hidden');
+  document.getElementById('ph-' + k).classList.remove('hidden');
+  document.getElementById('rm-' + k).classList.add('hidden');
+  document.getElementById('zone-' + k).classList.remove('has-image');
+  document.getElementById('file-' + k).value = '';
+  img.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+/* Las oclusales ya se tomaron en el examen intraoral: se reutilizan en vez de volver a subirlas. */
+function traerOclusales() {
+  let datos = {};
+  try {
+    const crudo = localStorage.getItem('fichaUSS:v6:examen_intraoral_uss');
+    datos = crudo ? (JSON.parse(crudo).datos || {}) : {};
+  } catch (e) { datos = {}; }
+
+  let n = 0;
+  [['s30OclSup', 'img|img-ocsup'], ['s30OclInf', 'img|img-ocinf']].forEach(([k, clave]) => {
+    if (datos[clave]) { mostrarImagen(k, datos[clave]); n++; }
+  });
+
+  const nota = document.getElementById('oclNota');
+  if (!nota) return;
+  nota.textContent = n === 2 ? 'Ambas oclusales cargadas desde el examen intraoral.'
+    : n === 1 ? 'Una oclusal cargada; la otra falta en el examen intraoral.'
+    : 'No hay oclusales cargadas en el examen intraoral.';
+}
+
 // ---- IA Panorámica ----
 async function generarInformePanoramica() {
   const hallazgos = ZONAS_PANORAMICA.map((z, i) => {
@@ -815,7 +1089,7 @@ async function generarInformePanoramica() {
   try {
     const resp = await fetch(API_URL, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 900,
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 900,
         messages: [{ role: 'user', content:
           `Eres radiólogo clínico odontológico. Redacta el informe de la "Radiografía Panorámica" para una ficha clínica universitaria con estos hallazgos por zona:
 ${hallazgos.join('\n')}
@@ -849,7 +1123,7 @@ async function generarInformeBitewing() {
   try {
     const resp = await fetch(API_URL, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 700,
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 700,
         messages: [{ role: 'user', content:
           `Eres radiólogo clínico odontológico. Redacta el informe de "Radiografías Bitewing" para una ficha clínica universitaria con estos hallazgos:
 ${datos.join('\n')}
@@ -883,7 +1157,7 @@ async function generarConclusionEndo() {
   try {
     const resp = await fetch(API_URL, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 700,
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 700,
         messages: [{ role: 'user', content:
           `Eres endodoncista clínico. Redacta la "Conclusión del examen endodóntico" para una ficha clínica universitaria con estos resultados:
 ${piezas.join('\n')}
@@ -983,8 +1257,9 @@ initChecklists();
 initZonas();
 initFactores();
 </script>
-<script src="ficha-uss.js"></script>
 <script src="coherencia-uss.js"></script>
+<script src="ficha-uss.js"></script>
 <script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

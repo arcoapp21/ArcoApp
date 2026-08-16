@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro de razonamiento clínico — Asistente Digital USS</title>
+<title>Registro de razonamiento clínico — Ficha USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,7 +49,7 @@
   .resp { padding: 10px 0; border-bottom: 1px solid var(--border); }
   .resp:last-child { border-bottom: none; padding-bottom: 0; }
   .resp-sec { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; }
-  .resp-txt { font-size: 13.5px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
+  .resp-txt { white-space: pre-wrap; font-size: 13.5px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
   .resp-none { font-size: 13px; color: var(--text-3); font-style: italic; }
 
   .sello { background: var(--surface-2); border-left: 3px solid var(--green); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 9px 13px; font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--green); margin-bottom: 14px; }
@@ -82,7 +82,6 @@
     @page { margin: 1.6cm; }
   }
 </style>
-<script src="config-uss.js"></script>
 </head>
 <body>
 
@@ -90,7 +89,7 @@
   <div class="header-logo">📑</div>
   <div class="header-text">
     <h1>Registro de razonamiento clínico</h1>
-    <p>Documento de corrección · Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Documento de corrección · Ficha Clínica Adulto 2026 · Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Uso docente</span>
 </header>
@@ -107,7 +106,7 @@
 
   <div class="nota-pie">
     <strong>Sobre este documento</strong>
-    Se genera con los datos guardados en este navegador. Para corregir en otro equipo, exporta el caso desde el índice del asistente e impórtalo allá. El archivo <code>.json</code> contiene las mismas respuestas en formato tabulable, para reunir varios casos en una planilla.
+    Se genera con los datos guardados en este navegador. Para corregir en otro equipo, exporta el caso desde el índice de la ficha e impórtalo allá. El archivo <code>.json</code> contiene las mismas respuestas en formato tabulable, para reunir varios casos en una planilla.
   </div>
 </main>
 
@@ -117,6 +116,7 @@ const PREFIX = 'fichaUSS:v6:';
 /* Orden y nombre de las secciones de la ficha */
 const SECCIONES = [
   ['identificacion_antecedentes_uss', 'Identificación y antecedentes'],
+  ['asistente_farmacos_uss',          'Fármacos'],
   ['examen_fisico_general_uss',       'Examen físico general'],
   ['examen_extraoral_uss',            'Examen extraoral'],
   ['examen_intraoral_uss',            'Examen intraoral'],
@@ -124,6 +124,7 @@ const SECCIONES = [
   ['examenes_periodontales_uss',      'Exámenes periodontales'],
   ['examenes_complementarios_uss',    'Exámenes complementarios'],
   ['situaciones_relevantes_uss',      'Situaciones relevantes'],
+  ['diagnostico_plan_pronostico_uss', 'Diagnóstico, plan y pronóstico'],
 ];
 
 const RZ_MOD = 'diagnostico_razonamiento_guiado_uss';
@@ -139,6 +140,24 @@ function meta() {
 }
 function sello() {
   try { return JSON.parse(localStorage.getItem(PREFIX + 'rz-sello')); } catch (e) { return null; }
+}
+
+/* Sellos de los diagnósticos parciales (odontograma, periodontal, riesgo) */
+const PARCIALES = [
+  ['odontograma_uss', [
+    ['Diagnóstico', 'sdDx'], ['Piezas e ICDAS', 'sdPiezas'],
+    ['Actividad de las lesiones', 'sdActividad'], ['Distinción con restauración desadaptada', 'sdDistincion']]],
+  ['examenes_periodontales_uss', [
+    ['Diagnóstico', 'spDx'], ['Gingivitis frente a periodontitis', 'spSaludEnfermedad'],
+    ['Estadio sostenido en', 'spEstadio'], ['Grado sostenido en', 'spGrado'],
+    ['Extensión sostenida en', 'spExtension']]],
+  ['examenes_complementarios_uss', [
+    ['Categoría asignada', 'srCategoria'], ['Factores de riesgo', 'srFactores'],
+    ['Factores protectores', 'srProtectores'], ['Balance y categoría contigua', 'srBalance']]]
+];
+
+function selloParcial(mod) {
+  try { return JSON.parse(localStorage.getItem(PREFIX + 'sello-' + mod)); } catch (e) { return null; }
 }
 function esc(t) {
   return String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -198,11 +217,12 @@ function construir() {
   const pendientes = recolectar('pq-pendiente');
   const anticipacion = recolectar('pq-anticipacion');
 
-  const hayAlgo = jerarquia.length || consecuencia.length || pendientes.length || s || rz['v|rzRevision'];
+  const hayAlgo = jerarquia.length || consecuencia.length || pendientes.length || s ||
+    rz['v|rzRevision'] || PARCIALES.some(([mod]) => selloParcial(mod));
   if (!hayAlgo) {
     document.getElementById('contenido').innerHTML =
       '<div class="vacio">No hay registro de razonamiento en este navegador.<br>' +
-      'Abre el índice del asistente e importa el caso del estudiante antes de corregir.</div>';
+      'Abre el índice de la ficha e importa el caso del estudiante antes de corregir.</div>';
     return;
   }
 
@@ -230,21 +250,72 @@ function construir() {
     'Pregunta 3 de cierre, recogida en todas las secciones.',
     bloqueRespuestas(pendientes, 'Sin respuestas registradas.'));
 
+  /* Fundamentación por partes: cada diagnóstico con el dato que lo sostiene */
+  const parte = id => (s && s[id]) || rz['v|' + id] || '';
+  const dominio = (titulo, dxId, partes) => {
+    const dx = parte(dxId);
+    if (!dx.trim()) return '';
+    return '<div class="resp"><div class="resp-sec">' + esc(titulo) + '</div>' +
+      '<div class="resp-txt"><strong>' + esc(dx) + '</strong>' +
+      partes.map(([et, id]) => {
+        const v = parte(id).trim();
+        return '\n' + et + ': ' + (v || '— sin fundamentar —');
+      }).join('') + '</div></div>';
+  };
+
+  const c4cuerpo =
+    dominio('Diagnóstico periodontal', 'rzPerioDx', [
+      ['Estadio sostenido en', 'rzPerioEstadio'],
+      ['Grado sostenido en', 'rzPerioGrado'],
+      ['Extensión sostenida en', 'rzPerioExtension']]) +
+    dominio('Diagnóstico de tejidos duros', 'rzDurosDx', [['Sostenido en', 'rzDurosJust']]) +
+    dominio('Otros diagnósticos', 'rzOtrosDx', [['Sostenido en', 'rzOtrosJust']]);
+
+  /* Diagnósticos parciales sellados durante el período de implementación */
+  const parcialesHTML = PARCIALES.map(([mod, campos]) => {
+    const d = selloParcial(mod);
+    if (!d) return '';
+    return '<div class="resp"><div class="resp-sec">' + esc(d.titulo || mod) +
+      ' · sellado ' + esc(d.sello || '—') + '</div><div class="resp-txt">' +
+      campos.map(([et, id]) => et + ': ' + (String(d[id] || '').trim() || '— sin fundamentar —')).join('\n') +
+      (d.diferencial ? '\nDiferencial: ' + d.diferencial : '') +
+      '</div></div>';
+  }).join('');
+
   const c4 = criterio(4, 'Correspondencia entre hallazgos y evidencia invocada', '20%',
-    'Fundamentación sellada del módulo de razonamiento diagnóstico. Contrastar con los hallazgos que el estudiante declaró relevantes en el criterio 1.',
-    bloqueLibre('Hipótesis diagnóstica inicial', s ? s.hipotesis : rz['v|rzHipotesis'], 'Sin hipótesis registrada.') +
-    bloqueLibre('Evidencia que la sostiene', s ? s.evidencia : rz['v|rzEvidencia'], 'Sin evidencia registrada.'),
+    'Fundamentación sellada, por partes. Cada componente del diagnóstico debe ir con el dato que lo sostiene; un «sin fundamentar» no es lo mismo que un diagnóstico ausente. Contrastar con los hallazgos que el estudiante declaró relevantes en el criterio 1.',
+    (parcialesHTML || '') + (c4cuerpo || bloqueLibre('Hipótesis diagnóstica inicial', s ? s.hipotesis : rz['v|rzHipotesis'], 'Sin fundamentación del diagnóstico integral registrada.')),
     selloHTML);
 
   const c5 = criterio(5, 'Consideración y descarte del diferencial', '15%',
     'Fundamentación sellada del módulo de razonamiento diagnóstico.',
     bloqueLibre('', s ? s.diferencial : rz['v|rzDiferencial'], 'No consideró explicaciones alternativas.'));
 
-  const preguntas = s && s.preguntas ? s.preguntas.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+  const limpiar = h => h ? h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+  const preguntas = limpiar(s && s.preguntas);
+  const alertas = limpiar(s && s.alertas);
   const c6 = criterio(6, 'Revisión posterior a las preguntas', '10%',
-    'Paso 3 del módulo de razonamiento diagnóstico. Verificar que la revisión responda a lo que el asistente preguntó.',
+    'Paso 3 del módulo de razonamiento diagnóstico. Verificar que la revisión responda a lo que se le planteó, y no a otra cosa.',
+    (alertas ? bloqueLibre('Contradicciones detectadas entre secciones', alertas, '') : '') +
     (preguntas ? bloqueLibre('Preguntas que planteó el asistente', preguntas, '') : '') +
-    bloqueLibre('Revisión del estudiante', rz['v|rzRevision'], 'No registró revisión posterior.'));
+    bloqueLibre('Revisión del diagnóstico integral', rz['v|rzRevision'], 'No registró revisión posterior.') +
+    PARCIALES.map(([mod]) => {
+      const d = selloParcial(mod);
+      const r = (leer(mod) || {})['v|slRevision'];
+      if (!d && !r) return '';
+      return bloqueLibre('Revisión — ' + ((d && d.titulo) || mod), r, 'Selló la fundamentación pero no registró revisión.');
+    }).join('') +
+    bloqueLibre('Revisión del plan de tratamiento', rz['v|planRevision'], 'No registró revisión del plan.') +
+    bloqueLibre('Revisión del pronóstico', rz['v|pronRevision'], 'No registró revisión del pronóstico.'));
+
+  /* Fundamentación del plan y del pronóstico: se puntúan dentro del criterio 4 */
+  const c4bis = criterio('4b', 'Fundamentación del plan y del pronóstico', 'dentro del 20%',
+    'Módulo de razonamiento. El razonamiento de un plan está en el orden de las fases, no en la lista de procedimientos.',
+    bloqueLibre('Por qué este orden de fases', rz['v|planOrden'], 'No fundamentó la secuencia del plan.') +
+    bloqueLibre('Condición que obliga a modificar el plan habitual', rz['v|planCondicion'], 'No respondió.') +
+    bloqueLibre('Procedimiento discutible que mantiene', rz['v|planDiscutible'], 'No respondió.') +
+    bloqueLibre('De qué depende el pronóstico', rz['v|pronDepende'], 'No fundamentó el pronóstico.') +
+    bloqueLibre('Pieza con peor pronóstico y por qué', rz['v|pronPeor'], 'No respondió.'));
 
   const anexo = anticipacion.length
     ? '<div class="crit"><div class="crit-head"><span class="crit-n">A</span>' +
@@ -254,7 +325,7 @@ function construir() {
       bloqueRespuestas(anticipacion, '') + '</div>'
     : '';
 
-  document.getElementById('contenido').innerHTML = cabecera + c1 + c2 + c3 + c4 + c5 + c6 + anexo;
+  document.getElementById('contenido').innerHTML = cabecera + c1 + c2 + c3 + c4 + c4bis + c5 + c6 + anexo;
 }
 
 /* ── Exportaciones ── */
@@ -293,8 +364,36 @@ function descargarJSON() {
     criterio_1_jerarquizacion: recolectar('pq-clave').map(([s2, t]) => ({ seccion: s2, respuesta: t })),
     criterio_2_consecuencia: recolectar('pq-consecuencia').map(([s2, t]) => ({ seccion: s2, respuesta: t })),
     criterio_3_incertidumbre: recolectar('pq-pendiente').map(([s2, t]) => ({ seccion: s2, respuesta: t })),
-    criterio_4_hipotesis: s ? s.hipotesis : (rz['v|rzHipotesis'] || ''),
-    criterio_4_evidencia: s ? s.evidencia : (rz['v|rzEvidencia'] || ''),
+    criterio_4_diagnostico_periodontal: {
+      diagnostico: (s && s.rzPerioDx) || rz['v|rzPerioDx'] || '',
+      estadio_sostenido_en: (s && s.rzPerioEstadio) || rz['v|rzPerioEstadio'] || '',
+      grado_sostenido_en: (s && s.rzPerioGrado) || rz['v|rzPerioGrado'] || '',
+      extension_sostenida_en: (s && s.rzPerioExtension) || rz['v|rzPerioExtension'] || ''
+    },
+    criterio_4_tejidos_duros: {
+      diagnostico: (s && s.rzDurosDx) || rz['v|rzDurosDx'] || '',
+      sostenido_en: (s && s.rzDurosJust) || rz['v|rzDurosJust'] || ''
+    },
+    criterio_4_otros: {
+      diagnostico: (s && s.rzOtrosDx) || rz['v|rzOtrosDx'] || '',
+      sostenido_en: (s && s.rzOtrosJust) || rz['v|rzOtrosJust'] || ''
+    },
+    contradicciones_detectadas: (s && s.coherencia) || [],
+    diagnosticos_parciales: PARCIALES.map(([mod, campos]) => {
+      const d = selloParcial(mod);
+      if (!d) return null;
+      const o = { modulo: mod, titulo: d.titulo, sello: d.sello, diferencial: d.diferencial || '',
+                  contradicciones: d.coherencia || [], revision: (leer(mod) || {})['v|slRevision'] || '' };
+      campos.forEach(([et, id]) => { o[id] = d[id] || ''; });
+      return o;
+    }).filter(Boolean),
+    plan: {
+      orden: rz['v|planOrden'] || '', condicion: rz['v|planCondicion'] || '',
+      discutible: rz['v|planDiscutible'] || '', revision: rz['v|planRevision'] || ''
+    },
+    pronostico: {
+      depende: rz['v|pronDepende'] || '', peor: rz['v|pronPeor'] || '', revision: rz['v|pronRevision'] || ''
+    },
     criterio_5_diferencial: s ? s.diferencial : (rz['v|rzDiferencial'] || ''),
     criterio_6_revision: rz['v|rzRevision'] || '',
     anexo_anticipacion: recolectar('pq-anticipacion').map(([s2, t]) => ({ seccion: s2, respuesta: t }))
@@ -311,7 +410,5 @@ function descargarJSON() {
 construir();
 </script>
 <script src="ficha-uss.js"></script>
-<script src="coherencia-uss.js"></script>
-<script src="sello-uss.js"></script>
 </body>
 </html>

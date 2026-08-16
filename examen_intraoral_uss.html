@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Examen Clínico Intraoral — Asistente Digital USS</title>
+<title>Examen Clínico Intraoral — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,7 +44,6 @@
   .field-grid { display: grid; gap: 14px; }
   .field-grid-2 { grid-template-columns: 1fr 1fr; }
   .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-  .field-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); }
@@ -56,7 +55,7 @@
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   input:focus, select:focus, textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(74,111,165,0.12); background: white; }
-  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
   select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9688' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
   input::placeholder, textarea::placeholder { color: var(--text-3); }
 
@@ -65,7 +64,6 @@
   .radio-pill label { display: block; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border); cursor: pointer; transition: all 0.12s; color: var(--text-2); background: var(--surface-2); }
   .radio-pill input:checked + label { background: var(--accent-light); color: var(--accent); border-color: var(--accent-mid); font-weight: 500; }
 
-  /* AI bar */
   .ai-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border: 1px solid #c5d8f0; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px; }
   .ai-bar-text { font-size: 13px; color: var(--accent); flex: 1; }
   .ai-bar-text span { font-weight: 500; }
@@ -87,118 +85,81 @@
   .ai-suggestion { background: #fffdf5; border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: var(--amber); line-height: 1.6; margin-top: 8px; animation: fadeIn 0.3s; }
   .ai-suggestion strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
 
-  /* Perfil facial SVG diagram */
-  .perfil-diagram { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-  .svg-container { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
-  .svg-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 10px; }
-  .perfil-options { display: flex; flex-direction: column; gap: 10px; }
+  .bib-box { background: var(--surface-2); border-left: 3px solid var(--accent-mid); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 10px 14px; font-size: 12px; color: var(--text-2); line-height: 1.6; margin-top: 12px; }
+  .bib-box strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); margin-bottom: 4px; }
 
-  /* Perfil type cards */
-  .perfil-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .perfil-opt input { display: none; }
-  .perfil-opt label { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; text-align: center; background: var(--surface-2); transition: all 0.12s; }
-  .perfil-opt label .perf-icon { font-size: 28px; line-height: 1; }
-  .perfil-opt label .perf-name { font-size: 12px; font-weight: 500; color: var(--text-2); }
-  .perfil-opt label .perf-desc { font-size: 10px; color: var(--text-3); }
-  .perfil-opt input:checked + label { background: var(--accent-light); border-color: var(--accent-mid); }
-  .perfil-opt input:checked + label .perf-name { color: var(--accent); }
+  /* Tejidos blandos: filas */
+  .tb-row { display: grid; grid-template-columns: 150px 150px 1fr; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .tb-row:last-of-type { border-bottom: none; }
+  .tb-name { font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .tb-row select, .tb-row input { height: 34px; font-size: 12px !important; padding: 4px 10px !important; }
+  .tb-row select { padding-right: 26px !important; }
+  .tb-row.alterado .tb-name { color: var(--amber); }
 
-  /* Tercio facial visual */
-  .tercios-visual { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
-  .tercio-row { display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); gap: 10px; }
-  .tercio-row:last-child { border-bottom: none; }
-  .tercio-name { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
-  .tercio-pts { font-size: 10px; color: var(--text-3); text-align: right; }
-  .tercio-select { height: 34px; font-size: 12px !important; padding: 4px 28px 4px 8px !important; }
+  .gl-head { display:grid; grid-template-columns:200px 1fr 1fr; gap:10px; padding-bottom:6px;
+    margin-bottom:4px; border-bottom:1px solid var(--border-strong); }
+  .gl-head span { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--text-3); }
+  .gl-row { display:grid; grid-template-columns:200px 1fr 1fr; gap:10px; align-items:center;
+    padding:8px 0; border-bottom:1px solid var(--border); }
+  .gl-row:last-child { border-bottom:none; }
+  .gl-n { font-size:12.5px; font-weight:600; color:var(--text-2); }
+  .gl-n small { display:block; font-weight:400; font-size:11px; color:var(--text-3); margin-top:1px; }
+  .gl-row select { height:34px; font-size:12px; padding:4px 8px; }
+  .gl-row.alterado .gl-n { color: var(--amber); }
+  @media (max-width:760px) { .gl-row, .gl-head { grid-template-columns:1fr; gap:5px; } .gl-head { display:none; } }
 
-  /* ATM evaluación */
-  .atm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .atm-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
-  .atm-card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  /* Zonas de fotografía */
+  .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 32px 20px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.2s; position: relative; }
+  .upload-zone:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+  .upload-zone.has-image { border-style: solid; border-color: var(--accent-mid); padding: 10px; }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 26px; margin-bottom: 6px; }
+  .upload-title { font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .upload-subtitle { font-size: 11px; color: var(--text-3); margin-top: 3px; line-height: 1.5; }
+  .preview-img { max-width: 100%; max-height: 320px; border-radius: var(--radius-sm); display: block; margin: 0 auto; }
+  .remove-btn { position: absolute; top: 8px; right: 8px; background: var(--red); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+  .remove-btn:hover { background: #6b1010; }
+  .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .photo-cap { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 6px; }
 
-  /* DV medidas */
-  .dv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
-  .dv-measure { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
-  .dv-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 6px; }
-  .dv-sublabel { font-size: 10px; color: var(--text-3); margin-bottom: 8px; }
-  .dv-val { font-size: 22px; font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
-  .dv-unit { font-size: 11px; color: var(--text-3); margin-top: 2px; }
-  .dv-status { font-size: 11px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  /* Métricas oclusales */
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .metric { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+  .metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 4px; }
+  .metric-sub { font-size: 10px; color: var(--text-3); margin-bottom: 8px; }
+  .metric input { text-align: center; font-family: 'DM Mono', monospace; font-size: 16px !important; }
+  .metric-status { font-size: 11px; font-weight: 600; margin-top: 6px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+  .st-normal { background: var(--green-light); color: var(--green); }
+  .st-alert { background: var(--amber-light); color: var(--amber); }
+  .st-high { background: var(--red-light); color: var(--red); }
 
-  /* Apertura bucal gauge */
-  .apertura-gauge { position: relative; height: 10px; background: var(--border); border-radius: 5px; margin: 8px 0; overflow: hidden; }
-  .apertura-fill { height: 100%; border-radius: 5px; transition: width 0.4s ease, background 0.4s; }
+  /* Clases de Angle */
+  .angle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .angle-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .angle-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); margin-bottom: 10px; }
 
-  /* Photo note */
-  .photo-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 10px; }
+  .chk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .chk { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+  .chk input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
 
-  /* Summary */
-  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
   .summary-section { margin-bottom: 18px; }
   .summary-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-  .summary-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary-row { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .summary-row:last-child { border-bottom: none; }
-  .summary-label { color: var(--text-2); flex-shrink: 0; }
-  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 65%; }
+  .summary-label { color: var(--text-2); }
+  .summary-value { font-weight: 500; color: var(--text); text-align: right; max-width: 55%; }
 
   .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
   .hidden { display: none !important; }
 
-  @media (max-width: 640px) {
-    .field-grid-2, .field-grid-3, .field-grid-4 { grid-template-columns: 1fr; }
-    .perfil-type-grid, .dv-grid { grid-template-columns: 1fr 1fr; }
-    .atm-grid { grid-template-columns: 1fr; }
-    .tercio-row { grid-template-columns: 70px 1fr; }
-    .tercio-pts { display: none; }
-    .perfil-diagram { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    .field-grid-2, .field-grid-3, .angle-grid, .photo-grid, .metric-grid { grid-template-columns: 1fr; }
+    .tb-row { grid-template-columns: 1fr; gap: 6px; }
+    header { padding: 14px 16px; }
+    main { padding: 18px 14px; }
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
-<style>
-  /* Zona de fotografía clínica */
-  .upload-zone { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 24px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.2s; position: relative; }
-  .upload-zone:hover { border-color: var(--accent-mid); background: var(--accent-light); }
-  .upload-zone.has-image { border-style: solid; border-color: var(--accent-mid); padding: 12px; }
-  .upload-icon { font-size: 36px; margin-bottom: 10px; }
-  .upload-title { font-size: 14px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
-  .upload-subtitle { font-size: 12px; color: var(--text-3); line-height: 1.5; }
-  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .preview-img { width: 100%; max-height: 420px; object-fit: contain; border-radius: var(--radius-sm); display: block; }
-  .remove-btn { position: absolute; top: 8px; right: 8px; background: var(--red); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
-  .remove-btn:hover { background: #6b1010; }
-  .instr-box { background: var(--amber-light); border: 1px solid #e8d99a; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12px; color: var(--amber); line-height: 1.6; margin-bottom: 16px; }
-  .instr-box strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
-</style>
 </head>
 <body>
 
@@ -206,855 +167,1018 @@
   <div class="header-logo">👄</div>
   <div class="header-text">
     <h1>Examen Clínico Intraoral</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
-  <span class="header-badge">Tejidos blandos</span>
+  <span class="header-badge">Slides 13–17</span>
 </header>
 
 <div class="tab-nav">
-  <button class="tab-btn active" onclick="goTab(0)"><span class="slide-num">1</span>Labios y mucosas</button>
-  <button class="tab-btn" onclick="goTab(1)"><span class="slide-num">2</span>Lengua y piso de boca</button>
-  <button class="tab-btn" onclick="goTab(2)"><span class="slide-num">3</span>Paladar y orofaringe</button>
-  <button class="tab-btn" onclick="goTab(3)"><span class="slide-num">4</span>Glándulas salivales</button>
-  <button class="tab-btn" onclick="goTab(4)"><span class="slide-num">5</span>Lesiones de mucosa</button>
-  <button class="tab-btn" onclick="goTab(5)"><span class="slide-num">✓</span>Resumen</button>
+  <button class="tab-btn active" onclick="goTab(0)"><span class="slide-num">S13</span>Tejidos blandos</button>
+  <button class="tab-btn" onclick="goTab(1)"><span class="slide-num">S14</span>Estado de la dentición</button>
+  <button class="tab-btn" onclick="goTab(2)"><span class="slide-num">S14</span>Análisis de la oclusión</button>
+  <button class="tab-btn" onclick="goTab(3)"><span class="slide-num">S15</span>Guía anterior</button>
+  <button class="tab-btn" onclick="goTab(4)"><span class="slide-num">S16</span>Lateralidad derecha</button>
+  <button class="tab-btn" onclick="goTab(5)"><span class="slide-num">S17</span>Lateralidad izquierda</button>
+  <button class="tab-btn" onclick="goTab(6)"><span class="slide-num">✓</span>Resumen</button>
 </div>
 
 <main>
 
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
-
-<!-- ===== TAB 0: Labios y mucosas ===== -->
+<!-- ===== TAB 0: Tejidos blandos (S13) ===== -->
 <div id="tab-0">
   <div class="section-header">
-    <h2>Labios y mucosas</h2>
-    <p>Inspección y palpación de labios, mucosa yugal y labial, frenillos y reborde alveolar.</p>
+    <h2>Examen de tejidos blandos</h2>
+    <p>Recorre cada estructura en orden sistemático. Marca <em>Alterado</em> solo cuando el hallazgo sea clínicamente objetivable y descríbelo.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">Labios y mucosa</div>
-    <div class="ai-bar">
-      <div class="ai-bar-text">✦ <span>IA disponible</span> — describe los hallazgos en lenguaje libre y la IA redactará la descripción clínica.</div>
-      <button class="btn btn-sm" id="btnMucosas" onclick="redactarMucosas()">Redactar con IA</button>
+    <div class="card-title">Estructuras — Slide 13</div>
+    <div id="tbList"></div>
+    <div class="bib-box">
+      <strong>📚 Orden de recorrido sugerido</strong>
+      Labios y comisuras → mucosa yugal y conducto de Stensen → surcos vestibulares → encía y reborde alveolar → piso de boca y conducto de Wharton → lengua (dorso, bordes, vientre) → paladar duro → paladar blando y úvula → orofaringe y pilares → frenillos.
     </div>
+  </div>
 
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+  <div class="card">
+    <div class="card-title">Glándulas salivales y conductos</div>
+    <p style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:14px;">
+      Palpación bimanual de cada glándula y ordeñamiento del conducto para comprobar la salida de saliva.
+      Registra por lado: una alteración unilateral orienta a obstrucción, y una bilateral a causa sistémica o
+      farmacológica.
+    </p>
+    <div id="salivalList"></div>
+
+    <div class="field-grid field-grid-2" style="margin-top:16px;">
       <div class="field">
-        <label>Semimucosa labial</label>
-        <select id="labiosIntra">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Queilitis angular</option>
-          <option>Queilitis actínica</option>
-          <option>Herpes labial recurrente</option>
-          <option>Resequedad / descamación</option>
-          <option>Lesión a describir en pestaña 5</option>
+        <label>Cantidad de saliva</label>
+        <select id="salCantidad">
+          <option value="">Seleccionar…</option>
+          <option>Normal</option>
+          <option>Disminuida — hiposalivación</option>
+          <option>Aumentada — sialorrea</option>
         </select>
       </div>
       <div class="field">
-        <label>Mucosa labial</label>
-        <select id="mucosaLabial">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Mucoceles</option>
-          <option>Petequias</option>
-          <option>Aftas</option>
-          <option>Lesión a describir en pestaña 5</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Mucosa yugal derecha</label>
-        <select id="yugalDer">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Línea alba</option>
-          <option>Morsicatio (mordisqueteo)</option>
-          <option>Leucoedema</option>
-          <option>Pigmentación melánica</option>
-          <option>Lesión a describir en pestaña 5</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Mucosa yugal izquierda</label>
-        <select id="yugalIzq">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Línea alba</option>
-          <option>Morsicatio (mordisqueteo)</option>
-          <option>Leucoedema</option>
-          <option>Pigmentación melánica</option>
-          <option>Lesión a describir en pestaña 5</option>
+        <label>Calidad de la saliva</label>
+        <select id="salCalidad">
+          <option value="">Seleccionar…</option>
+          <option>Serosa, fluida</option>
+          <option>Espesa o filante</option>
+          <option>Espumosa</option>
         </select>
       </div>
     </div>
-
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+    <div class="field-grid field-grid-2" style="margin-top:14px;">
       <div class="field">
-        <label>Frenillos</label>
-        <select id="frenillos">
-          <option value="">Seleccionar</option>
-          <option>Normoinsertados</option>
-          <option>Frenillo labial superior de inserción baja</option>
-          <option>Frenillo lingual corto (anquiloglosia)</option>
-          <option>Frenillos laterales prominentes</option>
-        </select>
+        <label>Xerostomía referida por el paciente</label>
+        <div class="radio-group">
+          <span class="radio-pill"><input type="radio" name="xerostomia" id="xeroNo" value="No refiere"><label for="xeroNo">No refiere</label></span>
+          <span class="radio-pill"><input type="radio" name="xerostomia" id="xeroSi" value="Refiere sequedad bucal"><label for="xeroSi">Refiere sequedad</label></span>
+        </div>
       </div>
       <div class="field">
-        <label>Reborde alveolar y trígono retromolar</label>
-        <select id="reborde">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Reborde atrófico</option>
-          <option>Exostosis</option>
-          <option>Zona eritematosa bajo prótesis</option>
-          <option>Lesión a describir en pestaña 5</option>
-        </select>
+        <label>Signos clínicos de hiposalivación</label>
+        <input type="text" id="salSignos" placeholder="Ej: espejo que se adhiere a la mucosa, lengua depapilada, saliva escasa en piso de boca">
       </div>
     </div>
-
-    <div class="field">
-      <label>Descripción libre de hallazgos en labios y mucosas</label>
-      <textarea id="mucosasLibre" rows="3" placeholder="Ej: Línea alba bilateral marcada, mucosa yugal por lo demás sin alteraciones. Comisuras sin fisuras…"></textarea>
-    </div>
-
-    <div id="mucosasIA" class="hidden">
-      <div class="ai-suggestion" id="mucosasIATexto"></div>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="btn btn-sm btn-outline" onclick="usarMucosas()">Usar este texto</button>
-        <button class="btn btn-sm btn-outline" onclick="document.getElementById('mucosasIA').classList.add('hidden')">Descartar</button>
-      </div>
-    </div>
-
     <div class="field" style="margin-top:14px;">
-      <label>Descripción clínica final</label>
-      <textarea id="mucosasFinal" rows="3" placeholder="Texto que quedará en el registro."></textarea>
+      <label>Observaciones</label>
+      <textarea id="salObs" rows="2" placeholder="Ej: parótida derecha aumentada de volumen, indolora, con salida de saliva turbia por el conducto de Stensen al ordeñamiento."></textarea>
     </div>
+    <div class="bib-box" style="margin-top:14px;">
+      <strong>📚 Qué relacionar</strong>
+      La hiposalivación aumenta el riesgo cariogénico y modifica el diagnóstico de riesgo: si la registras aquí,
+      tiene que aparecer en la determinación de riesgo. Revisa también los fármacos del paciente, porque la causa
+      más frecuente de xerostomía en consulta es farmacológica.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografía clínica de tejidos blandos</div>
+    <div class="upload-zone" id="zone-tb" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'tb')">
+      <input type="file" accept="image/*" class="upload-input" id="file-tb" onchange="onFileChange('tb')">
+      <div class="upload-ph" id="ph-tb">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">Arrastra la fotografía o haz clic para seleccionar</div>
+        <div class="upload-subtitle">Registro de la lesión o estructura alterada. PNG, JPG o WEBP.</div>
+      </div>
+      <img id="img-tb" class="preview-img hidden" alt="Fotografía de tejidos blandos">
+      <button class="remove-btn hidden" id="rm-tb" onclick="removeImg('tb')" title="Quitar fotografía">×</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Descripción narrativa</div>
+    <div class="ai-bar">
+      <span class="ai-bar-text">El asistente <span>ordena en prosa clínica</span> los hallazgos que ya registraste. No agrega hallazgos que no hayas consignado.</span>
+      <button class="btn btn-sm" id="btnTB" onclick="redactarTB()">Redactar con IA</button>
+    </div>
+    <div id="tbIA" class="ai-suggestion hidden">
+      <strong>✦ Descripción sugerida</strong>
+      <span id="tbIATexto"></span>
+      <div style="margin-top:10px;"><button class="btn btn-sm btn-outline" onclick="usarTB()">Usar este texto</button></div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Texto final — tejidos blandos</label>
+      <textarea id="tbFinal" rows="4" placeholder="Ej: Mucosas orales de aspecto sano, húmedas y de coloración rosada. Se observa línea alba bilateral en mucosa yugal, compatible con hábito parafuncional..."></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <div style="font-size:12px;color:var(--text-3);">Slide 13</div>
+    <button class="btn" onclick="goTab(1)">Siguiente → Dentición y oclusión</button>
   </div>
 </div>
 
-
-<!-- ===== TAB 1: Lengua y piso de boca ===== -->
+<!-- ===== TAB 1: Dentición y oclusión (S14) ===== -->
 <div id="tab-1" class="hidden">
   <div class="section-header">
-    <h2>Lengua y piso de boca</h2>
-    <p>Dorso, bordes laterales, vientre lingual, movilidad y piso de boca.</p>
+    <h2>Estado de la dentición</h2>
+    <p>Número de piezas, continuidad de los arcos y rehabilitaciones. El detalle pieza por pieza se consigna en el módulo de Odontograma.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">Lengua</div>
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
+    <div class="card-title">Dentición</div>
+    <div class="field-grid field-grid-2">
       <div class="field">
-        <label>Dorso lingual</label>
-        <select id="dorsoLingual">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Saburral</option>
-          <option>Lengua fisurada</option>
-          <option>Lengua geográfica (glositis migratoria)</option>
-          <option>Depapilación</option>
-          <option>Candidiasis pseudomembranosa</option>
-          <option>Lesión a describir en pestaña 5</option>
+        <label>Estado de la dentición</label>
+        <select id="estadoDenticion">
+          <option value="">Seleccionar…</option>
+          <option>Dentado completo</option>
+          <option>Dentado parcial</option>
+          <option>Desdentado parcial unimaxilar</option>
+          <option>Desdentado parcial bimaxilar</option>
+          <option>Desdentado total</option>
         </select>
       </div>
       <div class="field">
-        <label>Bordes laterales</label>
-        <select id="bordesLinguales">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Indentaciones por impresión dentaria</option>
-          <option>Lesión blanca</option>
-          <option>Lesión roja</option>
-          <option>Ulceración</option>
+        <label>Tipo de dentición</label>
+        <select id="tipoDenticion">
+          <option value="">Seleccionar…</option>
+          <option>Permanente completa</option>
+          <option>Permanente incompleta</option>
+          <option>Mixta</option>
         </select>
       </div>
       <div class="field">
-        <label>Vientre lingual</label>
-        <select id="vientreLingual">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Várices sublinguales</option>
-          <option>Lesión a describir en pestaña 5</option>
+        <label>Número de piezas presentes</label>
+        <input type="number" id="numPiezas" min="0" max="32" placeholder="Ej: 28">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Piezas ausentes (notación FDI)</label>
+      <input type="text" id="piezasAusentes" placeholder="Ej: 1.8, 2.8, 3.6, 3.8, 4.8">
+    </div>
+    <div class="field-grid field-grid-2" style="margin-top:14px;">
+      <div class="field">
+        <label>Continuidad del arco superior</label>
+        <select id="arcoSup">
+          <option value="">Seleccionar…</option>
+          <option>Arco continuo</option>
+          <option>Arco discontinuo</option>
         </select>
       </div>
       <div class="field">
-        <label>Tamaño lingual</label>
-        <select id="tamanoLingual">
-          <option value="">Seleccionar</option>
-          <option>Normal</option>
-          <option>Macroglosia relativa</option>
-          <option>Macroglosia</option>
+        <label>Continuidad del arco inferior</label>
+        <select id="arcoInf">
+          <option value="">Seleccionar…</option>
+          <option>Arco continuo</option>
+          <option>Arco discontinuo</option>
         </select>
       </div>
     </div>
-
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Movilidad lingual</label>
-        <div class="radio-group">
-          <div class="radio-pill"><input type="radio" name="movLingual" id="mov-cons" value="Conservada"><label for="mov-cons">Conservada</label></div>
-          <div class="radio-pill"><input type="radio" name="movLingual" id="mov-lim" value="Limitada"><label for="mov-lim">Limitada</label></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Sintomatología lingual</label>
-        <div class="radio-group">
-          <div class="radio-pill"><input type="radio" name="sintLingual" id="sl-no" value="Asintomática"><label for="sl-no">Asintomática</label></div>
-          <div class="radio-pill"><input type="radio" name="sintLingual" id="sl-ardor" value="Ardor / glosodinia"><label for="sl-ardor">Ardor</label></div>
-          <div class="radio-pill"><input type="radio" name="sintLingual" id="sl-dolor" value="Dolor"><label for="sl-dolor">Dolor</label></div>
-        </div>
-      </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Rehabilitaciones presentes</label>
+      <input type="text" id="rehabPresentes" placeholder="Ej: Corona metal-cerámica en 1.6; prótesis parcial removible superior acrílica">
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">Piso de boca</div>
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Inspección y palpación bimanual</label>
-        <select id="pisoBoca">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Tumefacción</option>
-          <option>Ránula</option>
-          <option>Induración a la palpación</option>
-          <option>Lesión a describir en pestaña 5</option>
-        </select>
+    <div class="card-title">Fotografías de las arcadas</div>
+    <div class="photo-grid">
+      <div>
+        <div class="photo-cap">Arcada superior</div>
+        <div class="upload-zone" id="zone-ocsup" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'ocsup')">
+          <input type="file" accept="image/*" class="upload-input" id="file-ocsup" onchange="onFileChange('ocsup')">
+          <div class="upload-ph" id="ph-ocsup"><div class="upload-icon">📷</div><div class="upload-title">Arcada superior</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-ocsup" class="preview-img hidden" alt="Arcada superior, vista oclusal">
+          <button class="remove-btn hidden" id="rm-ocsup" onclick="removeImg('ocsup')">×</button>
+        </div>
       </div>
-      <div class="field">
-        <label>Conductos de Wharton</label>
-        <div class="radio-group">
-          <div class="radio-pill"><input type="radio" name="wharton" id="wh-perm" value="Permeables, saliva clara"><label for="wh-perm">Permeables</label></div>
-          <div class="radio-pill"><input type="radio" name="wharton" id="wh-alt" value="Alterados"><label for="wh-alt">Alterados</label></div>
+      <div>
+        <div class="photo-cap">Arcada inferior</div>
+        <div class="upload-zone" id="zone-ocinf" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'ocinf')">
+          <input type="file" accept="image/*" class="upload-input" id="file-ocinf" onchange="onFileChange('ocinf')">
+          <div class="upload-ph" id="ph-ocinf"><div class="upload-icon">📷</div><div class="upload-title">Arcada inferior</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-ocinf" class="preview-img hidden" alt="Arcada inferior, vista oclusal">
+          <button class="remove-btn hidden" id="rm-ocinf" onclick="removeImg('ocinf')">×</button>
         </div>
       </div>
     </div>
-    <div class="field">
-      <label>Observaciones de lengua y piso de boca</label>
-      <textarea id="lenguaObs" rows="3" placeholder="Ej: Indentaciones marcadas en ambos bordes laterales, coincidentes con las facetas de desgaste registradas en el odontograma…"></textarea>
-    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(0)">← Tejidos blandos</button>
+    <button class="btn" onclick="goTab(2)">Siguiente → Análisis de la oclusión</button>
   </div>
 </div>
 
-
-<!-- ===== TAB 2: Paladar y orofaringe ===== -->
+<!-- ===== TAB 2: Guía anterior (S15) ===== -->
+<!-- ===== TAB 2: Análisis de la oclusión (S14) ===== -->
 <div id="tab-2" class="hidden">
   <div class="section-header">
-    <h2>Paladar y orofaringe</h2>
-    <p>Paladar duro y blando, úvula, pilares, amígdalas y clasificación de vía aérea.</p>
+    <h2>Análisis de la oclusión</h2>
+    <p>Examen en máxima intercuspidación: relación oclusal, medidas, curvas de compensación, soporte y relación céntrica.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">Paladar</div>
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Paladar duro</label>
-        <select id="paladarDuro">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Torus palatino</option>
-          <option>Estomatitis protésica</option>
-          <option>Hiperplasia papilar inflamatoria</option>
-          <option>Petequias / equimosis</option>
-          <option>Lesión a describir en pestaña 5</option>
-        </select>
+    <div class="card-title">Relación oclusal — Clasificación de Angle</div>
+    <div class="angle-grid">
+      <div class="angle-card">
+        <div class="angle-title">Lado derecho</div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Clase molar</label>
+          <select id="molarDer"><option value="">Seleccionar…</option><option>Clase I</option><option>Clase II</option><option>Clase III</option><option>No evaluable</option></select>
+        </div>
+        <div class="field">
+          <label>Clase canina</label>
+          <select id="caninoDer"><option value="">Seleccionar…</option><option>Clase I</option><option>Clase II</option><option>Clase III</option><option>No evaluable</option></select>
+        </div>
       </div>
-      <div class="field">
-        <label>Paladar blando y úvula</label>
-        <select id="paladarBlando">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Asimetría del velo</option>
-          <option>Úvula bífida</option>
-          <option>Eritema difuso</option>
-          <option>Lesión a describir en pestaña 5</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Orofaringe y vía aérea</div>
-    <div class="field-grid field-grid-3" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Amígdalas y pilares</label>
-        <select id="amigdalas">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Hiperemia</option>
-          <option>Hipertrofia amigdalina</option>
-          <option>Amigdalectomizado</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Clasificación de Mallampati</label>
-        <select id="mallampati">
-          <option value="">Seleccionar</option>
-          <option>Clase I</option>
-          <option>Clase II</option>
-          <option>Clase III</option>
-          <option>Clase IV</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Reflejo nauseoso</label>
-        <div class="radio-group">
-          <div class="radio-pill"><input type="radio" name="nauseoso" id="na-norm" value="Normal"><label for="na-norm">Normal</label></div>
-          <div class="radio-pill"><input type="radio" name="nauseoso" id="na-exa" value="Exacerbado"><label for="na-exa">Exacerbado</label></div>
+      <div class="angle-card">
+        <div class="angle-title">Lado izquierdo</div>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Clase molar</label>
+          <select id="molarIzq"><option value="">Seleccionar…</option><option>Clase I</option><option>Clase II</option><option>Clase III</option><option>No evaluable</option></select>
+        </div>
+        <div class="field">
+          <label>Clase canina</label>
+          <select id="caninoIzq"><option value="">Seleccionar…</option><option>Clase I</option><option>Clase II</option><option>Clase III</option><option>No evaluable</option></select>
         </div>
       </div>
     </div>
-    <div class="field">
-      <label>Observaciones de paladar y orofaringe</label>
-      <textarea id="paladarObs" rows="3" placeholder="Consigna aquí lo que condicione la toma de impresiones, la radiografía o el manejo de la vía aérea."></textarea>
+    <div class="bib-box">
+      <strong>📚 Referencia — Angle (1899)</strong>
+      Clase I: la cúspide mesiovestibular del primer molar superior ocluye en el surco mesiovestibular del inferior. Clase II: el surco inferior queda distal a esa cúspide. Clase III: queda mesial. En clase II se distingue división 1 (incisivos superiores vestibularizados) de división 2 (palatinizados).
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Medidas oclusales</div>
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-label">Resalte</div>
+        <div class="metric-sub">Overjet — horizontal</div>
+        <input type="number" id="overjet" step="0.5" placeholder="0" oninput="evalOverjet()">
+        <div class="metric-sub" style="margin:4px 0 0;">mm</div>
+        <div class="metric-status hidden" id="stOverjet"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Sobremordida</div>
+        <div class="metric-sub">Overbite — vertical</div>
+        <input type="number" id="overbite" step="0.5" placeholder="0" oninput="evalOverbite()">
+        <div class="metric-sub" style="margin:4px 0 0;">mm</div>
+        <div class="metric-status hidden" id="stOverbite"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Desviación línea media</div>
+        <div class="metric-sub">Inferior respecto a superior</div>
+        <input type="number" id="lineaMedia" step="0.5" placeholder="0" oninput="evalLM()">
+        <div class="metric-sub" style="margin:4px 0 0;">mm</div>
+        <div class="metric-status hidden" id="stLM"></div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Sentido de la desviación de línea media</label>
+      <div class="radio-group">
+        <span class="radio-pill"><input type="radio" name="lmDir" id="lmC" value="Coincidente"><label for="lmC">Coincidente</label></span>
+        <span class="radio-pill"><input type="radio" name="lmDir" id="lmD" value="Desviada a derecha"><label for="lmD">A derecha</label></span>
+        <span class="radio-pill"><input type="radio" name="lmDir" id="lmI" value="Desviada a izquierda"><label for="lmI">A izquierda</label></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Alteraciones oclusales presentes</div>
+    <div class="chk-grid" id="altGrid"></div>
+    <div class="field" style="margin-top:14px;">
+      <label>Detalle de las alteraciones marcadas</label>
+      <textarea id="altDetalle" rows="2" placeholder="Ej: Mordida cruzada posterior derecha en 1.5 y 1.6. Apiñamiento anteroinferior moderado (índice de Little 5 mm)."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Curvas de compensación y plano oclusal</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Curva de Spee</label>
+        <select id="curvaSpee">
+          <option value="">Seleccionar…</option>
+          <option>Conservada</option>
+          <option>Aumentada</option>
+          <option>Invertida</option>
+          <option>Plana</option>
+          <option>No evaluable</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Profundidad de la curva de Spee (mm)</label>
+        <input type="number" id="speeMm" step="0.5" min="0" placeholder="Ej: 2">
+      </div>
+      <div class="field">
+        <label>Curva de Wilson</label>
+        <select id="curvaWilson">
+          <option value="">Seleccionar…</option>
+          <option>Conservada</option>
+          <option>Aumentada</option>
+          <option>Invertida</option>
+          <option>Asimétrica entre hemiarcadas</option>
+          <option>No evaluable</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Plano oclusal</label>
+        <select id="planoOclusal">
+          <option value="">Seleccionar…</option>
+          <option>Regular y armónico</option>
+          <option>Irregular por extrusión</option>
+          <option>Irregular por inclinación de piezas</option>
+          <option>Inclinado, con canteo</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>¿En qué te basaste para concluirlo?</label>
+      <textarea id="curvasJustif" rows="2" placeholder="Ej: curva de Spee aumentada, con 4 mm medidos desde el plano que une cúspide de canino y cúspide distovestibular del segundo molar inferior, a expensas de la extrusión de 3.7 por ausencia de antagonista."></textarea>
+    </div>
+    <div class="bib-box" style="margin-top:14px;">
+      <strong>📚 Por qué importan</strong>
+      Las curvas de compensación mantienen los contactos posteriores durante los movimientos excéntricos. Una curva
+      de Spee aumentada suele acompañar extrusiones por pérdida de antagonista, y una de Wilson alterada se asocia
+      a interferencias en el lado de balance. Ambas condicionan el plano de tratamiento antes de rehabilitar.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Pares dentarios ocluyentes</div>
+    <div class="field-grid field-grid-3">
+      <div class="field">
+        <label>Pares posteriores en oclusión</label>
+        <input type="number" id="paresPost" min="0" max="16" placeholder="Ej: 10">
+      </div>
+      <div class="field">
+        <label>Pares anteriores en oclusión</label>
+        <input type="number" id="paresAnt" min="0" max="12" placeholder="Ej: 6">
+      </div>
+      <div class="field">
+        <label>Soporte oclusal</label>
+        <select id="soporteOclusal">
+          <option value="">Seleccionar…</option>
+          <option>Conservado</option>
+          <option>Disminuido</option>
+          <option>Colapsado</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Zonas sin soporte oclusal</label>
+      <input type="text" id="zonasSinSoporte" placeholder="Ej: sector posterior inferior derecho, por ausencia de 4.6 y 4.7">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Relación céntrica y máxima intercuspidación</div>
+    <div class="field-grid field-grid-2">
+      <div class="field">
+        <label>Coincidencia entre RC y MIC</label>
+        <select id="rcMic">
+          <option value="">Seleccionar…</option>
+          <option>Coincidentes</option>
+          <option>No coincidentes, con deslizamiento</option>
+          <option>No evaluable</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Magnitud del deslizamiento (mm)</label>
+        <input type="number" id="deslizamiento" step="0.5" min="0" placeholder="Ej: 1.5">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Contactos prematuros</label>
+      <input type="text" id="contactosPrematuros" placeholder="Ej: contacto prematuro en vertiente mesial de cúspide mesiopalatina de 2.6 al cierre en relación céntrica">
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones del análisis oclusal</label>
+      <textarea id="oclusionObs" rows="2" placeholder="Observaciones adicionales del examen de la oclusión."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografías de la oclusión</div>
+    <div class="photo-grid">
+      <div>
+        <div class="photo-cap">Vista frontal en MIC</div>
+        <div class="upload-zone" id="zone-mic" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'mic')">
+          <input type="file" accept="image/*" class="upload-input" id="file-mic" onchange="onFileChange('mic')">
+          <div class="upload-ph" id="ph-mic"><div class="upload-icon">📷</div><div class="upload-title">Frontal en MIC</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-mic" class="preview-img hidden" alt="Vista frontal en MIC">
+          <button class="remove-btn hidden" id="rm-mic" onclick="removeImg('mic')">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="photo-cap">Vista lateral en MIC</div>
+        <div class="upload-zone" id="zone-lat" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'lat')">
+          <input type="file" accept="image/*" class="upload-input" id="file-lat" onchange="onFileChange('lat')">
+          <div class="upload-ph" id="ph-lat"><div class="upload-icon">📷</div><div class="upload-title">Lateral en MIC</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-lat" class="preview-img hidden" alt="Vista lateral en MIC">
+          <button class="remove-btn hidden" id="rm-lat" onclick="removeImg('lat')">×</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(1)">← Estado de la dentición</button>
+    <button class="btn" onclick="goTab(3)">Siguiente → Guía anterior</button>
   </div>
 </div>
 
-
-<!-- ===== TAB 3: Glándulas salivales ===== -->
 <div id="tab-3" class="hidden">
   <div class="section-header">
-    <h2>Glándulas salivales</h2>
-    <p>Palpación glandular, permeabilidad de conductos y evaluación del flujo salival.</p>
+    <h2>Guía anterior</h2>
+    <p>Evaluación del movimiento protrusivo y del desengrane posterior.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">Palpación glandular</div>
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Parótidas</label>
-        <select id="parotidas">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Aumento de volumen unilateral</option>
-          <option>Aumento de volumen bilateral</option>
-          <option>Dolor a la palpación</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Submandibulares y sublinguales</label>
-        <select id="submandibulares">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones</option>
-          <option>Aumento de volumen unilateral</option>
-          <option>Aumento de volumen bilateral</option>
-          <option>Dolor a la palpación</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Conductos de Stenon</label>
-        <div class="radio-group">
-          <div class="radio-pill"><input type="radio" name="stenon" id="st-perm" value="Permeables, saliva clara"><label for="st-perm">Permeables</label></div>
-          <div class="radio-pill"><input type="radio" name="stenon" id="st-alt" value="Alterados"><label for="st-alt">Alterados</label></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Consistencia de la saliva</label>
-        <select id="consistenciaSaliva">
-          <option value="">Seleccionar</option>
-          <option>Serosa, fluida</option>
-          <option>Espesa / filante</option>
-          <option>Escasa, sin acumulación en piso de boca</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Flujo salival</div>
-    <div class="field-grid field-grid-2" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Evaluación clínica del flujo</label>
-        <select id="flujoSalival">
-          <option value="">Seleccionar</option>
-          <option>Normal</option>
-          <option>Hiposalivación</option>
-          <option>Xerostomía referida por el paciente</option>
-          <option>Sialorrea</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Factores asociados</label>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
-            <input type="checkbox" id="xeroFarmacos"> Usa fármacos xerostomizantes
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
-            <input type="checkbox" id="xeroSistemico"> Condición sistémica asociada
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;font-weight:400;">
-            <input type="checkbox" id="xeroRadio"> Antecedente de radioterapia de cabeza y cuello
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="instr-box">
-      <strong>Contrasta con la anamnesis</strong>
-      Si marcaste fármacos o condición sistémica, revisa que coincida con lo que registraste
-      en Identificación y antecedentes. La hiposalivación cambia la lectura del riesgo cariogénico.
-    </div>
+    <div class="card-title">Evaluación protrusiva — Slide 15</div>
     <div class="field">
-      <label>Observaciones de glándulas salivales</label>
-      <textarea id="salivalObs" rows="3" placeholder="Ej: Saliva espesa, escasa acumulación en piso de boca. La paciente refiere sequedad nocturna…"></textarea>
+      <label>Guía anterior</label>
+      <div class="radio-group">
+        <span class="radio-pill"><input type="radio" name="guiaAnt" id="ga1" value="Presente y efectiva"><label for="ga1">Presente y efectiva</label></span>
+        <span class="radio-pill"><input type="radio" name="guiaAnt" id="ga2" value="Presente pero inefectiva"><label for="ga2">Presente pero inefectiva</label></span>
+        <span class="radio-pill"><input type="radio" name="guiaAnt" id="ga3" value="Ausente"><label for="ga3">Ausente</label></span>
+      </div>
     </div>
+    <div class="field-grid field-grid-2" style="margin-top:16px;">
+      <div class="field">
+        <label>Piezas que participan en la guía</label>
+        <input type="text" id="gaPiezas" placeholder="Ej: 1.1, 2.1, 1.2, 2.2">
+      </div>
+      <div class="field">
+        <label>Desengrane posterior en protrusiva</label>
+        <select id="gaDesengrane">
+          <option value="">Seleccionar…</option>
+          <option>Completo — sin contactos posteriores</option>
+          <option>Incompleto — contactos posteriores residuales</option>
+          <option>Ausente — mantiene contacto posterior</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Interferencias protrusivas</label>
+      <input type="text" id="gaInterferencias" placeholder="Ej: Interferencia en vertiente distal de cúspide mesiopalatina de 2.6">
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones</label>
+      <textarea id="gaObs" rows="2" placeholder="Ej: Guía anterior compartida por incisivos centrales, con desgaste incisal grado 2 que compromete su efectividad."></textarea>
+    </div>
+    <div class="bib-box">
+      <strong>📚 Referencia</strong>
+      La guía anterior se considera efectiva cuando el movimiento protrusivo produce desoclusión inmediata y completa de los sectores posteriores. La pérdida de esta guía —por desgaste, ausencia dentaria o mordida abierta anterior— se asocia a sobrecarga de los sectores posteriores.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografía — protrusiva</div>
+    <div class="upload-zone" id="zone-prot" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'prot')">
+      <input type="file" accept="image/*" class="upload-input" id="file-prot" onchange="onFileChange('prot')">
+      <div class="upload-ph" id="ph-prot"><div class="upload-icon">📷</div><div class="upload-title">Movimiento protrusivo</div><div class="upload-subtitle">Arrastra o haz clic para seleccionar</div></div>
+      <img id="img-prot" class="preview-img hidden" alt="Movimiento protrusivo">
+      <button class="remove-btn hidden" id="rm-prot" onclick="removeImg('prot')">×</button>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(2)">← Análisis de la oclusión</button>
+    <button class="btn" onclick="goTab(4)">Siguiente → Lateralidad derecha</button>
   </div>
 </div>
 
-
-<!-- ===== TAB 4: Lesiones de mucosa ===== -->
+<!-- ===== TAB 3: Lateralidad derecha (S16) ===== -->
 <div id="tab-4" class="hidden">
   <div class="section-header">
-    <h2>Lesiones de mucosa</h2>
-    <p>Descripción semiológica de la lesión. El asistente ordena la descripción; el diagnóstico lo estableces tú.</p>
+    <h2>Lateralidad derecha</h2>
+    <p>Evaluación del lado de trabajo derecho y del lado de balance contralateral.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">¿Se detectan lesiones de mucosa?</div>
+    <div class="card-title">Esquema oclusal en lateralidad derecha — Slide 16</div>
     <div class="field">
+      <label>Tipo de guía en el lado de trabajo</label>
       <div class="radio-group">
-        <div class="radio-pill"><input type="radio" name="hayLesion" id="les-no" value="No se detectan lesiones" onchange="toggleLesion()"><label for="les-no">No se detectan</label></div>
-        <div class="radio-pill"><input type="radio" name="hayLesion" id="les-si" value="Se detecta al menos una lesión" onchange="toggleLesion()"><label for="les-si">Sí, describir</label></div>
+        <span class="radio-pill"><input type="radio" name="latDerTipo" id="ld1" value="Guía canina"><label for="ld1">Guía canina</label></span>
+        <span class="radio-pill"><input type="radio" name="latDerTipo" id="ld2" value="Función de grupo"><label for="ld2">Función de grupo</label></span>
+        <span class="radio-pill"><input type="radio" name="latDerTipo" id="ld3" value="Guía mixta"><label for="ld3">Guía mixta</label></span>
+        <span class="radio-pill"><input type="radio" name="latDerTipo" id="ld4" value="No evaluable"><label for="ld4">No evaluable</label></span>
       </div>
+    </div>
+    <div class="field-grid field-grid-2" style="margin-top:16px;">
+      <div class="field">
+        <label>Piezas que participan</label>
+        <input type="text" id="latDerPiezas" placeholder="Ej: 1.3 y 4.3">
+      </div>
+      <div class="field">
+        <label>Interferencias en el lado de trabajo</label>
+        <input type="text" id="latDerTrabajo" placeholder="Ej: Sin interferencias / Interferencia en 1.6">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Interferencias en el lado de balance (izquierdo)</label>
+      <input type="text" id="latDerBalance" placeholder="Ej: Contacto en vertiente palatina de cúspide mesiopalatina de 2.6">
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones</label>
+      <textarea id="latDerObs" rows="2" placeholder="Observaciones del movimiento de lateralidad derecha..."></textarea>
     </div>
   </div>
 
-  <div id="bloqueLesion" style="display:none;">
-    <div class="card">
-      <div class="card-title">Descripción semiológica</div>
-      <div class="field-grid field-grid-3" style="margin-bottom:14px;">
-        <div class="field">
-          <label>Localización</label>
-          <input type="text" id="lesLocalizacion" placeholder="Ej: borde lateral lengua, lado derecho">
-        </div>
-        <div class="field">
-          <label>Lesión elemental</label>
-          <select id="lesTipo">
-            <option value="">Seleccionar</option>
-            <option>Mácula</option>
-            <option>Pápula</option>
-            <option>Placa</option>
-            <option>Nódulo</option>
-            <option>Vesícula</option>
-            <option>Ampolla</option>
-            <option>Erosión</option>
-            <option>Úlcera</option>
-            <option>Costra</option>
-            <option>Fisura</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Tamaño mayor (mm)</label>
-          <input type="number" id="lesTamano" min="0" step="1" placeholder="mm">
-        </div>
-        <div class="field">
-          <label>Color</label>
-          <select id="lesColor">
-            <option value="">Seleccionar</option>
-            <option>Blanca</option>
-            <option>Roja</option>
-            <option>Blanca y roja</option>
-            <option>Pigmentada</option>
-            <option>Color de la mucosa</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Bordes</label>
-          <select id="lesBordes">
-            <option value="">Seleccionar</option>
-            <option>Netos y regulares</option>
-            <option>Difusos</option>
-            <option>Irregulares</option>
-            <option>Evertidos</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Consistencia a la palpación</label>
-          <select id="lesConsistencia">
-            <option value="">Seleccionar</option>
-            <option>Blanda</option>
-            <option>Firme</option>
-            <option>Indurada</option>
-            <option>Fluctuante</option>
-            <option>No evaluada</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Superficie</label>
-          <select id="lesSuperficie">
-            <option value="">Seleccionar</option>
-            <option>Lisa</option>
-            <option>Rugosa / verrugosa</option>
-            <option>Ulcerada</option>
-            <option>Desprendible al raspado</option>
-            <option>No desprendible al raspado</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Tiempo de evolución</label>
-          <select id="lesEvolucion">
-            <option value="">Seleccionar</option>
-            <option>Menos de 2 semanas</option>
-            <option>2 a 3 semanas</option>
-            <option>Más de 3 semanas</option>
-            <option>Meses o años</option>
-            <option>Desconocido</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Sintomatología</label>
-          <select id="lesSintoma">
-            <option value="">Seleccionar</option>
-            <option>Asintomática</option>
-            <option>Dolorosa</option>
-            <option>Ardor</option>
-            <option>Sangrado espontáneo</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Factor irritante local identificado</label>
-        <input type="text" id="lesIrritante" placeholder="Ej: borde protésico, cúspide fracturada de 4.6, hábito de mordisqueteo. Escribe «ninguno identificado» si corresponde.">
-      </div>
+  <div class="card">
+    <div class="card-title">Fotografía — lateralidad derecha</div>
+    <div class="upload-zone" id="zone-latder" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'latder')">
+      <input type="file" accept="image/*" class="upload-input" id="file-latder" onchange="onFileChange('latder')">
+      <div class="upload-ph" id="ph-latder"><div class="upload-icon">📷</div><div class="upload-title">Lateralidad derecha</div><div class="upload-subtitle">Arrastra o haz clic para seleccionar</div></div>
+      <img id="img-latder" class="preview-img hidden" alt="Lateralidad derecha">
+      <button class="remove-btn hidden" id="rm-latder" onclick="removeImg('latder')">×</button>
     </div>
+  </div>
 
-    <div class="card">
-      <div class="card-title">Fotografía clínica</div>
-      <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-        <input type="file" accept="image/*" class="upload-input" id="fileLesion" onchange="onFileChange()">
-        <div id="uploadPlaceholder">
-          <div class="upload-icon">📷</div>
-          <div class="upload-title">Arrastra la fotografía aquí o haz clic para seleccionar</div>
-          <div class="upload-subtitle">Registra la lesión con regla o referencia de tamaño si es posible<br>Formatos: PNG, JPG, WEBP</div>
-        </div>
-        <img id="previewLesion" class="preview-img hidden" alt="Fotografía de la lesión">
-        <button class="remove-btn hidden" id="removeLesion" onclick="removeImg()" title="Eliminar imagen">×</button>
-      </div>
-      <div class="instr-box" style="margin-top:14px;margin-bottom:0;">
-        <strong>Consentimiento</strong>
-        La fotografía queda guardada en este computador y se exporta con el caso.
-        Verifica que el paciente haya autorizado el registro fotográfico y que la imagen
-        no permita identificarle.
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Redacción de la descripción</div>
-      <div class="ai-bar">
-        <div class="ai-bar-text">✦ <span>IA disponible</span> — ordena tu descripción en lenguaje semiológico. No entrega diagnóstico ni diferencial.</div>
-        <button class="btn btn-sm" id="btnLesion" onclick="ordenarLesion()">Ordenar descripción</button>
-      </div>
-      <div class="field">
-        <label>Descripción libre de la lesión</label>
-        <textarea id="lesLibre" rows="3" placeholder="Escribe lo que observas con tus palabras. La IA lo reordenará en lenguaje semiológico, sin nombrar patologías."></textarea>
-      </div>
-      <div id="lesionIA" class="hidden">
-        <div class="ai-suggestion" id="lesionIATexto"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="btn btn-sm btn-outline" onclick="usarLesion()">Usar este texto</button>
-          <button class="btn btn-sm btn-outline" onclick="document.getElementById('lesionIA').classList.add('hidden')">Descartar</button>
-        </div>
-      </div>
-      <div class="field" style="margin-top:14px;">
-        <label>Descripción clínica final de la lesión</label>
-        <textarea id="lesFinal" rows="3" placeholder="Texto que quedará en el registro."></textarea>
-      </div>
-    </div>
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(3)">← Guía anterior</button>
+    <button class="btn" onclick="goTab(5)">Siguiente → Lateralidad izquierda</button>
   </div>
 </div>
 
-
-<!-- ===== TAB 5: Resumen ===== -->
+<!-- ===== TAB 4: Lateralidad izquierda (S17) ===== -->
 <div id="tab-5" class="hidden">
   <div class="section-header">
-    <h2>Resumen — Examen Clínico Intraoral</h2>
-    <p>Vista consolidada para revisar antes de continuar con el odontograma.</p>
+    <h2>Lateralidad izquierda</h2>
+    <p>Evaluación del lado de trabajo izquierdo y del lado de balance contralateral.</p>
   </div>
-  <div id="summaryContent"></div>
-  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
-    <button class="btn" onclick="copiarResumen()">📋 Copiar resumen</button>
-    <button class="btn btn-outline" onclick="goTab(4)">← Editar</button>
+
+  <div class="card">
+    <div class="card-title">Esquema oclusal en lateralidad izquierda — Slide 17</div>
+    <div class="field">
+      <label>Tipo de guía en el lado de trabajo</label>
+      <div class="radio-group">
+        <span class="radio-pill"><input type="radio" name="latIzqTipo" id="li1" value="Guía canina"><label for="li1">Guía canina</label></span>
+        <span class="radio-pill"><input type="radio" name="latIzqTipo" id="li2" value="Función de grupo"><label for="li2">Función de grupo</label></span>
+        <span class="radio-pill"><input type="radio" name="latIzqTipo" id="li3" value="Guía mixta"><label for="li3">Guía mixta</label></span>
+        <span class="radio-pill"><input type="radio" name="latIzqTipo" id="li4" value="No evaluable"><label for="li4">No evaluable</label></span>
+      </div>
+    </div>
+    <div class="field-grid field-grid-2" style="margin-top:16px;">
+      <div class="field">
+        <label>Piezas que participan</label>
+        <input type="text" id="latIzqPiezas" placeholder="Ej: 2.3 y 3.3">
+      </div>
+      <div class="field">
+        <label>Interferencias en el lado de trabajo</label>
+        <input type="text" id="latIzqTrabajo" placeholder="Ej: Sin interferencias / Interferencia en 2.7">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Interferencias en el lado de balance (derecho)</label>
+      <input type="text" id="latIzqBalance" placeholder="Ej: Sin contactos en el lado de balance">
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones</label>
+      <textarea id="latIzqObs" rows="2" placeholder="Observaciones del movimiento de lateralidad izquierda..."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografía — lateralidad izquierda</div>
+    <div class="upload-zone" id="zone-latizq" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'latizq')">
+      <input type="file" accept="image/*" class="upload-input" id="file-latizq" onchange="onFileChange('latizq')">
+      <div class="upload-ph" id="ph-latizq"><div class="upload-icon">📷</div><div class="upload-title">Lateralidad izquierda</div><div class="upload-subtitle">Arrastra o haz clic para seleccionar</div></div>
+      <img id="img-latizq" class="preview-img hidden" alt="Lateralidad izquierda">
+      <button class="remove-btn hidden" id="rm-latizq" onclick="removeImg('latizq')">×</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Síntesis del examen oclusal</div>
+    <div class="ai-bar">
+      <span class="ai-bar-text">El asistente <span>ordena en prosa</span> lo que registraste en oclusión, guía anterior y lateralidades.</span>
+      <button class="btn btn-sm" id="btnOcl" onclick="redactarOclusion()">Redactar con IA</button>
+    </div>
+    <div id="oclIA" class="ai-suggestion hidden">
+      <strong>✦ Síntesis sugerida</strong>
+      <span id="oclIATexto"></span>
+      <div style="margin-top:10px;"><button class="btn btn-sm btn-outline" onclick="usarOclusion()">Usar este texto</button></div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Texto final — examen oclusal</label>
+      <textarea id="oclFinal" rows="4" placeholder="Síntesis del examen oclusal para la ficha..."></textarea>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(4)">← Lateralidad derecha</button>
+    <button class="btn" onclick="goTab(6)">Ver resumen →</button>
   </div>
 </div>
 
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
+<!-- ===== TAB 5: Resumen ===== -->
+<div id="tab-6" class="hidden">
+  <div class="section-header">
+    <h2>Resumen del examen intraoral</h2>
+    <p>Consolidado de las Slides 13 a 17. Puedes copiarlo para la ficha.</p>
   </div>
 
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <button class="btn btn-outline btn-sm" onclick="buildResumen()">🔄 Actualizar resumen</button>
+      <button class="btn btn-sm" onclick="copiarResumen()">📋 Copiar resumen</button>
+    </div>
+    <div id="summaryContent">
+      <p style="color:var(--text-3);font-size:13px;text-align:center;padding:24px 0;">Haz clic en «Actualizar resumen» para consolidar los datos.</p>
+    </div>
   </div>
 
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
+  <div class="nav-footer">
+    <button class="btn btn-outline" onclick="goTab(5)">← Lateralidad izquierda</button>
+    <div style="font-size:12px;color:var(--text-3);">Módulo Slides 13–17 completo</div>
   </div>
 </div>
 
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
-let currentTab = 0;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 
+// ---- Tabs ----
 function goTab(n) {
-  document.getElementById('tab-' + currentTab).classList.add('hidden');
-  document.querySelectorAll('.tab-btn')[currentTab].classList.remove('active');
-  currentTab = n;
-  document.getElementById('tab-' + n).classList.remove('hidden');
-  document.querySelectorAll('.tab-btn')[n].classList.add('active');
-  if (n === 5) renderSummary();
-  window.scrollTo(0, 0);
+  document.querySelectorAll('main > div[id^="tab-"]').forEach((el, i) => el.classList.toggle('hidden', i !== n));
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === n));
+  if (n === 6) buildResumen();
 }
 
-function v(id) { return document.getElementById(id)?.value?.trim() || '—'; }
-function rv(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || '—'; }
-function ck(id) { return document.getElementById(id)?.checked || false; }
+// ---- Tejidos blandos ----
+const TEJIDOS = [
+  ['labios', 'Labios y comisuras'],
+  ['yugal', 'Mucosa yugal'],
+  ['surcos', 'Surcos vestibulares'],
+  ['encia', 'Encía y reborde alveolar'],
+  ['piso', 'Piso de boca'],
+  ['lenguaDorso', 'Lengua — dorso'],
+  ['lenguaBordes', 'Lengua — bordes y vientre'],
+  ['paladarDuro', 'Paladar duro'],
+  ['paladarBlando', 'Paladar blando y úvula'],
+  ['orofaringe', 'Orofaringe y pilares'],
+  ['frenillos', 'Frenillos'],
+];
 
-// ---- Lesiones: mostrar u ocultar el bloque ----
-function toggleLesion() {
-  const si = document.getElementById('les-si').checked;
-  document.getElementById('bloqueLesion').style.display = si ? 'block' : 'none';
+function buildTejidos() {
+  document.getElementById('tbList').innerHTML = TEJIDOS.map(([id, nombre]) => `
+    <div class="tb-row" id="row-${id}">
+      <span class="tb-name">${nombre}</span>
+      <select id="est-${id}" onchange="marcarAlterado('${id}')">
+        <option value="">Sin evaluar</option>
+        <option value="Sin alteraciones">Sin alteraciones</option>
+        <option value="Alterado">Alterado</option>
+        <option value="No evaluable">No evaluable</option>
+      </select>
+      <input type="text" id="desc-${id}" placeholder="Descripción del hallazgo (ubicación, tamaño, color, consistencia)">
+    </div>`).join('');
 }
 
-// ---- Fotografía de la lesión ----
-function onFileChange() {
-  const file = document.getElementById('fileLesion').files[0];
-  if (file) loadImage(file);
+function marcarAlterado(id) {
+  const alterado = document.getElementById('est-' + id).value === 'Alterado';
+  document.getElementById('row-' + id).classList.toggle('alterado', alterado);
+}
+
+
+// ---- Glándulas salivales ----
+const GLANDULAS = [
+  ['glParotida',  'Parótida',           'Conducto de Stensen, frente al 1.6 / 2.6'],
+  ['glSubmand',   'Submandibular',      'Conducto de Wharton, carúnculas sublinguales'],
+  ['glSublingual','Sublingual',         'Piso de boca, pliegues sublinguales'],
+  ['glMenores',   'Glándulas menores',  'Labio inferior y paladar'],
+];
+const EST_GLANDULA = ['Sin evaluar', 'Sin alteraciones', 'Aumento de volumen', 'Dolor a la palpación',
+  'Conducto sin salida de saliva', 'Salida de saliva alterada'];
+
+function buildGlandulas() {
+  const cont = document.getElementById('salivalList');
+  if (!cont) return;
+  cont.innerHTML =
+    '<div class="gl-head"><span>Glándula</span><span>Derecha</span><span>Izquierda</span></div>' +
+    GLANDULAS.map(([id, nombre, ref]) => `
+      <div class="gl-row" id="row-${id}">
+        <span class="gl-n">${nombre}<small>${ref}</small></span>
+        <select id="${id}D" onchange="marcarGlandula('${id}')">${EST_GLANDULA.map(o => `<option>${o}</option>`).join('')}</select>
+        <select id="${id}I" onchange="marcarGlandula('${id}')">${EST_GLANDULA.map(o => `<option>${o}</option>`).join('')}</select>
+      </div>`).join('');
+}
+
+function marcarGlandula(id) {
+  const normales = ['Sin evaluar', 'Sin alteraciones'];
+  const d = document.getElementById(id + 'D')?.value || '';
+  const i = document.getElementById(id + 'I')?.value || '';
+  const hay = !normales.includes(d) || !normales.includes(i);
+  document.getElementById('row-' + id)?.classList.toggle('alterado', hay);
+}
+
+function resumenGlandulas() {
+  const normales = ['Sin evaluar', 'Sin alteraciones'];
+  const out = [];
+  GLANDULAS.forEach(([id, nombre]) => {
+    const d = document.getElementById(id + 'D')?.value || '';
+    const i = document.getElementById(id + 'I')?.value || '';
+    const lados = [];
+    if (!normales.includes(d)) lados.push('derecha: ' + d.toLowerCase());
+    if (!normales.includes(i)) lados.push('izquierda: ' + i.toLowerCase());
+    if (lados.length) out.push(nombre + ' (' + lados.join('; ') + ')');
+  });
+  return out;
+}
+
+// ---- Alteraciones oclusales ----
+const ALTERACIONES = [
+  'Mordida cruzada anterior', 'Mordida cruzada posterior',
+  'Mordida abierta anterior', 'Mordida abierta posterior',
+  'Mordida borde a borde', 'Sobremordida profunda',
+  'Apiñamiento superior', 'Apiñamiento inferior',
+  'Diastemas', 'Rotaciones dentarias',
+  'Extrusión / egresión', 'Colapso de mordida posterior',
+];
+
+function buildAlteraciones() {
+  document.getElementById('altGrid').innerHTML = ALTERACIONES.map((a, i) =>
+    `<label class="chk"><input type="checkbox" id="alt${i}" value="${a}"><span>${a}</span></label>`
+  ).join('');
+}
+
+// ---- Evaluación de medidas ----
+function setStatus(elId, texto, clase) {
+  const el = document.getElementById(elId);
+  el.textContent = texto;
+  el.className = 'metric-status ' + clase;
+  el.classList.remove('hidden');
+}
+function evalOverjet() {
+  const v = parseFloat(document.getElementById('overjet').value);
+  if (isNaN(v)) { document.getElementById('stOverjet').classList.add('hidden'); return; }
+  if (v < 0) setStatus('stOverjet', 'Resalte invertido', 'st-high');
+  else if (v <= 3) setStatus('stOverjet', 'Dentro de norma', 'st-normal');
+  else if (v <= 6) setStatus('stOverjet', 'Aumentado', 'st-alert');
+  else setStatus('stOverjet', 'Marcadamente aumentado', 'st-high');
+}
+function evalOverbite() {
+  const v = parseFloat(document.getElementById('overbite').value);
+  if (isNaN(v)) { document.getElementById('stOverbite').classList.add('hidden'); return; }
+  if (v < 0) setStatus('stOverbite', 'Mordida abierta', 'st-high');
+  else if (v <= 3) setStatus('stOverbite', 'Dentro de norma', 'st-normal');
+  else if (v <= 5) setStatus('stOverbite', 'Aumentada', 'st-alert');
+  else setStatus('stOverbite', 'Sobremordida profunda', 'st-high');
+}
+function evalLM() {
+  const v = Math.abs(parseFloat(document.getElementById('lineaMedia').value));
+  if (isNaN(v)) { document.getElementById('stLM').classList.add('hidden'); return; }
+  if (v < 1) setStatus('stLM', 'Coincidente', 'st-normal');
+  else if (v <= 2) setStatus('stLM', 'Desviación leve', 'st-alert');
+  else setStatus('stLM', 'Desviación significativa', 'st-high');
+}
+
+// ---- Fotografías ----
+function onFileChange(k) {
+  const file = document.getElementById('file-' + k).files[0];
+  if (file) loadImage(k, file);
 }
 function onDragOver(e) { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--accent-mid)'; }
 function onDragLeave(e) { e.currentTarget.style.borderColor = ''; }
-function onDrop(e) {
+function onDrop(e, k) {
   e.preventDefault();
   e.currentTarget.style.borderColor = '';
   const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) loadImage(file);
+  if (file && file.type.startsWith('image/')) loadImage(k, file);
 }
-function loadImage(file) {
+function loadImage(k, file) {
   const reader = new FileReader();
   reader.onload = (e) => {
-    const preview = document.getElementById('previewLesion');
-    preview.src = e.target.result;
-    preview.classList.remove('hidden');
-    document.getElementById('removeLesion').classList.remove('hidden');
-    document.getElementById('uploadPlaceholder').classList.add('hidden');
-    document.getElementById('uploadZone').classList.add('has-image');
-    preview.dispatchEvent(new Event('change', { bubbles: true }));
+    const img = document.getElementById('img-' + k);
+    img.src = e.target.result;
+    img.classList.remove('hidden');
+    document.getElementById('ph-' + k).classList.add('hidden');
+    document.getElementById('rm-' + k).classList.remove('hidden');
+    document.getElementById('zone-' + k).classList.add('has-image');
+    img.dispatchEvent(new Event('change', { bubbles: true }));
   };
   reader.readAsDataURL(file);
 }
-function removeImg() {
-  const preview = document.getElementById('previewLesion');
-  preview.src = '';
-  preview.classList.add('hidden');
-  document.getElementById('removeLesion').classList.add('hidden');
-  document.getElementById('uploadPlaceholder').classList.remove('hidden');
-  document.getElementById('uploadZone').classList.remove('has-image');
-  document.getElementById('fileLesion').value = '';
-  if (window.FichaUSS) window.FichaUSS.guardar();
+function removeImg(k) {
+  const img = document.getElementById('img-' + k);
+  img.src = '';
+  img.classList.add('hidden');
+  document.getElementById('ph-' + k).classList.remove('hidden');
+  document.getElementById('rm-' + k).classList.add('hidden');
+  document.getElementById('zone-' + k).classList.remove('has-image');
+  document.getElementById('file-' + k).value = '';
+  img.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-// ---- IA: descripción de labios y mucosas ----
-async function redactarMucosas() {
-  const datos = [
-    v('labiosIntra'), v('mucosaLabial'), v('yugalDer') !== '—' ? 'Mucosa yugal derecha: ' + v('yugalDer') : '',
-    v('yugalIzq') !== '—' ? 'Mucosa yugal izquierda: ' + v('yugalIzq') : '',
-    v('frenillos'), v('reborde'), v('mucosasLibre')
-  ].filter(d => d && d !== '—');
+// ---- IA: tejidos blandos ----
+async function redactarTB() {
+  const datos = TEJIDOS.map(([id, nombre]) => {
+    const est = document.getElementById('est-' + id).value;
+    const desc = document.getElementById('desc-' + id).value.trim();
+    if (!est) return null;
+    return `${nombre}: ${est}${desc ? ' — ' + desc : ''}`;
+  }).filter(Boolean);
 
-  if (datos.length < 2) { alert('Completa al menos algunos campos del examen primero.'); return; }
+  if (datos.length < 3) { alert('Evalúa al menos 3 estructuras antes de usar el asistente.'); return; }
 
-  const btn = document.getElementById('btnMucosas');
+  const btn = document.getElementById('btnTB');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
-
   try {
     const resp = await fetch(API_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 600,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 700,
         messages: [{ role: 'user', content:
-`Eres asistente clínico odontológico. Redacta la sección de "Examen intraoral — labios y mucosas" para una ficha clínica universitaria con estos hallazgos:
-${datos.join(' | ')}
-Usa lenguaje clínico formal, tercera persona, prosa continua. No propongas diagnósticos ni hipótesis: solo describe lo consignado. Máximo 90 palabras. Solo el texto.` }]
+`Eres asistente clínico odontológico en una clínica universitaria en Chile. Redacta la sección "Examen de tejidos blandos" de la ficha clínica con estos hallazgos registrados por el estudiante:
+
+${datos.join('\n')}
+
+Reglas: usa solo la información entregada, no agregues hallazgos ni diagnósticos que el estudiante no haya consignado. Lenguaje clínico formal, tercera persona, prosa continua. Máximo 110 palabras. Devuelve solo el texto.` }]
       })
     });
     const data = await resp.json();
-    const texto = data.content.map(b => b.text||'').join('');
-    document.getElementById('mucosasIATexto').innerHTML = `<strong>✦ Descripción clínica sugerida por IA</strong>${texto}`;
-    document.getElementById('mucosasIA').classList.remove('hidden');
-  } catch(e) { alert('Error. Intenta nuevamente.'); }
+    document.getElementById('tbIATexto').textContent = data.content.map(b => b.text || '').join('');
+    document.getElementById('tbIA').classList.remove('hidden');
+  } catch (e) { alert('No se pudo conectar con el asistente. Intenta nuevamente.'); }
   finally { btn.disabled = false; btn.innerHTML = 'Redactar con IA'; }
 }
-function usarMucosas() {
-  const el = document.getElementById('mucosasFinal');
-  el.value = document.getElementById('mucosasIATexto').textContent.replace('✦ Descripción clínica sugerida por IA','').trim();
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-  document.getElementById('mucosasIA').classList.add('hidden');
+function usarTB() {
+  const ta = document.getElementById('tbFinal');
+  ta.value = document.getElementById('tbIATexto').textContent.trim();
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+  document.getElementById('tbIA').classList.add('hidden');
 }
 
-// ---- IA: ordenar la descripción de la lesión ----
-async function ordenarLesion() {
-  const campos = [
-    ['Localización', v('lesLocalizacion')],
-    ['Lesión elemental', v('lesTipo')],
-    ['Tamaño mayor', v('lesTamano') !== '—' ? v('lesTamano') + ' mm' : '—'],
-    ['Color', v('lesColor')],
-    ['Bordes', v('lesBordes')],
-    ['Consistencia', v('lesConsistencia')],
-    ['Superficie', v('lesSuperficie')],
-    ['Evolución', v('lesEvolucion')],
-    ['Sintomatología', v('lesSintoma')],
-    ['Factor irritante local', v('lesIrritante')],
-  ].filter(([, val]) => val && val !== '—').map(([k, val]) => k + ': ' + val);
+// ---- IA: síntesis oclusal ----
+async function redactarOclusion() {
+  const alts = [...document.querySelectorAll('#altGrid input:checked')].map(i => i.value);
+  const datos = [
+    getSel('tipoDenticion') && 'Dentición: ' + getSel('tipoDenticion'),
+    getVal('piezasAusentes') && 'Ausencias: ' + getVal('piezasAusentes'),
+    getSel('molarDer') && 'Clase molar derecha: ' + getSel('molarDer'),
+    getSel('molarIzq') && 'Clase molar izquierda: ' + getSel('molarIzq'),
+    getSel('caninoDer') && 'Clase canina derecha: ' + getSel('caninoDer'),
+    getSel('caninoIzq') && 'Clase canina izquierda: ' + getSel('caninoIzq'),
+    getVal('overjet') && 'Resalte: ' + getVal('overjet') + ' mm',
+    getVal('overbite') && 'Sobremordida: ' + getVal('overbite') + ' mm',
+    getRadio('lmDir') && 'Línea media: ' + getRadio('lmDir'),
+    getSel('curvaSpee') && 'Curva de Spee: ' + getSel('curvaSpee'),
+    getSel('curvaWilson') && 'Curva de Wilson: ' + getSel('curvaWilson'),
+    getSel('soporteOclusal') && 'Soporte oclusal: ' + getSel('soporteOclusal'),
+    getSel('rcMic') && 'Relación céntrica frente a MIC: ' + getSel('rcMic'),
+    alts.length && 'Alteraciones: ' + alts.join(', '),
+    getRadio('guiaAnt') && 'Guía anterior: ' + getRadio('guiaAnt'),
+    getSel('gaDesengrane') && 'Desengrane posterior: ' + getSel('gaDesengrane'),
+    getRadio('latDerTipo') && 'Lateralidad derecha: ' + getRadio('latDerTipo'),
+    getVal('latDerBalance') && 'Balance izquierdo: ' + getVal('latDerBalance'),
+    getRadio('latIzqTipo') && 'Lateralidad izquierda: ' + getRadio('latIzqTipo'),
+    getVal('latIzqBalance') && 'Balance derecho: ' + getVal('latIzqBalance'),
+  ].filter(Boolean);
 
-  const libre = v('lesLibre') !== '—' ? v('lesLibre') : '';
-  if (campos.length < 3 && !libre) { alert('Describe primero la lesión o completa los campos semiológicos.'); return; }
+  if (datos.length < 4) { alert('Completa más campos del examen oclusal antes de usar el asistente.'); return; }
 
-  const btn = document.getElementById('btnLesion');
+  const btn = document.getElementById('btnOcl');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
-
   try {
     const resp = await fetch(API_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 600,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
         messages: [{ role: 'user', content:
-`Eres asistente clínico odontológico en una clínica universitaria en Chile.
+`Eres asistente clínico odontológico en una clínica universitaria en Chile. Redacta la síntesis del "Examen oclusal" para la ficha clínica USS con estos datos:
 
-REGLA ABSOLUTA: no nombres ninguna patología, no propongas diagnóstico, diferencial ni sospecha, ni siquiera "compatible con" o "sugerente de". Tu única función es reordenar la descripción del estudiante en lenguaje semiológico correcto.
+${datos.join('\n')}
 
-DESCRIPCIÓN DEL ESTUDIANTE:
-${libre || '(no escribió descripción libre)'}
-
-CAMPOS SEMIOLÓGICOS REGISTRADOS:
-${campos.join('\n')}
-
-Redacta un párrafo único de descripción semiológica, en tercera persona y lenguaje clínico formal, siguiendo el orden: localización, lesión elemental, tamaño, color, bordes, superficie, consistencia, evolución y sintomatología. Si falta un atributo, no lo inventes: omítelo. Al final, en una línea aparte que comience con "Falta consignar:", enumera los atributos semiológicos que el estudiante no registró. Máximo 110 palabras.` }]
+Reglas: usa solo la información entregada, no infieras diagnósticos que el estudiante no haya consignado. Ordena en tres momentos: oclusión estática, guía anterior, lateralidades. Lenguaje clínico formal, tercera persona, prosa continua. Máximo 150 palabras. Devuelve solo el texto.` }]
       })
     });
     const data = await resp.json();
-    const texto = data.content.map(b => b.text||'').join('');
-    document.getElementById('lesionIATexto').innerHTML = `<strong>✦ Descripción semiológica ordenada</strong>${texto}`;
-    document.getElementById('lesionIA').classList.remove('hidden');
-  } catch(e) { alert('Error. Intenta nuevamente.'); }
-  finally { btn.disabled = false; btn.innerHTML = 'Ordenar descripción'; }
+    document.getElementById('oclIATexto').textContent = data.content.map(b => b.text || '').join('');
+    document.getElementById('oclIA').classList.remove('hidden');
+  } catch (e) { alert('No se pudo conectar con el asistente. Intenta nuevamente.'); }
+  finally { btn.disabled = false; btn.innerHTML = 'Redactar con IA'; }
 }
-function usarLesion() {
-  const el = document.getElementById('lesFinal');
-  el.value = document.getElementById('lesionIATexto').textContent.replace('✦ Descripción semiológica ordenada','').trim();
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-  document.getElementById('lesionIA').classList.add('hidden');
+function usarOclusion() {
+  const ta = document.getElementById('oclFinal');
+  ta.value = document.getElementById('oclIATexto').textContent.trim();
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+  document.getElementById('oclIA').classList.add('hidden');
 }
 
 // ---- Resumen ----
-function renderSummary() {
-  const factores = [
-    ck('xeroFarmacos') ? 'fármacos xerostomizantes' : '',
-    ck('xeroSistemico') ? 'condición sistémica' : '',
-    ck('xeroRadio') ? 'radioterapia de cabeza y cuello' : ''
-  ].filter(Boolean).join(', ') || '—';
+function getVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function getSel(id) { return document.getElementById(id)?.value || ''; }
+function getRadio(name) { return document.querySelector(`input[name="${name}"]:checked`)?.value || ''; }
+const d = v => v || '—';
 
-  const hayLesion = rv('hayLesion');
-  const filasLesion = hayLesion === 'Se detecta al menos una lesión'
-    ? [
-        ['Localización', v('lesLocalizacion')],
-        ['Lesión elemental', v('lesTipo')],
-        ['Tamaño', v('lesTamano') !== '—' ? v('lesTamano') + ' mm' : '—'],
-        ['Color', v('lesColor')],
-        ['Bordes', v('lesBordes')],
-        ['Superficie', v('lesSuperficie')],
-        ['Consistencia', v('lesConsistencia')],
-        ['Evolución', v('lesEvolucion')],
-        ['Sintomatología', v('lesSintoma')],
-        ['Factor irritante local', v('lesIrritante')],
-        ['Descripción final', v('lesFinal') !== '—' ? v('lesFinal') : v('lesLibre')],
-      ]
-    : [['Lesiones de mucosa', hayLesion]];
+function buildResumen() {
+  const alterados = TEJIDOS
+    .filter(([id]) => document.getElementById('est-' + id)?.value === 'Alterado')
+    .map(([id, n]) => n + (getVal('desc-' + id) ? ' (' + getVal('desc-' + id) + ')' : ''));
+  const alts = [...document.querySelectorAll('#altGrid input:checked')].map(i => i.value);
 
-  const sections = [
-    { title: 'Labios y mucosas', rows: [
-      ['Semimucosa labial', v('labiosIntra')],
-      ['Mucosa labial', v('mucosaLabial')],
-      ['Mucosa yugal derecha', v('yugalDer')],
-      ['Mucosa yugal izquierda', v('yugalIzq')],
-      ['Frenillos', v('frenillos')],
-      ['Reborde alveolar', v('reborde')],
-      ['Descripción clínica', v('mucosasFinal') !== '—' ? v('mucosasFinal') : v('mucosasLibre')],
-    ]},
-    { title: 'Lengua y piso de boca', rows: [
-      ['Dorso lingual', v('dorsoLingual')],
-      ['Bordes laterales', v('bordesLinguales')],
-      ['Vientre lingual', v('vientreLingual')],
-      ['Tamaño lingual', v('tamanoLingual')],
-      ['Movilidad', rv('movLingual')],
-      ['Sintomatología', rv('sintLingual')],
-      ['Piso de boca', v('pisoBoca')],
-      ['Conductos de Wharton', rv('wharton')],
-      ['Observaciones', v('lenguaObs')],
-    ]},
-    { title: 'Paladar y orofaringe', rows: [
-      ['Paladar duro', v('paladarDuro')],
-      ['Paladar blando y úvula', v('paladarBlando')],
-      ['Amígdalas y pilares', v('amigdalas')],
-      ['Mallampati', v('mallampati')],
-      ['Reflejo nauseoso', rv('nauseoso')],
-      ['Observaciones', v('paladarObs')],
-    ]},
-    { title: 'Glándulas salivales', rows: [
-      ['Parótidas', v('parotidas')],
-      ['Submandibulares y sublinguales', v('submandibulares')],
-      ['Conductos de Stenon', rv('stenon')],
-      ['Consistencia de la saliva', v('consistenciaSaliva')],
-      ['Flujo salival', v('flujoSalival')],
-      ['Factores asociados', factores],
-      ['Observaciones', v('salivalObs')],
-    ]},
-    { title: 'Lesiones de mucosa', rows: filasLesion },
+  const secciones = [
+    ['Tejidos blandos — Slide 13', [
+      ['Estructuras alteradas', alterados.length ? alterados.join('; ') : 'Sin alteraciones consignadas'],
+      ['Descripción final', d(getVal('tbFinal'))],
+    ]],
+    ['Glándulas salivales — Slide 13', [
+      ['Glándulas alteradas', (() => { const g = resumenGlandulas(); return g.length ? g.join('; ') : 'Sin alteraciones consignadas'; })()],
+      ['Cantidad de saliva', d(getSel('salCantidad'))],
+      ['Calidad de la saliva', d(getSel('salCalidad'))],
+      ['Xerostomía', d(getRadio('xerostomia'))],
+      ['Signos de hiposalivación', d(getVal('salSignos'))],
+      ['Observaciones', d(getVal('salObs'))],
+    ]],
+    ['Estado de la dentición — Slide 14', [
+      ['Estado', d(getSel('estadoDenticion'))],
+      ['Tipo de dentición', d(getSel('tipoDenticion'))],
+      ['Piezas presentes', d(getVal('numPiezas'))],
+      ['Piezas ausentes', d(getVal('piezasAusentes'))],
+      ['Continuidad de arcos', d(getSel('arcoSup')) + ' (superior) / ' + d(getSel('arcoInf')) + ' (inferior)'],
+      ['Rehabilitaciones', d(getVal('rehabPresentes'))],
+    ]],
+    ['Análisis de la oclusión — Slide 14', [
+      ['Clase molar D / I', d(getSel('molarDer')) + ' / ' + d(getSel('molarIzq'))],
+      ['Clase canina D / I', d(getSel('caninoDer')) + ' / ' + d(getSel('caninoIzq'))],
+      ['Resalte (overjet)', getVal('overjet') ? getVal('overjet') + ' mm' : '—'],
+      ['Sobremordida (overbite)', getVal('overbite') ? getVal('overbite') + ' mm' : '—'],
+      ['Línea media', d(getRadio('lmDir')) + (getVal('lineaMedia') ? ' (' + getVal('lineaMedia') + ' mm)' : '')],
+      ['Alteraciones', alts.length ? alts.join(', ') : '—'],
+      ['Detalle', d(getVal('altDetalle'))],
+      ['Curva de Spee', d(getSel('curvaSpee')) + (getVal('speeMm') ? ' (' + getVal('speeMm') + ' mm)' : '')],
+      ['Curva de Wilson', d(getSel('curvaWilson'))],
+      ['Plano oclusal', d(getSel('planoOclusal'))],
+      ['Fundamento de las curvas', d(getVal('curvasJustif'))],
+      ['Pares ocluyentes', (getVal('paresPost') || '—') + ' posteriores / ' + (getVal('paresAnt') || '—') + ' anteriores'],
+      ['Soporte oclusal', d(getSel('soporteOclusal'))],
+      ['Zonas sin soporte', d(getVal('zonasSinSoporte'))],
+      ['RC frente a MIC', d(getSel('rcMic')) + (getVal('deslizamiento') ? ', deslizamiento de ' + getVal('deslizamiento') + ' mm' : '')],
+      ['Contactos prematuros', d(getVal('contactosPrematuros'))],
+      ['Observaciones', d(getVal('oclusionObs'))],
+    ]],
+    ['Guía anterior — Slide 15', [
+      ['Guía anterior', d(getRadio('guiaAnt'))],
+      ['Piezas participantes', d(getVal('gaPiezas'))],
+      ['Desengrane posterior', d(getSel('gaDesengrane'))],
+      ['Interferencias protrusivas', d(getVal('gaInterferencias'))],
+      ['Observaciones', d(getVal('gaObs'))],
+    ]],
+    ['Lateralidad derecha — Slide 16', [
+      ['Tipo de guía', d(getRadio('latDerTipo'))],
+      ['Piezas participantes', d(getVal('latDerPiezas'))],
+      ['Lado de trabajo', d(getVal('latDerTrabajo'))],
+      ['Lado de balance', d(getVal('latDerBalance'))],
+      ['Observaciones', d(getVal('latDerObs'))],
+    ]],
+    ['Lateralidad izquierda — Slide 17', [
+      ['Tipo de guía', d(getRadio('latIzqTipo'))],
+      ['Piezas participantes', d(getVal('latIzqPiezas'))],
+      ['Lado de trabajo', d(getVal('latIzqTrabajo'))],
+      ['Lado de balance', d(getVal('latIzqBalance'))],
+      ['Observaciones', d(getVal('latIzqObs'))],
+    ]],
+    ['Síntesis oclusal', [
+      ['Texto final', d(getVal('oclFinal'))],
+    ]],
   ];
 
-  const html = `<div class="summary-card">${sections.map(s => `
+  document.getElementById('summaryContent').innerHTML = secciones.map(([titulo, filas]) => `
     <div class="summary-section">
-      <div class="summary-section-title">${s.title}</div>
-      ${s.rows.map(([label, value]) => `
-        <div class="summary-row">
-          <span class="summary-label">${label}</span>
-          <span class="summary-value">${value}</span>
-        </div>`).join('')}
-    </div>`).join('')}
-  </div>`;
-
-  document.getElementById('summaryContent').innerHTML = html;
+      <div class="summary-section-title">${titulo}</div>
+      ${filas.map(([label, value]) => `
+        <div class="summary-row"><span class="summary-label">${label}</span><span class="summary-value">${value}</span></div>
+      `).join('')}
+    </div>`).join('');
 }
 
 function copiarResumen() {
-  const rows = document.querySelectorAll('.summary-row');
-  const text = [...rows].map(r => {
-    const cells = r.querySelectorAll('span');
-    return cells[0].textContent + ': ' + cells[1].textContent.replace(/\s+/g,' ').trim();
+  const text = [...document.querySelectorAll('#summaryContent .summary-row')].map(r => {
+    const c = r.querySelectorAll('span');
+    return c[0].textContent + ': ' + c[1].textContent.replace(/\s+/g, ' ').trim();
   }).join('\n');
   navigator.clipboard.writeText(text).then(() => {
     const btn = event.target;
@@ -1063,12 +1187,12 @@ function copiarResumen() {
   });
 }
 
-// El bloque de lesión se reabre solo si el guardado automático marcó "Sí"
-window.addEventListener('load', () => setTimeout(toggleLesion, 800));
+// ---- Init ----
+buildTejidos();
+buildGlandulas();
+buildAlteraciones();
 </script>
-
 <script src="ficha-uss.js"></script>
-<script src="coherencia-uss.js"></script>
-<script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

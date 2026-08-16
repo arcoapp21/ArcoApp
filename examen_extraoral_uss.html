@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Examen Clínico Extraoral — Asistente Digital USS</title>
+<title>Examen Clínico Extraoral — Ficha Clínica USS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,6 +41,70 @@
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
   .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 14px; }
 
+  .bib-note { background:var(--surface-2,#F9F8F5); border-left:3px solid var(--accent-mid,#4A6FA5);
+    border-radius:0 6px 6px 0; padding:11px 14px; font-size:12px; color:var(--text-2,#5C5849); line-height:1.6; }
+  .bib-note strong { color:var(--accent,#1D3A6B); }
+  .photo-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .photo-cap { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--text-3,#9C9688); margin-bottom:6px; }
+  .upload-zone { border:2px dashed var(--border-strong,#C8C3B8); border-radius:10px; padding:28px 18px;
+    text-align:center; background:var(--surface-2,#F9F8F5); cursor:pointer; transition:all .2s; position:relative; }
+  .upload-zone:hover { border-color:var(--accent-mid,#4A6FA5); background:var(--accent-light,#EAF0FA); }
+  .upload-zone.has-image { border-style:solid; border-color:var(--accent-mid,#4A6FA5); padding:10px; }
+  .upload-input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-icon { font-size:24px; margin-bottom:6px; }
+  .upload-title { font-size:13px; font-weight:500; color:var(--text-2,#5C5849); }
+  .upload-subtitle { font-size:11px; color:var(--text-3,#9C9688); margin-top:3px; }
+  .preview-img { max-width:100%; max-height:300px; border-radius:6px; display:block; margin:0 auto; }
+  .remove-btn { position:absolute; top:8px; right:8px; background:#8B1A1A; color:#fff; border:none;
+    border-radius:50%; width:28px; height:28px; font-size:16px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; z-index:2; }
+  .remove-btn:hover { background:#6b1010; }
+  @media (max-width:700px) { .photo-grid { grid-template-columns:1fr; } }
+  .met-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start;
+    padding:13px 0; border-bottom:1px solid var(--border,#E2DED6); }
+  .met-row:last-of-type { border-bottom:none; }
+  .met-chk { display:flex; align-items:flex-start; gap:9px; font-size:13px;
+    color:var(--text,#1A1814); cursor:pointer; line-height:1.45; }
+  .met-chk input { width:15px; height:15px; margin-top:2px; accent-color:var(--accent,#1D3A6B); flex-shrink:0; }
+  .met-chk small { display:block; font-weight:400; font-size:11.5px;
+    color:var(--text-3,#9C9688); margin-top:2px; }
+  .met-in input, .met-in select { width:100%; height:34px; border:1px solid var(--border,#E2DED6);
+    border-radius:6px; padding:4px 10px; font-family:inherit; font-size:12.5px;
+    background:var(--surface-2,#F9F8F5); outline:none; color:var(--text,#1A1814); }
+  .met-in input:focus, .met-in select:focus { border-color:var(--accent-mid,#4A6FA5); background:#fff;
+    box-shadow:0 0 0 3px rgba(74,111,165,.12); }
+  .met-dual { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .met-norm { display:block; font-size:11px; color:var(--text-3,#9C9688); line-height:1.5; margin-top:5px; }
+  .met-norm.ok { color:#1A5C3A; } .met-norm.alerta { color:#7A4A00; }
+  .met-sub { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--accent,#1D3A6B); padding-bottom:6px; margin:20px 0 12px;
+    border-bottom:1px solid var(--border,#E2DED6); }
+  .met-cmp { background:#FFF4E0; border:1px solid #e8d99a; border-radius:8px; padding:12px 15px;
+    margin-top:14px; font-size:12.5px; color:#7A4A00; line-height:1.6; }
+  .met-warn { background:#FFF4E0; border:1px solid #e8d99a; border-radius:6px; padding:10px 13px;
+    margin-top:12px; font-size:12.5px; color:#7A4A00; line-height:1.55; }
+  @media (max-width:700px) { .met-row { grid-template-columns:1fr; gap:8px; } }
+  .est-intro { font-size:12.5px; color:var(--text-2,#5C5849); line-height:1.6; margin-bottom:14px; }
+  .est-row { display:grid; grid-template-columns:190px 1fr 1fr; gap:10px; align-items:center;
+    padding:8px 0; border-bottom:1px solid var(--border,#E2DED6); }
+  .est-row.solo { grid-template-columns:190px 1fr 1.4fr; }
+  .est-row:last-child { border-bottom:none; }
+  .est-n { font-size:12.5px; font-weight:600; color:var(--text-2,#5C5849); }
+  .est-n small { display:block; font-weight:400; font-size:11px; color:var(--text-3,#9C9688); margin-top:1px; }
+  .est-row select, .est-row input { height:34px; width:100%; border:1px solid var(--border,#E2DED6);
+    border-radius:6px; padding:4px 9px; font-family:inherit; font-size:12.5px;
+    background:var(--surface-2,#F9F8F5); outline:none; color:var(--text,#1A1814); }
+  .est-row select:focus, .est-row input:focus { border-color:var(--accent-mid,#4A6FA5); background:#fff;
+    box-shadow:0 0 0 3px rgba(74,111,165,.12); }
+  .est-row.alterado .est-n { color:#7A4A00; }
+  .est-head { display:grid; grid-template-columns:190px 1fr 1fr; gap:10px; padding-bottom:6px;
+    margin-bottom:4px; border-bottom:1px solid var(--border-strong,#C8C3B8); }
+  .est-head.solo { grid-template-columns:190px 1fr 1.4fr; }
+  .est-head span { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-3,#9C9688); }
+  @media (max-width:760px) { .est-row, .est-row.solo, .est-head { grid-template-columns:1fr; gap:5px; }
+    .est-head { display:none; } }
   .field-grid { display: grid; gap: 14px; }
   .field-grid-2 { grid-template-columns: 1fr 1fr; }
   .field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -154,36 +218,6 @@
   }
 </style>
 <script src="config-uss.js"></script>
-<style>
-/* ── Preguntas de cierre · pauta de razonamiento clínico ───────────── */
-.pq-antic, .pq-cierre {
-  background: var(--surface, #fff); border: 1px solid var(--border, #E2DED6);
-  border-radius: var(--radius, 10px); padding: 18px 20px; margin-bottom: 16px;
-}
-.pq-antic { border-left: 3px solid var(--accent-mid, #4A6FA5); background: var(--surface-2, #F9F8F5); }
-.pq-cierre { margin-top: 22px; border-top: 3px solid var(--accent, #1D3A6B); }
-.pq-h1 {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--text-3, #9C9688); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
-}
-.pq-badge {
-  font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0;
-  background: var(--accent-light, #EAF0FA); color: var(--accent, #1D3A6B);
-  border: 1px solid #C5D6EF; border-radius: 20px; padding: 2px 8px;
-}
-.pq-intro { font-size: 12.5px; color: var(--text-2, #5C5849); line-height: 1.6; margin-bottom: 16px; }
-.pq-f { margin-bottom: 16px; }
-.pq-f:last-child { margin-bottom: 0; }
-.pq-q { font-size: 13.5px; font-weight: 500; color: var(--text, #1A1814); line-height: 1.5; margin-bottom: 3px; }
-.pq-ayuda { font-size: 12px; color: var(--text-3, #9C9688); line-height: 1.55; margin-bottom: 7px; }
-.pq-ta {
-  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13.5px; line-height: 1.6;
-  color: var(--text, #1A1814); background: var(--surface, #fff);
-  border: 1px solid var(--border, #E2DED6); border-radius: var(--radius-sm, 6px);
-  padding: 9px 11px; resize: vertical;
-}
-.pq-ta:focus { outline: none; border-color: var(--accent-mid, #4A6FA5); }
-</style>
 </head>
 <body>
 
@@ -191,7 +225,7 @@
   <div class="header-logo">👤</div>
   <div class="header-text">
     <h1>Examen Clínico Extraoral</h1>
-    <p>Asistente Digital de Razonamiento Clínico · Universidad San Sebastián</p>
+    <p>Ficha Clínica Adulto 2026 — Universidad San Sebastián</p>
   </div>
   <span class="header-badge">Slides 9–12</span>
 </header>
@@ -205,17 +239,6 @@
 </div>
 
 <main>
-
-<!-- ── Pregunta de anticipación · responder ANTES de examinar ────────── -->
-<div class="pq-antic">
-  <div class="pq-h1">Antes de examinar</div>
-  <div class="pq-f" style="margin-bottom:0;">
-    <div class="pq-q">¿Qué esperas encontrar en esta sección, y por qué?</div>
-    <div class="pq-ayuda">Una o dos líneas, a partir de lo que ya sabes del paciente. No se califica: sirve para contrastar después lo que esperabas con lo que registraste.</div>
-    <textarea id="pq-anticipacion" class="pq-ta" rows="2" placeholder="Responde antes de comenzar el examen…"></textarea>
-  </div>
-</div>
-
 
 <!-- ===== TAB 0: Examen extraoral (Slide 9) ===== -->
 <div id="tab-0">
@@ -245,26 +268,8 @@
           <div class="radio-pill"><input type="radio" name="cutanea" id="cut-si" value="Con alteraciones"><label for="cut-si">Con alteraciones</label></div>
         </div>
       </div>
-      <div class="field">
-        <label>Linfonodos cervicales</label>
-        <div class="radio-group">
-          <div class="radio-pill"><input type="radio" name="linfoExtr" id="lf-norm" value="Sin connotación patológica"><label for="lf-norm">Normal</label></div>
-          <div class="radio-pill"><input type="radio" name="linfoExtr" id="lf-alt" value="Adenopatías presentes"><label for="lf-alt">Adenopatías</label></div>
-        </div>
-      </div>
     </div>
     <div class="field-grid field-grid-2" style="margin-bottom:14px;">
-      <div class="field">
-        <label>Musculatura facial y masticatoria</label>
-        <select id="musculatura">
-          <option value="">Seleccionar</option>
-          <option>Sin alteraciones clínicas</option>
-          <option>Hipertonía muscular</option>
-          <option>Dolor a la palpación</option>
-          <option>Hipertrofia masetérica</option>
-          <option>Asimetría muscular</option>
-        </select>
-      </div>
       <div class="field">
         <label>Labios en reposo</label>
         <select id="labios">
@@ -291,7 +296,103 @@
       <label>Descripción clínica final</label>
       <textarea id="extFinal" placeholder="Descripción clínica del examen extraoral..." rows="3"></textarea>
     </div>
-    <div class="photo-note">📸 Fotografías frontales y de perfil (reposo y sonrisa)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fotografías clínicas extraorales</div>
+    <div class="photo-grid">
+      <div>
+        <div class="photo-cap">Frontal en reposo</div>
+        <div class="upload-zone" id="zone-frontRep" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'frontRep')">
+          <input type="file" accept="image/*" class="upload-input" id="file-frontRep" onchange="onFileChange('frontRep')">
+          <div class="upload-ph" id="ph-frontRep"><div class="upload-icon">📷</div><div class="upload-title">Frontal en reposo</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-frontRep" class="preview-img hidden" alt="Frontal en reposo">
+          <button class="remove-btn hidden" id="rm-frontRep" onclick="removeImg('frontRep')" title="Quitar fotografía">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="photo-cap">Frontal sonriendo</div>
+        <div class="upload-zone" id="zone-frontSon" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'frontSon')">
+          <input type="file" accept="image/*" class="upload-input" id="file-frontSon" onchange="onFileChange('frontSon')">
+          <div class="upload-ph" id="ph-frontSon"><div class="upload-icon">📷</div><div class="upload-title">Frontal sonriendo</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-frontSon" class="preview-img hidden" alt="Frontal sonriendo">
+          <button class="remove-btn hidden" id="rm-frontSon" onclick="removeImg('frontSon')" title="Quitar fotografía">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="photo-cap">Perfil derecho</div>
+        <div class="upload-zone" id="zone-perfilDer" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'perfilDer')">
+          <input type="file" accept="image/*" class="upload-input" id="file-perfilDer" onchange="onFileChange('perfilDer')">
+          <div class="upload-ph" id="ph-perfilDer"><div class="upload-icon">📷</div><div class="upload-title">Perfil derecho</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-perfilDer" class="preview-img hidden" alt="Perfil derecho">
+          <button class="remove-btn hidden" id="rm-perfilDer" onclick="removeImg('perfilDer')" title="Quitar fotografía">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="photo-cap">Perfil izquierdo</div>
+        <div class="upload-zone" id="zone-perfilIzq" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'perfilIzq')">
+          <input type="file" accept="image/*" class="upload-input" id="file-perfilIzq" onchange="onFileChange('perfilIzq')">
+          <div class="upload-ph" id="ph-perfilIzq"><div class="upload-icon">📷</div><div class="upload-title">Perfil izquierdo</div><div class="upload-subtitle">Arrastra o haz clic</div></div>
+          <img id="img-perfilIzq" class="preview-img hidden" alt="Perfil izquierdo">
+          <button class="remove-btn hidden" id="rm-perfilIzq" onclick="removeImg('perfilIzq')" title="Quitar fotografía">×</button>
+        </div>
+      </div>
+    </div>
+    <div class="bib-note" style="margin-top:14px;">
+      📷 Toma las fotografías con el paciente en posición natural de cabeza y el plano de Frankfort paralelo al
+      suelo. Una inclinación de la cabeza modifica el perfil aparente y con ello todas las mediciones que hagas
+      sobre la imagen.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Palpación de cadenas ganglionares cervicofaciales</div>
+    <p class="est-intro">
+      Palpa en orden y de forma bilateral, con el paciente sentado y la musculatura relajada. Registra cada cadena:
+      si no la palpaste, deja «Sin evaluar», que no es lo mismo que «No palpables».
+    </p>
+    <div id="ganglioList"></div>
+    <div class="field" style="margin-top:14px;">
+      <label>Descripción de las adenopatías encontradas</label>
+      <textarea id="ganglioObs" rows="2" placeholder="Ej: adenopatía submandibular derecha de 1,5 cm, blanda, móvil, dolorosa a la palpación, de dos días de evolución."></textarea>
+    </div>
+    <div class="bib-note" style="margin-top:14px;">
+      📚 <strong>Qué describir en una adenopatía:</strong> tamaño en centímetros, consistencia, movilidad respecto de
+      planos profundos, sensibilidad y tiempo de evolución. Un ganglio blando, móvil, doloroso y de aparición
+      reciente orienta a proceso inflamatorio o infeccioso. Uno duro, adherido, indoloro, mayor de un centímetro y
+      de más de dos semanas de evolución obliga a derivar para estudio.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Palpación de músculos masticatorios</div>
+    <p class="est-intro">
+      Palpación bilateral y simultánea cuando la anatomía lo permite, sostenida unos cinco segundos.
+      Distingue el dolor a la palpación del <strong>dolor familiar</strong>, que es el que el paciente reconoce como
+      su propio dolor: esa distinción es la que tiene valor diagnóstico en trastornos temporomandibulares.
+    </p>
+    <div id="muscMastList"></div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones de la musculatura masticatoria</label>
+      <textarea id="muscMastObs" rows="2" placeholder="Ej: hipertrofia masetérica bilateral, con dolor familiar en haz profundo del masetero derecho que el paciente reconoce como su molestia habitual."></textarea>
+    </div>
+    <div class="bib-note" style="margin-top:14px;">
+      📚 El pterigoideo lateral no es accesible a la palpación directa: se evalúa de forma funcional, con
+      resistencia a la protrusión y a la lateralidad contralateral. Consígnalo como tal y no como palpación.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Palpación de musculatura cervical</div>
+    <p class="est-intro">
+      Su compromiso acompaña con frecuencia al de la musculatura masticatoria y modifica el manejo: un dolor
+      cervical no tratado mantiene el cuadro aunque se trate la articulación.
+    </p>
+    <div id="muscCervList"></div>
+    <div class="field" style="margin-top:14px;">
+      <label>Observaciones de la musculatura cervical</label>
+      <textarea id="muscCervObs" rows="2" placeholder="Ej: trapecio superior izquierdo con dolor referido hacia la región temporal ipsilateral."></textarea>
+    </div>
   </div>
 
   <div class="nav-footer">
@@ -351,6 +452,59 @@
         <input type="text" id="anguloNaso" placeholder="Ej: normal ~90–110°">
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Método con que se determinó el perfil</div>
+    <p class="est-intro">
+      El tipo de perfil es una conclusión, y toda conclusión se obtiene con un método. Registra cuál usaste,
+      qué valor obtuviste y contra qué norma lo comparaste: sin eso, «perfil convexo» es una impresión.
+    </p>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="mpConvexidad" onchange="perfilMetodo()"><span><strong>Ángulo de convexidad facial</strong><small>Glabela — subnasal — pogonion blando</small></span></label>
+      <div class="met-in">
+        <input type="number" id="mpConvexidadV" step="0.5" placeholder="°" oninput="perfilMetodo()">
+        <span class="met-norm">Norma 165° a 175°. Menor indica convexidad; mayor, concavidad.</span>
+      </div>
+    </div>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="mpRicketts" onchange="perfilMetodo()"><span><strong>Línea estética E de Ricketts</strong><small>Punta nasal — pogonion blando</small></span></label>
+      <div class="met-in">
+        <div class="met-dual">
+          <input type="number" id="mpRickettsSup" step="0.5" placeholder="Labio sup. mm">
+          <input type="number" id="mpRickettsInf" step="0.5" placeholder="Labio inf. mm">
+        </div>
+        <span class="met-norm">Referencia en adultos: labio superior unos 4 mm por detrás de la línea, labio inferior unos 2 mm. Usa valores negativos si quedan por detrás.</span>
+      </div>
+    </div>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="mpSteiner" onchange="perfilMetodo()"><span><strong>Línea S de Steiner</strong><small>Mentón blando — punto medio de la S nasal</small></span></label>
+      <div class="met-in">
+        <select id="mpSteinerV" onchange="perfilMetodo()">
+          <option value="">Resultado…</option>
+          <option>Labios tangentes a la línea — armónico</option>
+          <option>Labios por delante de la línea — protrusión</option>
+          <option>Labios por detrás de la línea — retrusión</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="mpNasolabial" onchange="perfilMetodo()"><span><strong>Ángulo nasolabial</strong><small>Columela — subnasal — labio superior</small></span></label>
+      <div class="met-in">
+        <input type="number" id="mpNasolabialV" step="0.5" placeholder="°" oninput="perfilMetodo()">
+        <span class="met-norm">Norma 90° a 110°. Se altera con la posición de los incisivos superiores.</span>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px;">
+      <label>Conclusión del análisis de perfil y su fundamento</label>
+      <textarea id="perfilConclusion" rows="2" placeholder="Ej: perfil convexo, determinado por ángulo de convexidad facial de 158°, bajo la norma de 165°, concordante con labio superior a 1 mm por delante de la línea E."></textarea>
+    </div>
+    <div class="met-warn" id="perfilWarn" style="display:none;"></div>
   </div>
 
   <div class="card">
@@ -434,7 +588,26 @@
       <label>Observaciones del análisis facial</label>
       <textarea id="obsPerfil" placeholder="Ej: Paciente con perfil recto, tercios faciales proporcionados. Sonrisa media con corredor bucal normal..." rows="3"></textarea>
     </div>
-    <div class="photo-note">📸 Fotografías de perfil, frontal y sonrisa con regla milimetrada</div>
+    <div class="photo-grid" style="margin-top:14px;">
+      <div>
+        <div class="photo-cap">Perfil con puntos de referencia</div>
+        <div class="upload-zone" id="zone-perfilAnalisis" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'perfilAnalisis')">
+          <input type="file" accept="image/*" class="upload-input" id="file-perfilAnalisis" onchange="onFileChange('perfilAnalisis')">
+          <div class="upload-ph" id="ph-perfilAnalisis"><div class="upload-icon">📷</div><div class="upload-title">Perfil con puntos de referencia</div><div class="upload-subtitle">Glabela, subnasal y pogonion marcados</div></div>
+          <img id="img-perfilAnalisis" class="preview-img hidden" alt="Perfil con puntos de referencia">
+          <button class="remove-btn hidden" id="rm-perfilAnalisis" onclick="removeImg('perfilAnalisis')" title="Quitar fotografía">×</button>
+        </div>
+      </div>
+      <div>
+        <div class="photo-cap">Frontal con regla milimetrada</div>
+        <div class="upload-zone" id="zone-terciosFoto" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'terciosFoto')">
+          <input type="file" accept="image/*" class="upload-input" id="file-terciosFoto" onchange="onFileChange('terciosFoto')">
+          <div class="upload-ph" id="ph-terciosFoto"><div class="upload-icon">📷</div><div class="upload-title">Frontal con regla milimetrada</div><div class="upload-subtitle">Para el análisis de tercios</div></div>
+          <img id="img-terciosFoto" class="preview-img hidden" alt="Frontal con regla milimetrada">
+          <button class="remove-btn hidden" id="rm-terciosFoto" onclick="removeImg('terciosFoto')" title="Quitar fotografía">×</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="nav-footer">
@@ -477,6 +650,47 @@
         <div id="eliStatus" class="dv-status" style="display:none;"></div>
       </div>
     </div>
+    <div class="met-sub">Método con que se determinó la dimensión vertical</div>
+    <p class="est-intro">
+      Ningún método es exacto por sí solo: se contrastan entre sí. Si dos métodos dan valores distintos,
+      esa diferencia es un dato clínico y hay que argumentar con cuál te quedas.
+    </p>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="dvWillis" onchange="calcDVMetodos()"><span><strong>Compás de Willis</strong><small>Pupila — comisura labial, comparado con subnasal — mentón</small></span></label>
+      <div class="met-in">
+        <div class="met-dual">
+          <input type="number" id="dvWillisRef" step="0.5" placeholder="Pupila–comisura mm" oninput="calcDVMetodos()">
+          <input type="number" id="dvWillisObt" step="0.5" placeholder="Subnasal–mentón mm" oninput="calcDVMetodos()">
+        </div>
+        <span class="met-norm" id="dvWillisR">Ambas distancias deberían ser equivalentes.</span>
+      </div>
+    </div>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="dvKnebelman" onchange="calcDVMetodos()"><span><strong>Craneómetro de Knebelman, modificación clínica</strong><small>Ángulo externo del ojo — surco tragus facial, menos 5 mm</small></span></label>
+      <div class="met-in">
+        <div class="met-dual">
+          <input type="number" id="dvKnebRef" step="0.5" placeholder="Ojo–tragus mm" oninput="calcDVMetodos()">
+          <input type="number" id="dvKnebObt" step="0.5" placeholder="Subnasal–mentón mm" oninput="calcDVMetodos()">
+        </div>
+        <span class="met-norm" id="dvKnebR">La distancia ojo–tragus menos 5 mm predice la distancia subnasal–mentón.</span>
+      </div>
+    </div>
+
+    <div class="met-row">
+      <label class="met-chk"><input type="checkbox" id="dvTercero" onchange="calcDVMetodos()"><span><strong id="dvTerceroNombre">Método de Sorensen</strong><small>Registra la medida de referencia y la obtenida</small></span></label>
+      <div class="met-in">
+        <div class="met-dual">
+          <input type="number" id="dvTerRef" step="0.5" placeholder="Referencia mm" oninput="calcDVMetodos()">
+          <input type="number" id="dvTerObt" step="0.5" placeholder="Obtenida mm" oninput="calcDVMetodos()">
+        </div>
+        <span class="met-norm" id="dvTerR">Consigna en observaciones qué puntos anatómicos comparaste.</span>
+      </div>
+    </div>
+
+    <div class="met-cmp" id="dvComparacion" style="display:none;"></div>
+
     <div class="field" style="margin-top:14px;">
       <label>Observaciones de dimensión vertical</label>
       <textarea id="obsDV" placeholder="Ej: DVO de 62 mm, DVP de 65 mm, ELI de 3 mm dentro del rango fisiológico (2–4 mm)..." rows="3"></textarea>
@@ -669,35 +883,10 @@
   </div>
 </div>
 
-
-<!-- ── Preguntas de cierre · criterios 1, 2 y 3 de la pauta ─────────── -->
-<div class="pq-cierre">
-  <div class="pq-h1">Cierre de la sección <span class="pq-badge">Se evalúa</span></div>
-  <div class="pq-intro">Estas tres preguntas se repiten en todas las secciones del asistente y componen los criterios 1, 2 y 3 de la pauta de razonamiento clínico.</div>
-
-  <div class="pq-f">
-    <div class="pq-q">De todo lo que registraste aquí, ¿cuál es el hallazgo que más pesa para el diagnóstico, y por qué ese y no otro?</div>
-    <div class="pq-ayuda">Nombra uno solo. Lo que se evalúa es el criterio con que lo elegiste, no el largo de la lista.</div>
-    <textarea id="pq-clave" class="pq-ta" rows="3" placeholder="El hallazgo que más pesa es… Lo elijo por sobre los demás porque…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué cambia para este paciente por ese hallazgo? Indica al menos una decisión, examen o interpretación que sea distinta por su causa.</div>
-    <div class="pq-ayuda">Si tu respuesta serviría igual para cualquier paciente con ese hallazgo, todavía no es una consecuencia clínica.</div>
-    <textarea id="pq-consecuencia" class="pq-ta" rows="3" placeholder="Por este hallazgo, en este paciente…"></textarea>
-  </div>
-
-  <div class="pq-f">
-    <div class="pq-q">¿Qué te falta confirmar en esta sección, y qué te permitiría decidir ese dato?</div>
-    <div class="pq-ayuda">Nombra el dato o examen que falta y qué distinción resolvería. Si crees que no falta nada, explica en qué te apoyas para afirmarlo.</div>
-    <textarea id="pq-pendiente" class="pq-ta" rows="3" placeholder="Me falta… Ese dato permitiría distinguir entre…"></textarea>
-  </div>
-</div>
-
 </main>
 
 <script>
-const API_URL = window.FICHA_USS_API;
+const API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
 let currentTab = 0;
 
 function goTab(n) {
@@ -764,12 +953,264 @@ function updateDolorLabel() {
   else lbl.style.color = 'var(--red)';
 }
 
+
+
+
+// ---- Métodos de análisis de perfil ----
+/* Avisa si concluyó un perfil sin declarar con qué método lo determinó. */
+function perfilMetodo() {
+  const usados = ['mpConvexidad','mpRicketts','mpSteiner','mpNasolabial']
+    .filter(id => document.getElementById(id)?.checked);
+  const perfil = document.querySelector('input[name="perfilSag"]:checked')?.value || '';
+  const warn = document.getElementById('perfilWarn');
+  if (!warn) return;
+
+  if (perfil && !usados.length) {
+    warn.textContent = 'Marcaste un tipo de perfil pero no indicaste con qué método lo determinaste. ' +
+      'Sin método, la conclusión no se puede sostener ni discutir.';
+    warn.style.display = 'block';
+  } else {
+    warn.style.display = 'none';
+  }
+
+  // Lectura del ángulo de convexidad contra su norma
+  const conv = parseFloat(document.getElementById('mpConvexidadV')?.value);
+  const nConv = document.querySelector('#mpConvexidadV ~ .met-norm');
+  if (nConv) {
+    if (isNaN(conv)) {
+      nConv.textContent = 'Norma 165° a 175°. Menor indica convexidad; mayor, concavidad.';
+      nConv.className = 'met-norm';
+    } else if (conv < 165) {
+      nConv.textContent = conv + '°: bajo la norma de 165°, compatible con perfil convexo.';
+      nConv.className = 'met-norm alerta';
+    } else if (conv > 175) {
+      nConv.textContent = conv + '°: sobre la norma de 175°, compatible con perfil cóncavo.';
+      nConv.className = 'met-norm alerta';
+    } else {
+      nConv.textContent = conv + '°: dentro de la norma de 165° a 175°, compatible con perfil recto.';
+      nConv.className = 'met-norm ok';
+    }
+  }
+
+  const nl = parseFloat(document.getElementById('mpNasolabialV')?.value);
+  const nNl = document.querySelector('#mpNasolabialV ~ .met-norm');
+  if (nNl) {
+    if (isNaN(nl)) {
+      nNl.textContent = 'Norma 90° a 110°. Se altera con la posición de los incisivos superiores.';
+      nNl.className = 'met-norm';
+    } else if (nl < 90 || nl > 110) {
+      nNl.textContent = nl + '°: fuera de la norma de 90° a 110°.';
+      nNl.className = 'met-norm alerta';
+    } else {
+      nNl.textContent = nl + '°: dentro de la norma de 90° a 110°.';
+      nNl.className = 'met-norm ok';
+    }
+  }
+}
+
+// ---- Métodos de dimensión vertical ----
+/* Contrasta los métodos entre sí. La discrepancia es el dato que hay que argumentar. */
+function calcDVMetodos() {
+  const num = id => { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? null : v; };
+  const resultados = [];
+
+  if (document.getElementById('dvWillis')?.checked) {
+    const ref = num('dvWillisRef'), obt = num('dvWillisObt');
+    const n = document.getElementById('dvWillisR');
+    if (ref !== null && obt !== null) {
+      const dif = Math.round((obt - ref) * 10) / 10;
+      n.textContent = 'Diferencia de ' + dif + ' mm respecto de la distancia de referencia.';
+      n.className = 'met-norm ' + (Math.abs(dif) <= 2 ? 'ok' : 'alerta');
+      resultados.push(['Willis', obt]);
+    } else {
+      n.textContent = 'Ambas distancias deberían ser equivalentes.';
+      n.className = 'met-norm';
+    }
+  }
+
+  if (document.getElementById('dvKnebelman')?.checked) {
+    const ref = num('dvKnebRef'), obt = num('dvKnebObt');
+    const n = document.getElementById('dvKnebR');
+    if (ref !== null) {
+      const predicha = Math.round((ref - 5) * 10) / 10;
+      let t = 'Distancia predicha: ' + predicha + ' mm (ojo–tragus menos 5 mm).';
+      if (obt !== null) {
+        const dif = Math.round((obt - predicha) * 10) / 10;
+        t += ' Diferencia con lo medido: ' + dif + ' mm.';
+        n.className = 'met-norm ' + (Math.abs(dif) <= 2 ? 'ok' : 'alerta');
+        resultados.push(['Knebelman modificado', obt]);
+      } else { n.className = 'met-norm'; }
+      n.textContent = t;
+    } else {
+      n.textContent = 'La distancia ojo–tragus menos 5 mm predice la distancia subnasal–mentón.';
+      n.className = 'met-norm';
+    }
+  }
+
+  if (document.getElementById('dvTercero')?.checked) {
+    const obt = num('dvTerObt');
+    if (obt !== null) resultados.push([document.getElementById('dvTerceroNombre').textContent, obt]);
+  }
+
+  const caja = document.getElementById('dvComparacion');
+  if (!caja) return;
+  if (resultados.length < 2) { caja.style.display = 'none'; return; }
+
+  const valores = resultados.map(r => r[1]);
+  const rango = Math.round((Math.max(...valores) - Math.min(...valores)) * 10) / 10;
+  caja.innerHTML = '<strong>Contraste entre métodos.</strong> ' +
+    resultados.map(r => r[0] + ': ' + r[1] + ' mm').join(' · ') +
+    '. Diferencia máxima de ' + rango + ' mm. ' +
+    (rango <= 2
+      ? 'Los métodos son concordantes.'
+      : 'Los métodos discrepan: argumenta en las observaciones con cuál te quedas y por qué.');
+  caja.style.display = 'block';
+}
+
+document.addEventListener('change', e => {
+  if (e.target && e.target.name === 'perfilSag') perfilMetodo();
+});
+
+// ---- Fotografías extraorales ----
+function onFileChange(k) {
+  const file = document.getElementById('file-' + k).files[0];
+  if (file) loadImage(k, file);
+}
+function onDragOver(e) { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--accent-mid)'; }
+function onDragLeave(e) { e.currentTarget.style.borderColor = ''; }
+function onDrop(e, k) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(k, file);
+}
+function loadImage(k, file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('img-' + k);
+    img.src = e.target.result;
+    img.classList.remove('hidden');
+    document.getElementById('ph-' + k).classList.add('hidden');
+    document.getElementById('rm-' + k).classList.remove('hidden');
+    document.getElementById('zone-' + k).classList.add('has-image');
+    img.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  reader.readAsDataURL(file);
+}
+function removeImg(k) {
+  const img = document.getElementById('img-' + k);
+  img.src = '';
+  img.classList.add('hidden');
+  document.getElementById('ph-' + k).classList.remove('hidden');
+  document.getElementById('rm-' + k).classList.add('hidden');
+  document.getElementById('zone-' + k).classList.remove('has-image');
+  document.getElementById('file-' + k).value = '';
+  img.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+// ---- Cadenas ganglionares y musculatura ----
+/* Cada estructura se registra por separado para que el estudiante sepa qué debe
+   inspeccionar. "Sin evaluar" es el valor inicial y no equivale a "sin hallazgos". */
+
+const GANGLIOS = [
+  ['gSubmento',  'Submentonianos',        'Nivel IA'],
+  ['gSubmand',   'Submandibulares',       'Nivel IB'],
+  ['gYugSup',    'Yugulares superiores',  'Nivel II'],
+  ['gYugMed',    'Yugulares medios',      'Nivel III'],
+  ['gYugInf',    'Yugulares inferiores',  'Nivel IV'],
+  ['gPosterior', 'Triángulo posterior',   'Nivel V, cadena espinal accesoria'],
+  ['gAnterior',  'Cervicales anteriores', 'Nivel VI, prelaríngeos y pretraqueales'],
+  ['gPreauric',  'Preauriculares',        'Parotídeos'],
+  ['gRetroauric','Retroauriculares',      'Mastoideos'],
+  ['gOccipital', 'Occipitales',           ''],
+  ['gSupraclav', 'Supraclaviculares',     'Su compromiso obliga siempre a derivar'],
+];
+
+const MUSC_MAST = [
+  ['mTempAnt',  'Temporal — haz anterior',   'Por sobre y delante del pabellón auricular'],
+  ['mTempMed',  'Temporal — haz medio',      ''],
+  ['mTempPost', 'Temporal — haz posterior',  ''],
+  ['mTendon',   'Tendón del temporal',       'Intraoral, borde anterior de la rama'],
+  ['mMasSup',   'Masetero — haz superficial','Desde el arco cigomático al ángulo mandibular'],
+  ['mMasProf',  'Masetero — haz profundo',   'Por delante del trago'],
+  ['mPtMedial', 'Pterigoideo medial',        'Cara interna del ángulo mandibular'],
+  ['mPtLateral','Pterigoideo lateral',       'Evaluación funcional, no palpación directa'],
+  ['mDigast',   'Digástrico — vientre anterior y posterior', ''],
+];
+
+const MUSC_CERV = [
+  ['cECM',      'Esternocleidomastoideo',  'Tercio superior, medio e inferior'],
+  ['cTrapecio', 'Trapecio — fibras superiores', 'Dolor referido frecuente a la región temporal'],
+  ['cEsplenio', 'Esplenio de la cabeza',   ''],
+  ['cSuboccip', 'Suboccipitales',          'Inserción en la línea nucal'],
+  ['cEscalenos','Escalenos',               ''],
+  ['cSuprahio', 'Suprahioideos',           'Milohioideo y genihioideo'],
+  ['cInfrahio', 'Infrahioideos',           ''],
+];
+
+const EST_GANGLIO = ['Sin evaluar', 'No palpables', 'Palpables sin características patológicas', 'Adenopatía'];
+const EST_MUSC = ['Sin evaluar', 'Sin dolor', 'Dolor a la palpación', 'Dolor familiar', 'Dolor referido a distancia'];
+
+function opciones(lista, sel) {
+  return lista.map(o => `<option${o === sel ? ' selected' : ''}>${o}</option>`).join('');
+}
+
+function construirFilas(contenedorId, estructuras, estados, alterados) {
+  const cont = document.getElementById(contenedorId);
+  if (!cont) return;
+  cont.innerHTML =
+    `<div class="est-head"><span>Estructura</span><span>Derecho</span><span>Izquierdo</span></div>` +
+    estructuras.map(([id, nombre, nota]) => `
+      <div class="est-row" id="row-${id}">
+        <span class="est-n">${nombre}${nota ? `<small>${nota}</small>` : ''}</span>
+        <select id="${id}D" onchange="marcarFila('${id}', ${JSON.stringify(alterados).replace(/"/g, '&quot;')})">${opciones(estados)}</select>
+        <select id="${id}I" onchange="marcarFila('${id}', ${JSON.stringify(alterados).replace(/"/g, '&quot;')})">${opciones(estados)}</select>
+      </div>`).join('');
+}
+
+function marcarFila(id, alterados) {
+  const d = document.getElementById(id + 'D')?.value || '';
+  const i = document.getElementById(id + 'I')?.value || '';
+  const hay = alterados.some(a => d === a || i === a);
+  document.getElementById('row-' + id)?.classList.toggle('alterado', hay);
+}
+
+/* Resumen de los hallazgos alterados, para la síntesis y para la IA */
+function resumenEstructuras(estructuras, alterados) {
+  const out = [];
+  estructuras.forEach(([id, nombre]) => {
+    const d = document.getElementById(id + 'D')?.value || '';
+    const i = document.getElementById(id + 'I')?.value || '';
+    const lados = [];
+    if (alterados.includes(d)) lados.push('derecho: ' + d.toLowerCase());
+    if (alterados.includes(i)) lados.push('izquierdo: ' + i.toLowerCase());
+    if (lados.length) out.push(nombre + ' (' + lados.join('; ') + ')');
+  });
+  return out;
+}
+
+function resumenGanglios() { return resumenEstructuras(GANGLIOS, ['Adenopatía', 'Palpables sin características patológicas']); }
+function resumenMusculos() {
+  return resumenEstructuras(MUSC_MAST, ['Dolor a la palpación', 'Dolor familiar', 'Dolor referido a distancia'])
+    .concat(resumenEstructuras(MUSC_CERV, ['Dolor a la palpación', 'Dolor familiar', 'Dolor referido a distancia']));
+}
+
+construirFilas('ganglioList', GANGLIOS, EST_GANGLIO, ['Adenopatía', 'Palpables sin características patológicas']);
+construirFilas('muscMastList', MUSC_MAST, EST_MUSC, ['Dolor a la palpación', 'Dolor familiar', 'Dolor referido a distancia']);
+construirFilas('muscCervList', MUSC_CERV, EST_MUSC, ['Dolor a la palpación', 'Dolor familiar', 'Dolor referido a distancia']);
+
 // ---- IA examen extraoral ----
 async function analizarExtraoral() {
   const simetria = document.querySelector('input[name="simetria"]:checked')?.value || '';
   const cutanea = document.querySelector('input[name="cutanea"]:checked')?.value || '';
-  const linfonodos = document.querySelector('input[name="linfoExtr"]:checked')?.value || '';
-  const musc = document.getElementById('musculatura').value;
+  const gang = resumenGanglios();
+  const linfonodos = gang.length
+    ? 'Adenopatías o ganglios palpables en: ' + gang.join('; ') + (document.getElementById('ganglioObs').value.trim() ? '. ' + document.getElementById('ganglioObs').value.trim() : '')
+    : 'Cadenas ganglionares cervicofaciales sin hallazgos consignados';
+  const musculos = resumenMusculos();
+  const musc = musculos.length
+    ? 'Musculatura con hallazgos en: ' + musculos.join('; ')
+    : 'Musculatura masticatoria y cervical sin dolor consignado';
   const labios = document.getElementById('labios').value;
   const libre = document.getElementById('extLibre').value.trim();
 
@@ -784,7 +1225,7 @@ async function analizarExtraoral() {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         messages: [{ role: 'user', content:
           `Eres asistente clínico odontológico. Redacta la sección de "Examen extraoral" para una ficha clínica universitaria con estos hallazgos:
@@ -837,7 +1278,7 @@ async function generarConclusionATM() {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         messages: [{ role: 'user', content:
           `Eres asistente clínico odontológico. Redacta la "Conclusión del examen ATM/TTM" para una ficha clínica universitaria con estos datos:
@@ -936,7 +1377,6 @@ function copiarResumen() {
 }
 </script>
 <script src="ficha-uss.js"></script>
-<script src="coherencia-uss.js"></script>
-<script src="sello-uss.js"></script>
+<script src="preguntas-uss.js"></script>
 </body>
 </html>

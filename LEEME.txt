@@ -1,0 +1,355 @@
+FICHA CLÍNICA ADULTO 2026 — UNIVERSIDAD SAN SEBASTIÁN
+Aplicación integrada · versión v6
+==============================================================
+
+CONTENIDO
+  index.html ................... índice navegable (abrir este)
+  registro_razonamiento_uss.html  documento de corrección docente
+  ficha-uss.js ................. guardado automático compartido
+  coherencia-uss.js ............ verificación de coherencia (editable)
+  sello-uss.js ................. diagnósticos parciales bloqueados (editable)
+  11 archivos *_uss.html ....... los módulos de la ficha
+  LEEME.txt .................... este archivo
+
+CÓMO PUBLICARLA
+  La app necesita estar servida por un servidor web. Abrir index.html
+  con doble clic desde el escritorio NO funciona: los navegadores
+  bloquean los iframes entre archivos locales.
+
+  Opción rápida — tiiny.host
+    1. Entrar a tiiny.host
+    2. Subir este ZIP tal cual, sin descomprimir
+    3. Copiar la URL que entrega y pegarla en Blackboard como enlace
+
+  Opción institucional — servidor USS o Blackboard
+    Descomprimir y subir los 14 archivos juntos, manteniéndolos en la
+    misma carpeta. El enlace del curso debe apuntar a index.html.
+
+  Prueba local (para desarrollo)
+    En la carpeta descomprimida:  python3 -m http.server 8000
+    Luego abrir http://localhost:8000
+
+CÓMO SE GUARDAN LOS DATOS
+  Todo lo que el estudiante escribe se guarda solo, sin botón de
+  guardar, en el almacenamiento local del navegador. No sale del
+  computador ni viaja a ningún servidor.
+
+  Consecuencias que conviene advertir a los estudiantes:
+   · El caso vive en ese navegador y ese equipo. No se sincroniza.
+   · El modo incógnito borra todo al cerrar la ventana.
+   · Limpiar datos de navegación borra el caso.
+   · Por eso, al terminar la sesión clínica hay que usar
+     "Exportar caso" en la barra superior. Descarga un .json con
+     todo el registro, incluidas las fotografías, que se vuelve a
+     cargar con "Importar" en cualquier equipo.
+
+CONSUMO DE TABACO, ALCOHOL Y SUSTANCIAS
+  En Identificación y antecedentes se registra con cantidad y tiempo,
+  no con un sí o un no. Tabaco: qué fuma, cuántos al día, años de
+  consumo, edad de inicio, y el índice paquete-año que se calcula
+  solo. Alcohol: frecuencia, tragos por ocasión y estimación mensual.
+  Otras sustancias: cuáles, vía, frecuencia y fecha del último
+  consumo.
+
+  Un recuadro muestra las precauciones que se derivan de lo
+  registrado: que el fumador activo es ASA II, que el tabaco enmascara
+  el sangrado al sondaje, que sobre 10 cigarrillos diarios el grado
+  periodontal pasa a C, y que el consumo reciente de estimulantes
+  contraindica el anestésico con vasoconstrictor.
+
+  Estos datos alimentan cuatro reglas de coherencia. El tabaco y el
+  alcohol ya no se registran en Situaciones relevantes: se eliminaron
+  de ahí para no pedirlos dos veces. Las fichas antiguas que los
+  tengan ahí siguen funcionando.
+
+IMÁGENES EN EXÁMENES COMPLEMENTARIOS
+  El módulo tenía seis etiquetas decorativas que anunciaban imágenes
+  pero no permitían cargarlas. Ahora hay dieciocho zonas reales:
+
+   · Panorámica (S28)
+   · Cuatro bitewings (S29): derecha molar, derecha premolar,
+     izquierda premolar, izquierda molar
+   · Arcos y zona anterior (S30): oclusal superior, oclusal inferior,
+     zona anterior y periapicales anteriores
+   · Lado derecho (S31) y lado izquierdo (S32): foto lateral y
+     periapicales del sector
+   · Modelos montados en articulador (S35): frontal, lateral D/I,
+     oclusal S/I
+   · Modelos individuales (S35): superior e inferior en vista oclusal,
+     vestibular y lateral
+
+  Las oclusales de S30 se pueden traer del examen intraoral con un
+  botón, en vez de volver a subirlas.
+
+  Con esto ya no quedan etiquetas decorativas de imagen en ningún
+  módulo de la aplicación.
+
+ODONTOGRAMA: EVALUACIÓN DE RESTAURACIONES
+  Pestaña nueva con los criterios Ryge modificados (USPHS). Diez
+  criterios por restauración: color, adaptación marginal, forma
+  anatómica, rugosidad, tinción de márgenes, tinción de la masa,
+  contactos, sensibilidad, caries secundaria y brillo. Cada uno con
+  Alfa, Bravo o Charlie, y el descriptor de qué significa cada nivel
+  en ese criterio.
+
+  Caries secundaria es el único que no ofrece Bravo: o hay caries o
+  no la hay.
+
+  El veredicto se calcula solo a partir de los criterios marcados,
+  nombrando cuáles fallaron. Ante un Bravo el sistema recuerda evaluar
+  el reacondicionamiento antes de indicar recambio, que es el error
+  documentado más frecuente en estudiantes.
+
+  FOTOGRAFÍAS: se traen automáticamente de las arcadas cargadas en el
+  examen intraoral, sin volver a subirlas. Si faltan, el módulo lo
+  dice y remite al examen intraoral.
+
+EXAMEN INTRAORAL: SIETE PESTAÑAS
+  El módulo se dividió: "Estado de la dentición" y "Análisis de la
+  oclusión" son ahora pestañas separadas, como en el formato de
+  presentación de caso.
+
+  Estado de la dentición incorpora dentado completo o parcial,
+  continuidad de cada arco, y las fotografías de arcada superior e
+  inferior junto a los datos que ilustran.
+
+  Análisis de la oclusión suma lo que faltaba: curva de Spee con su
+  profundidad en milímetros, curva de Wilson, plano oclusal, pares
+  dentarios ocluyentes con el soporte oclusal y las zonas sin
+  soporte, y la relación entre céntrica y máxima intercuspidación con
+  el deslizamiento y los contactos prematuros. Se pide además el
+  fundamento de las curvas, que era un reclamo docente recurrente.
+
+  GLÁNDULAS SALIVALES: eran una fila suelta en la lista de tejidos
+  blandos. Ahora son una tarjeta con parótida, submandibular,
+  sublingual y menores, cada una por lado, con la referencia del
+  conducto que corresponde ordeñar, más cantidad y calidad de saliva
+  y xerostomía referida.
+
+MÉTODOS DE ANÁLISIS EN EL EXAMEN EXTRAORAL
+  Perfil facial: cuatro métodos con su norma —ángulo de convexidad
+  facial, línea E de Ricketts, línea S de Steiner y ángulo
+  nasolabial—. Si el estudiante marca un tipo de perfil sin declarar
+  método, el módulo se lo advierte.
+
+  Dimensión vertical: tres métodos —compás de Willis, craneómetro de
+  Knebelman en su modificación clínica, y un tercero configurado como
+  Sorensen—. Cuando hay dos o más completados, el módulo los contrasta
+  y avisa si discrepan en más de 2 mm, porque esa diferencia es un
+  dato clínico que hay que argumentar.
+
+  El tercer método de DV está pendiente de confirmación: el nombre y
+  los puntos anatómicos de referencia se ajustan en el HTML, en el
+  bloque con id dvTercero.
+
+  FOTOGRAFÍAS: el módulo tenía solo una etiqueta decorativa que no
+  hacía nada. Ahora hay seis zonas reales de carga: frontal en reposo,
+  frontal sonriendo, perfil derecho, perfil izquierdo, perfil con
+  puntos de referencia y frontal con regla milimetrada.
+
+GANGLIOS Y MÚSCULOS EN EL EXAMEN EXTRAORAL
+  Antes eran dos campos genéricos. Ahora son tres tarjetas con la
+  estructura detallada, para que el estudiante sepa qué debe
+  inspeccionar:
+
+   · 11 cadenas ganglionares cervicofaciales, con su nivel anatómico
+   · 9 músculos masticatorios, con la referencia de dónde palpar
+   ·  7 músculos cervicales
+
+  Cada estructura se registra por separado y por lado. El valor
+  inicial es "Sin evaluar", que no equivale a "sin hallazgos": es la
+  diferencia entre no haber encontrado nada y no haber mirado.
+
+  En los músculos, las opciones distinguen dolor a la palpación de
+  dolor familiar —el que el paciente reconoce como su propio dolor—
+  y de dolor referido a distancia. Esa distinción es la que tiene
+  valor diagnóstico en trastornos temporomandibulares.
+
+  Las listas se editan en el propio módulo, en los arreglos GANGLIOS,
+  MUSC_MAST y MUSC_CERV.
+
+LA CARACTERIZACIÓN DEL DOLOR (ILIDICEF)
+  En Identificación y antecedentes, después de la historia del motivo
+  de consulta. Aparece solo si el estudiante marca que el paciente
+  refiere dolor.
+
+  Las ocho letras en orden: inicio, localización, intensidad con
+  escala visual análoga, duración, irradiación, carácter, evolución y
+  frecuencia. Cada una con una ayuda que explica qué se está
+  buscando.
+
+  Se agregó un grupo que no forma parte de la regla —factores
+  desencadenantes, lo que alivia y la analgesia recibida— porque en
+  dolor dentario es lo que más orienta el diagnóstico. Si prefieren
+  ceñirse a la regla, ese bloque se elimina sin afectar al resto.
+
+  Abajo se compone en prosa lo registrado, y el estudiante lo ajusta.
+  Dos reglas de coherencia usan estos datos: dolor de posible origen
+  pulpar sin examen endodóntico, y dolor caracterizado sin registrar
+  la duración.
+
+LA CLASIFICACIÓN ASA
+  Usa la versión vigente de la American Society of Anesthesiologists,
+  actualizada en 2020: seis clases con definiciones y ejemplos
+  aprobados, más el modificador E de urgencia. Los ejemplos están en
+  un desplegable dentro del propio módulo.
+
+  El estudiante ve, antes de clasificar, un recuadro con lo que él
+  mismo registró en antecedentes sobre tabaco, alcohol y sustancias.
+  No se le sugiere la clase: se le muestran los datos con los que su
+  clasificación tiene que ser compatible.
+
+  Se piden tres justificaciones en vez de una: qué condición sistémica
+  sostiene la clase, por qué esa clase y no la contigua, y qué cambia
+  en la atención odontológica. La segunda es la que decide, porque lo
+  que separa ASA II de ASA III no es la enfermedad sino su control y
+  la limitación funcional que produce.
+
+LOS DIAGNÓSTICOS PARCIALES BLOQUEADOS
+  Tres módulos tienen ahora el mismo flujo que el diagnóstico integral:
+  odontograma (diagnóstico de caries), exámenes periodontales
+  (diagnóstico periodontal) y exámenes complementarios (riesgo
+  cariogénico). En cada uno el estudiante registra y fundamenta su
+  hipótesis, la fundamentación queda sellada, y recién entonces el
+  asistente responde — con preguntas, nunca con el diagnóstico.
+
+  Mientras la fundamentación no esté sellada, los botones de IA de
+  ese módulo quedan inhabilitados. Es la condición del OE1: el
+  asistente no responde antes de que el estudiante haya razonado.
+
+  Los campos y los textos se editan en sello-uss.js, en el objeto
+  DIAGNOSTICOS. Agregar un cuarto diagnóstico parcial es añadir una
+  entrada con la clave del módulo.
+
+EL PLAN Y EL PRONÓSTICO
+  Ya no los redacta la IA. El estudiante fundamenta primero por qué
+  ese orden de fases, qué condición del paciente obliga a modificar
+  el plan habitual y qué procedimiento discutible mantiene; recién
+  entonces el asistente formula preguntas sobre la secuencia, la
+  correspondencia con el diagnóstico y la factibilidad. La redacción
+  final del plan y del pronóstico la escribe el estudiante.
+
+LA FUNDAMENTACIÓN POR PARTES
+  El módulo de razonamiento ya no pide una hipótesis en un cuadro de
+  texto libre. Pide cada diagnóstico con el dato que lo sostiene, y
+  en el caso periodontal lo pide por partes: el estadio, el grado y
+  la extensión se apoyan en datos distintos y se fundamentan por
+  separado. Un diagnóstico sin fundamentar queda marcado como tal en
+  el registro de corrección.
+
+LA VERIFICACIÓN DE COHERENCIA
+  Después de sellar la fundamentación, el sistema compara datos que
+  el estudiante registró en secciones distintas y muestra las
+  contradicciones que encuentra. No indica cuál de los dos datos es
+  el correcto: expone el conflicto y el estudiante lo resuelve en el
+  paso 3.
+
+  Se ejecuta siempre después del sello, nunca antes, para no
+  intervenir en el razonamiento inicial que después se evalúa.
+
+  Hay diez reglas: diagnóstico gingival frente a las profundidades
+  al sondaje, periodontitis sin sitios profundos, ATM sin ruidos con
+  diagnóstico de desplazamiento discal, ASA I con condicionantes
+  sistémicas, tabaquismo frente al sangrado y frente al grado,
+  riesgo cariogénico omitido en la síntesis, caries del odontograma
+  ausentes del plan, higiene deficiente con riesgo bajo, y ausencia
+  de diagnóstico diferencial.
+
+  Las reglas se editan en coherencia-uss.js, en el arreglo REGLAS.
+  Cada regla devuelve null cuando falta el dato que necesita, de modo
+  que una ficha incompleta nunca genera alertas falsas.
+
+EL ENUNCIADO DEL PROBLEMA
+  En Situaciones relevantes, antes de la síntesis, hay un compositor
+  que arma una frase con calificadores —curso, extensión, progresión,
+  distribución— en vez de una lista de viñetas. El estudiante ajusta
+  después el texto a sus palabras.
+
+EL SELLO DE FUNDAMENTACIÓN
+  En el módulo "Razonamiento diagnóstico", la hipótesis inicial del
+  estudiante queda bloqueada al registrarla y ya no puede editarse,
+  ni siquiera recargando la página. Es la evidencia del razonamiento
+  previo a la intervención del asistente: no la borren ni la
+  reemplacen si van a usar ese registro para la rúbrica.
+
+VOLVER AL ÍNDICE
+  Cada módulo muestra abajo a la izquierda un botón "Volver al índice"
+  cuando corre dentro de la aplicación. Guarda y vuelve a la portada
+  sin descargar el módulo ni tocar los datos. El logotipo de la barra
+  superior hace lo mismo.
+
+EL INFORME DEL CASO (EXPORTACIÓN)
+  En el menú, bajo "Cierre del caso". Reúne todo lo registrado y lo
+  exporta en dos formatos editables:
+
+   · Markdown (.md): se abre en Word, Google Docs, Obsidian o
+     cualquier editor. Es el más cómodo para seguir escribiendo.
+   · PowerPoint (.pptx): una diapositiva por bloque siguiendo el
+     formato de presentación de caso, con las imágenes incrustadas.
+     Punto de partida, no presentación terminada.
+
+  Tres casillas controlan qué se incluye: los campos vacíos, las
+  imágenes y el registro de razonamiento con las fundamentaciones
+  selladas.
+
+  Detalle de implementación: el informe no tiene una lista propia de
+  campos. Lee el HTML de cada módulo y extrae de ahí las etiquetas y
+  el orden, de modo que al editar un formulario el informe se
+  actualiza solo. La contrapartida es que necesita estar servido por
+  un servidor web, como el resto de la aplicación.
+
+  El generador de PowerPoint se carga desde una CDN. Sin conexión, el
+  botón avisa y queda disponible la exportación a Markdown.
+
+EL REGISTRO DE RAZONAMIENTO (CORRECCIÓN)
+  En el menú, bajo "Corrección", está el Registro de razonamiento.
+  Reúne todas las respuestas del estudiante ordenadas por los seis
+  criterios de la pauta —no por sección— con una casilla de puntaje
+  y observación al pie de cada criterio. El docente corrige de
+  arriba abajo sin volver a los módulos.
+
+  Tres salidas: imprimir o guardar en PDF (con formato de impresión
+  limpio), copiar el texto completo, y descargar un .json con las
+  mismas respuestas separadas por criterio, para reunir varios casos
+  en una planilla de análisis.
+
+  Si la fundamentación no fue sellada, el documento lo advierte e
+  indica que los criterios 4 y 5 no deberían puntuarse: sin sello no
+  hay garantía de que el texto sea anterior a la intervención del
+  asistente.
+
+  Para corregir en otro equipo: exportar el caso desde el índice e
+  importarlo allá antes de abrir el registro.
+
+EL ASISTENTE DE IA — CONFIGURACIÓN OBLIGATORIA
+  Los módulos NO llaman directamente a la API de Anthropic. Llaman al
+  Worker de Cloudflare definido en config-uss.js, que es el único
+  punto del sistema que conoce la clave. La clave nunca viaja al
+  navegador del estudiante.
+
+  Mientras no se configure, todo el resto de la ficha funciona y
+  guarda con normalidad: solo los botones del asistente quedan sin
+  respuesta, y cada módulo muestra un aviso explicándolo.
+
+  PASOS
+    1. Editar worker.js: en el arreglo ORIGENES, poner la URL real
+       donde se publicará la ficha (por ejemplo la de tiiny.host).
+       Si queda un origen incorrecto, el navegador bloquea las
+       llamadas; si se deja '*', cualquiera podría gastar la cuota.
+    2. Desplegar el Worker:  wrangler deploy
+    3. Cargar la clave:      wrangler secret put ANTHROPIC_API_KEY
+       Queda cifrada y no aparece en el código.
+    4. Editar config-uss.js: reemplazar la URL de ejemplo por la del
+       Worker desplegado. Es el único archivo que hay que tocar; los
+       módulos la leen desde ahí.
+
+  El Worker además reconstruye la petición desde cero, de modo que
+  nada que venga del navegador —modelo, herramientas, streaming—
+  llega a la API, y limita las peticiones por hora y por IP.
+
+  worker.js NO se sube junto con la ficha: vive en Cloudflare. Se
+  incluye en el paquete solo para tenerlo versionado junto al resto.
+
+PENDIENTE (no incluido en esta versión)
+  · Zonas de fotografía en los módulos anteriores al intraoral
+  · Generador de la presentación .pptx del caso

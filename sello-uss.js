@@ -22,7 +22,7 @@
   'use strict';
 
   var PREFIX = 'fichaUSS:v6:';
-  var API_URL = window.FICHA_USS_API;
+  var API_URL = (window.FICHA_USS_API || 'https://api.anthropic.com/v1/messages');
   var MODULO = (location.pathname.split('/').pop() || '').replace(/\.html?$/i, '');
 
   // ── Configuración de cada diagnóstico parcial ──────────────────────────
@@ -359,7 +359,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-5',
+          model: 'claude-sonnet-4-20250514',
           max_tokens: 700,
           messages: [{ role: 'user', content:
 'Eres docente de clínica odontológica en una universidad chilena, supervisando a un estudiante de pregrado.\n\n' +

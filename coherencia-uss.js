@@ -33,7 +33,7 @@
     perio:    'examenes_periodontales_uss',
     comp:     'examenes_complementarios_uss',
     situ:     'situaciones_relevantes_uss',
-    diag:     'diagnostico_razonamiento_guiado_uss',
+    diag:     'diagnostico_plan_pronostico_uss',
     rz:       'diagnostico_razonamiento_guiado_uss'
   };
 
@@ -59,6 +59,18 @@
     num:   function (mod, id) { var v = parseFloat(datos(mod)['v|' + id]); return isNaN(v) ? null : v; },
     radio: function (mod, name) { var v = datos(mod)['r|' + name]; return v == null ? '' : String(v).trim(); },
     check: function (mod, id) { return datos(mod)['c|' + id] === true; },
+    fuma: function () {
+             var e = datos(M.ident)['r|tabEstado'];
+             if (e) return e === 'Fumador actual';
+             return datos(M.situ)['c|habTabaco'] === true;   // registro antiguo
+           },
+    cigarrillos: function () {
+             var v = parseFloat(datos(M.ident)['v|tabCantidad']);
+             return isNaN(v) ? null : v;
+           },
+    sustancias: function () {
+             return datos(M.ident)['r|susEstado'] === 'Consumo actual';
+           },
     sello: function () { try { return JSON.parse(localStorage.getItem(PREFIX + 'rz-sello')); } catch (e) { return null; } }
   };
 
@@ -161,7 +173,7 @@
     },
 
     { id: 'tabaco-sangrado', evaluar: function (f) {
-        if (!f.check(M.situ, 'habTabaco')) return null;
+        if (!f.fuma()) return null;
         var sas = f.sas();
         if (sas === null || sas >= 20) return null;
         return {
@@ -175,16 +187,100 @@
     },
 
     { id: 'tabaco-grado', evaluar: function (f) {
-        if (!f.check(M.situ, 'habTabaco')) return null;
+        if (!f.fuma()) return null;
         var dx = f.val(M.perio, 'diagPerio');
         if (dx.toLowerCase().indexOf('periodontitis') === -1) return null;
-        if (dx.indexOf('grado A') === -1) return null;
+        var cig = f.cigarrillos();
+        var esperado = cig === null ? null : (cig >= 10 ? 'C' : 'B');
+        var asignado = /grado\s*([ABC])/i.exec(dx);
+        asignado = asignado ? asignado[1].toUpperCase() : null;
+        if (!asignado) return null;
+        if (esperado && asignado === esperado) return null;
+        if (!esperado && asignado !== 'A') return null;
         return {
           titulo: 'Tabaquismo frente al grado periodontal',
-          dato_a: 'Registraste consumo de tabaco.',
-          dato_b: 'Asignaste grado A al diagnóstico periodontal.',
-          pregunta: 'El tabaquismo es un modificador de grado y desplaza el grado hacia B o C según el consumo. ¿Cuántos cigarrillos diarios registraste y cómo entraron en la asignación del grado?',
+          dato_a: 'Registraste tabaquismo activo' + (cig !== null ? ' de ' + cig + ' cigarrillos al día' : '') + '.',
+          dato_b: 'Asignaste grado ' + asignado + ' al diagnóstico periodontal.',
+          pregunta: esperado
+            ? 'El tabaquismo es modificador de grado: bajo 10 cigarrillos diarios desplaza a B y desde 10 a C. Con la cantidad que registraste correspondería grado ' + esperado + '. ¿En qué te apoyas para asignar ' + asignado + '?'
+            : 'El tabaquismo es modificador de grado y desplaza el grado hacia B o C según el consumo. ¿Cuántos cigarrillos diarios registraste y cómo entraron en la asignación del grado?',
           gravedad: 'media'
+        };
+      }
+    },
+
+    { id: 'asa-vs-consumo', evaluar: function (f) {
+        var asa = f.radio(M.fisico, 'asa');
+        if (asa !== 'ASA I') return null;
+        var motivos = [];
+        if (f.fuma()) motivos.push('tabaquismo activo');
+        if (f.sustancias()) motivos.push('consumo activo de otras sustancias');
+        if (!motivos.length) return null;
+        return {
+          titulo: 'Clasificación ASA frente al consumo registrado',
+          dato_a: 'En antecedentes registraste ' + motivos.join(' y ') + '.',
+          dato_b: 'Clasificaste al paciente como ASA I.',
+          pregunta: 'El fumador activo corresponde a ASA II aunque no tenga otra patología, y lo mismo el consumo activo de sustancias. ¿Cuál de los dos registros vas a corregir?',
+          gravedad: 'media'
+        };
+      }
+    },
+
+    { id: 'dolor-sin-examen-endodontico', evaluar: function (f) {
+        if (f.radio(M.ident, 'dolorPresente') !== 'Refiere dolor') return null;
+        var pulpar = f.check(M.ident, 'dolFrio') || f.check(M.ident, 'dolCalor') ||
+                     f.check(M.ident, 'dolDulce') || f.check(M.ident, 'dolEspontaneo');
+        if (!pulpar) return null;
+        if (f.val(M.comp, 'conclusionEndo')) return null;
+        return {
+          titulo: 'Dolor de posible origen pulpar sin examen endodóntico',
+          dato_a: 'En la anamnesis registraste dolor desencadenado por estímulos térmicos, dulce o de aparición espontánea.',
+          dato_b: 'No hay conclusión del examen endodóntico en los exámenes complementarios.',
+          pregunta: 'Las características del dolor orientan, pero no confirman el estado pulpar. ¿Realizaste pruebas de sensibilidad y percusión? Si no, ese es el dato que falta antes de sostener un diagnóstico pulpar.',
+          gravedad: 'alta'
+        };
+      }
+    },
+
+    { id: 'dolor-duracion-sin-registrar', evaluar: function (f) {
+        if (f.radio(M.ident, 'dolorPresente') !== 'Refiere dolor') return null;
+        if (f.val(M.ident, 'dolDuracion')) return null;
+        if (!f.val(M.ident, 'dolLocalizacion')) return null;
+        return {
+          titulo: 'Dolor caracterizado sin registrar la duración',
+          dato_a: 'Registraste dolor y su localización.',
+          dato_b: 'No consignaste cuánto dura cada episodio.',
+          pregunta: 'En dolor dentario la permanencia del dolor tras retirar el estímulo es lo que distingue una pulpitis reversible de una irreversible. ¿Se lo preguntaste al paciente?',
+          gravedad: 'media'
+        };
+      }
+    },
+
+    { id: 'asa-sin-contigua', evaluar: function (f) {
+        var asa = f.radio(M.fisico, 'asa');
+        if (!asa) return null;
+        if (f.val(M.fisico, 'asaContigua')) return null;
+        if (!f.val(M.fisico, 'asaJustif')) return null;
+        return {
+          titulo: 'Clase ASA asignada sin descartar la contigua',
+          dato_a: 'Clasificaste al paciente como ' + asa + ' y nombraste la condición que lo sostiene.',
+          dato_b: 'No explicaste por qué esa clase y no la contigua.',
+          pregunta: 'Lo que separa una clase de la siguiente no es la enfermedad sino su control y la limitación funcional que produce. ¿Qué tendría que ocurrir en este paciente para que subiera de clase?',
+          gravedad: 'media'
+        };
+      }
+    },
+
+    { id: 'sustancias-vasoconstrictor', evaluar: function (f) {
+        if (!f.sustancias()) return null;
+        if (!(f.check(M.ident, 'susCocaina') || f.check(M.ident, 'susEstimulantes'))) return null;
+        if (f.val(M.ident, 'susUltimo')) return null;
+        return {
+          titulo: 'Consumo de estimulantes sin fecha del último consumo',
+          dato_a: 'Registraste consumo activo de cocaína o estimulantes.',
+          dato_b: 'No consignaste cuándo fue el último consumo.',
+          pregunta: 'El consumo reciente contraindica el anestésico con vasoconstrictor por riesgo cardiovascular. Sin la fecha del último consumo no puedes decidir si es seguro anestesiar hoy: ¿la preguntaste?',
+          gravedad: 'alta'
         };
       }
     },
@@ -229,47 +325,6 @@
           dato_a: 'En el odontograma registraste lesiones de caries en ' + faltan.join(', ') + '.',
           dato_b: 'Esas piezas no aparecen mencionadas en el plan de tratamiento.',
           pregunta: '¿Quedaron fuera del plan por una decisión clínica —por ejemplo, lesiones inactivas que solo requieren control— o por omisión? Si es una decisión, corresponde dejarla escrita.',
-          gravedad: 'alta'
-        };
-      }
-    },
-
-    { id: 'indentaciones-sin-desgaste', evaluar: function (f) {
-        var bordes = f.val(M.intra, 'bordesLinguales');
-        if (!bordes || !contiene(bordes, ['indentaciones'])) return null;
-        var texto = [f.val(M.odonto, 'cuad1'), f.val(M.odonto, 'cuad2'),
-                     f.val(M.odonto, 'cuad3'), f.val(M.odonto, 'cuad4'),
-                     f.val(M.odonto, 'obsOdontograma'), f.val(M.diag, 'diagDesgaste'),
-                     hipotesisTexto()].join(' ');
-        if (!texto.trim()) return null;   // sin odontograma todavía, no se alerta
-        if (contiene(texto, ['desgaste', 'atrición', 'atricion', 'faceta', 'abfracción',
-                             'abfraccion', 'bruxismo', 'parafunción', 'parafuncion'])) return null;
-        return {
-          titulo: 'Indentaciones linguales sin desgaste consignado',
-          dato_a: 'En el examen intraoral registraste indentaciones por impresión dentaria en los bordes laterales de la lengua.',
-          dato_b: 'Ni el odontograma ni el diagnóstico mencionan desgaste, facetas ni parafunción.',
-          pregunta: 'Las indentaciones son un signo de presión lingual mantenida. ¿Buscaste facetas de desgaste en las superficies oclusales e incisales? Si las buscaste y no las hay, conviene dejarlo escrito, porque cambia la lectura del hallazgo.',
-          gravedad: 'media'
-        };
-      }
-    },
-
-    { id: 'hiposalivacion-vs-riesgo', evaluar: function (f) {
-        var flujo = f.val(M.intra, 'flujoSalival');
-        var riesgo = f.radio(M.comp, 'riesgoCaries');
-        if (!flujo || !riesgo) return null;
-        if (!contiene(flujo, ['hiposalivación', 'hiposalivacion', 'xerostomía', 'xerostomia'])) return null;
-        if (riesgo.toLowerCase().indexOf('bajo') === -1) return null;
-        var causas = [];
-        if (f.check(M.intra, 'xeroFarmacos'))  causas.push('fármacos xerostomizantes');
-        if (f.check(M.intra, 'xeroSistemico')) causas.push('una condición sistémica asociada');
-        if (f.check(M.intra, 'xeroRadio'))     causas.push('antecedente de radioterapia de cabeza y cuello');
-        return {
-          titulo: 'Flujo salival disminuido frente al riesgo cariogénico',
-          dato_a: 'En el examen intraoral consignaste ' + flujo.toLowerCase() +
-                  (causas.length ? ', asociada a ' + causas.join(' y ') : '') + '.',
-          dato_b: 'Clasificaste al paciente como de bajo riesgo cariogénico.',
-          pregunta: 'La saliva es el principal factor protector frente a la caries. ¿Qué otros factores compensan la disminución del flujo en este paciente, o corresponde revisar la clasificación de riesgo?',
           gravedad: 'alta'
         };
       }
