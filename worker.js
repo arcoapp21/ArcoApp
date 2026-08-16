@@ -18,17 +18,17 @@
  
 // ── Configuración ────────────────────────────────────────────────────────
 const ORIGENES = [
-  'https://TU-USUARIO.github.io',   // ← reemplazar por la URL de publicación
+  'https://arcoapp21.github.io',    // sitio publicado en GitHub Pages
   'http://localhost:8000'           // para probar en tu computador
 ];
- 
+
 const MODELO = 'claude-sonnet-5';   // alternativa más barata: 'claude-haiku-4-5-20251001'
 const MAX_TOKENS = 1200;            // techo de salida, sin importar lo que pida el módulo
 const MAX_CARACTERES = 24000;       // techo de entrada por petición
 const LIMITE_HORA = 80;             // peticiones por IP por hora (requiere KV, ver README)
- 
+
 const UPSTREAM = 'https://api.anthropic.com/v1/messages';
- 
+
 // ── Utilidades ───────────────────────────────────────────────────────────
 function cabecerasCors(origen) {
   return {
@@ -39,14 +39,14 @@ function cabecerasCors(origen) {
     'Vary': 'Origin'
   };
 }
- 
+
 function respuestaJson(objeto, estado, cors) {
   return new Response(JSON.stringify(objeto), {
     status: estado,
     headers: Object.assign({ 'Content-Type': 'application/json' }, cors)
   });
 }
- 
+
 async function dentroDelLimite(env, ip) {
   if (!env.LIMITES) return true;              // sin KV configurado, no se limita
   const bloque = Math.floor(Date.now() / 3600000);
@@ -56,14 +56,14 @@ async function dentroDelLimite(env, ip) {
   await env.LIMITES.put(clave, String(usadas + 1), { expirationTtl: 3900 });
   return true;
 }
- 
+
 // ── Worker ───────────────────────────────────────────────────────────────
 export default {
   async fetch(request, env) {
     const origen = request.headers.get('Origin') || '';
     const autorizado = ORIGENES.includes(origen);
     const cors = cabecerasCors(autorizado ? origen : ORIGENES[0]);
- 
+
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: cors });
     }
@@ -76,13 +76,13 @@ export default {
     if (!env.ANTHROPIC_API_KEY) {
       return respuestaJson({ error: 'Falta configurar ANTHROPIC_API_KEY en el Worker.' }, 500, cors);
     }
- 
+
     const ip = request.headers.get('CF-Connecting-IP') || 'anon';
     if (!(await dentroDelLimite(env, ip))) {
       return respuestaJson(
         { error: 'Límite de uso por hora alcanzado. Intenta más tarde.' }, 429, cors);
     }
- 
+
     // ── Validación del cuerpo ────────────────────────────────────────────
     let cuerpo;
     try {
@@ -90,11 +90,11 @@ export default {
     } catch (e) {
       return respuestaJson({ error: 'Cuerpo JSON inválido.' }, 400, cors);
     }
- 
+
     if (!Array.isArray(cuerpo.messages) || cuerpo.messages.length === 0) {
       return respuestaJson({ error: 'Falta el arreglo messages.' }, 400, cors);
     }
- 
+
     let caracteres = 0;
     const mensajes = [];
     for (const m of cuerpo.messages) {
@@ -108,7 +108,7 @@ export default {
     if (caracteres > MAX_CARACTERES) {
       return respuestaJson({ error: 'La petición es demasiado extensa.' }, 413, cors);
     }
- 
+
     // Se reconstruye el cuerpo desde cero: nada que venga del navegador
     // (modelo, herramientas, mcp_servers, stream) llega a la API.
     const carga = {
@@ -117,7 +117,7 @@ export default {
       messages: mensajes
     };
     if (typeof cuerpo.system === 'string') carga.system = cuerpo.system;
- 
+
     // ── Reenvío ──────────────────────────────────────────────────────────
     let arriba;
     try {
@@ -133,7 +133,7 @@ export default {
     } catch (e) {
       return respuestaJson({ error: 'No se pudo contactar la API.' }, 502, cors);
     }
- 
+
     const texto = await arriba.text();
     return new Response(texto, {
       status: arriba.status,
@@ -141,4 +141,3 @@ export default {
     });
   }
 };
- 
