@@ -1,0 +1,25 @@
+# wrangler.toml — configuración del Worker de la Ficha Clínica USS
+#
+# Despliegue:
+#   cd worker
+#   wrangler kv namespace create ENTREGAS      → pega abajo el id que devuelve
+#   wrangler deploy
+#   wrangler secret put ANTHROPIC_API_KEY      → la clave de Anthropic
+#   wrangler secret put DOCENTE_TOKEN          → la clave que inventes tú
+#
+# Los secretos NO van en este archivo: quedan cifrados en Cloudflare.
+
+name = "ficha-uss-proxy"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Almacenamiento de las entregas de los estudiantes.
+[[kv_namespaces]]
+binding = "ENTREGAS"
+id = "40215d1bcb384912a0188fff55630b72"
+
+# Contador del límite de peticiones por hora. Opcional: si se omite este
+# bloque, el Worker funciona igual pero sin limitar el uso.
+[[kv_namespaces]]
+binding = "LIMITES"
+id = "PEGAR_AQUI_EL_ID_DE_LIMITES"

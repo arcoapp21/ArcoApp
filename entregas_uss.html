@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entregas recibidas — Ficha Clínica USS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="config-uss.js"></script>
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#F4F2EE; --surface:#FFF; --surface-2:#F9F8F5; --border:#E2DED6; --border-strong:#C8C3B8;
+    --text:#1A1814; --text-2:#5C5849; --text-3:#9C9688;
+    --accent:#1D3A6B; --accent-light:#EAF0FA; --accent-mid:#4A6FA5;
+    --green:#1A5C3A; --amber:#7A4A00; --amber-light:#FFF4E0; --red:#8B1A1A;
+    --radius:10px; --radius-sm:6px;
+  }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--accent); color:#fff; padding:18px 32px; display:flex; align-items:center; gap:16px; }
+  .hl { width:36px; height:36px; background:rgba(255,255,255,.15); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:18px; }
+  header h1 { font-size:15px; font-weight:600; }
+  header p { font-size:12px; opacity:.65; margin-top:1px; }
+  .badge { margin-left:auto; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+    font-size:11px; padding:4px 10px; border-radius:20px; font-weight:500; }
+  main { max-width:900px; margin:0 auto; padding:26px 24px 60px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; margin-bottom:16px; }
+  .card-t { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-3); margin-bottom:14px; }
+  label.f { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-2); display:block; margin-bottom:5px; }
+  input[type=password], input[type=text] { width:100%; border:1px solid var(--border);
+    border-radius:var(--radius-sm); padding:9px 12px; font-family:inherit; font-size:14px;
+    background:var(--surface-2); outline:none; color:var(--text); }
+  input:focus { border-color:var(--accent-mid); background:#fff; box-shadow:0 0 0 3px rgba(74,111,165,.12); }
+  .btn { height:38px; padding:0 16px; background:var(--accent); color:#fff; border:none;
+    border-radius:var(--radius-sm); font-family:inherit; font-size:13px; font-weight:500;
+    cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
+  .btn:hover { background:#162d54; } .btn:disabled { background:var(--text-3); cursor:not-allowed; }
+  .btn-outline { background:transparent; color:var(--accent); border:1px solid var(--border-strong); }
+  .btn-outline:hover { background:var(--accent-light); }
+  .btn-sm { height:31px; padding:0 11px; font-size:12px; }
+
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-3); padding:0 8px 7px 0; border-bottom:1px solid var(--border-strong); }
+  td { padding:9px 8px 9px 0; border-bottom:1px solid var(--border); font-size:13px; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  .mono { font-family:'DM Mono',monospace; font-size:11.5px; color:var(--text-3); }
+  .acc { display:flex; gap:6px; flex-wrap:wrap; }
+
+  .aviso { border-radius:var(--radius-sm); padding:11px 14px; font-size:12.5px; line-height:1.6; margin-top:12px; }
+  .aviso.error { background:#FDEAEA; border:1px solid #e0b4b4; color:var(--red); }
+  .aviso.ok { background:#E8F5EE; border:1px solid #bfe0cd; color:var(--green); }
+  .aviso.info { background:var(--amber-light); border:1px solid #e8d99a; color:var(--amber); }
+  .vacio { text-align:center; padding:30px 20px; color:var(--text-3); font-size:13px; line-height:1.6; }
+
+  .det { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px 16px; margin-top:12px; }
+  .det pre { white-space:pre-wrap; font-family:'DM Sans',sans-serif; font-size:13px;
+    line-height:1.65; color:var(--text); }
+  .hidden { display:none !important; }
+  @media (max-width:700px) { header { padding:14px 16px; } main { padding:16px 14px 40px; }
+    th:nth-child(3), td:nth-child(3) { display:none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">📥</div>
+  <div><h1>Entregas recibidas</h1><p>Uso docente · Ficha Clínica Adulto 2026 · Universidad San Sebastián</p></div>
+  <span class="badge">Acceso restringido</span>
+</header>
+
+<main>
+  <div class="card" id="acceso">
+    <div class="card-t">Acceso</div>
+    <label class="f" for="token">Clave docente</label>
+    <input type="password" id="token" placeholder="La que configuraste como DOCENTE_TOKEN en el Worker"
+           onkeydown="if(event.key==='Enter') cargar()">
+    <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--text-2);cursor:pointer;">
+      <input type="checkbox" id="recordar" style="width:15px;height:15px;accent-color:var(--accent);">
+      <span>Recordar la clave en este navegador</span>
+    </label>
+    <div style="margin-top:12px;"><button class="btn" onclick="cargar()">Entrar</button></div>
+    <div id="avisoAcceso"></div>
+  </div>
+
+  <div class="card hidden" id="panel">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+      <span class="card-t" style="margin:0;">Entregas</span>
+      <span class="mono" id="conteo"></span>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="cargar()">🔄 Actualizar</button>
+        <button class="btn btn-outline btn-sm" onclick="descargarTodo()">⬇ Descargar todo (.csv)</button>
+        <button class="btn btn-outline btn-sm" onclick="salir()">Salir</button>
+      </div>
+    </div>
+    <div id="tabla"></div>
+  </div>
+
+  <div id="detalle"></div>
+</main>
+
+<script>
+const CLAVE_LOCAL = 'fichaUSS:v6:docente-token';
+let TOKEN = '';
+let ENTREGAS = [];
+
+function base() {
+  return String(window.FICHA_USS_API || '').replace(/\/+$/, '');
+}
+function esc(t) {
+  return String(t == null ? '' : t).replace(/[&<>"]/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+function aviso(destino, texto, clase) {
+  document.getElementById(destino).innerHTML =
+    '<div class="aviso ' + clase + '">' + esc(texto) + '</div>';
+}
+function fecha(iso) {
+  if (!iso) return '—';
+  const f = new Date(iso);
+  return f.toLocaleDateString('es-CL') + ' ' +
+    f.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+}
+
+async function cargar() {
+  const campo = document.getElementById('token');
+  if (campo.value.trim()) TOKEN = campo.value.trim();
+  if (!TOKEN) { aviso('avisoAcceso', 'Escribe la clave docente.', 'error'); return; }
+
+  if (window.FICHA_USS_API_CONFIGURADA === false || !base()) {
+    aviso('avisoAcceso', 'Falta configurar la dirección del Worker en config-uss.js.', 'error');
+    return;
+  }
+
+  try {
+    const r = await fetch(base() + '/entregas', { headers: { 'X-Docente-Token': TOKEN } });
+    const d = await r.json();
+    if (!r.ok || !d.ok) throw new Error(d.error || 'No se pudo consultar.');
+
+    if (document.getElementById('recordar').checked) {
+      try { localStorage.setItem(CLAVE_LOCAL, TOKEN); } catch (e) {}
+    }
+    ENTREGAS = d.entregas || [];
+    document.getElementById('acceso').classList.add('hidden');
+    document.getElementById('panel').classList.remove('hidden');
+    document.getElementById('conteo').textContent =
+      d.total + (d.total === 1 ? ' entrega' : ' entregas');
+    pintarTabla();
+  } catch (e) {
+    aviso('avisoAcceso', e.message || 'No se pudo conectar con el Worker.', 'error');
+  }
+}
+
+function pintarTabla() {
+  const c = document.getElementById('tabla');
+  if (!ENTREGAS.length) {
+    c.innerHTML = '<div class="vacio">Todavía no hay entregas.<br>' +
+      'Aparecerán aquí cuando los estudiantes usen «Enviar al docente» en el informe del caso.</div>';
+    return;
+  }
+  c.innerHTML = '<table><thead><tr><th>Estudiante</th><th>Caso</th><th>Recibida</th><th></th></tr></thead><tbody>' +
+    ENTREGAS.map(e => '<tr>' +
+      '<td>' + esc(e.estudiante) + '</td>' +
+      '<td>' + esc(e.caso) + '</td>' +
+      '<td class="mono">' + fecha(e.recibido) + '</td>' +
+      '<td><div class="acc">' +
+        '<button class="btn btn-outline btn-sm" onclick="ver(\'' + esc(e.id) + '\')">Ver</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="bajar(\'' + esc(e.id) + '\')">Markdown</button>' +
+      '</div></td></tr>').join('') + '</tbody></table>';
+}
+
+async function traer(id) {
+  const r = await fetch(base() + '/entregas?id=' + encodeURIComponent(id),
+    { headers: { 'X-Docente-Token': TOKEN } });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || 'No se pudo obtener la entrega.');
+  return d;
+}
+
+async function ver(id) {
+  const cont = document.getElementById('detalle');
+  cont.innerHTML = '<div class="card"><div class="vacio">Cargando…</div></div>';
+  try {
+    const d = await traer(id);
+    cont.innerHTML = '<div class="card">' +
+      '<div class="card-t">' + esc(d.estudiante) + ' · caso ' + esc(d.caso) +
+        ' · ' + fecha(d.recibido) + '</div>' +
+      '<div class="det"><pre>' + esc(d.markdown || '(la entrega no incluye texto)') + '</pre></div>' +
+      '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<button class="btn btn-outline btn-sm" onclick="bajar(\'' + esc(id) + '\')">⬇ Markdown</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="document.getElementById(\'detalle\').innerHTML=\'\'">Cerrar</button>' +
+      '</div></div>';
+    cont.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    cont.innerHTML = '<div class="card"><div class="aviso error">' + esc(e.message) + '</div></div>';
+  }
+}
+
+async function bajar(id) {
+  try {
+    const d = await traer(id);
+    descargar(d.markdown || '', 'text/markdown',
+      'entrega_' + String(d.estudiante).replace(/[^\w]+/g, '_') + '_' + String(d.caso).replace(/[^\w]+/g, '_') + '.md');
+  } catch (e) { alert(e.message); }
+}
+
+/* Una fila por respuesta, para poder puntuar con la pauta en planilla */
+async function descargarTodo() {
+  if (!ENTREGAS.length) return;
+  const filas = [['estudiante', 'caso', 'recibida', 'seccion', 'bloque', 'campo', 'respuesta']];
+  for (const e of ENTREGAS) {
+    let d;
+    try { d = await traer(e.id); } catch (err) { continue; }
+    (d.contenido || []).forEach(sec => {
+      (sec.bloques || []).forEach(b => {
+        (b.campos || []).forEach(([campo, valor]) => {
+          filas.push([d.estudiante, d.caso, d.recibido, sec.seccion, b.bloque, campo, valor]);
+        });
+      });
+    });
+  }
+  const csv = filas.map(f => f.map(v =>
+    '"' + String(v == null ? '' : v).replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"').join(',')).join('\r\n');
+  descargar('\ufeff' + csv, 'text/csv',
+    'entregas_' + new Date().toISOString().slice(0, 10) + '.csv');
+}
+
+function descargar(texto, tipo, nombre) {
+  const blob = new Blob([texto], { type: tipo + ';charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+function salir() {
+  TOKEN = '';
+  try { localStorage.removeItem(CLAVE_LOCAL); } catch (e) {}
+  document.getElementById('token').value = '';
+  document.getElementById('panel').classList.add('hidden');
+  document.getElementById('detalle').innerHTML = '';
+  document.getElementById('acceso').classList.remove('hidden');
+}
+
+// Si la clave quedó recordada, entrar directo
+try {
+  const guardado = localStorage.getItem(CLAVE_LOCAL);
+  if (guardado) {
+    TOKEN = guardado;
+    document.getElementById('recordar').checked = true;
+    cargar();
+  }
+} catch (e) {}
+</script>
+<script src="ficha-uss.js"></script>
+</body>
+</html>

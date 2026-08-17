@@ -272,6 +272,32 @@ EL SELLO DE FUNDAMENTACIÓN
   previo a la intervención del asistente: no la borren ni la
   reemplacen si van a usar ese registro para la rúbrica.
 
+ENTREGA AL DOCENTE
+  En el informe del caso hay un botón "Enviar al docente". Lo pulsa el
+  estudiante: no hay reporte automático ni envío en segundo plano.
+
+  Se envía el texto de la ficha y el registro de razonamiento.
+  Las fotografías y radiografías NO se envían: quedan en el
+  computador del estudiante. Eso reduce el tamaño y mantiene el
+  material clínico fotográfico fuera del servidor.
+
+  Las entregas llegan al Worker y se guardan en un almacenamiento KV
+  de Cloudflare, con borrado automático a los 240 días. El docente las
+  ve en la página "Entregas recibidas", protegida por la clave
+  DOCENTE_TOKEN, donde puede leer cada una, bajarla en Markdown, o
+  descargar todas juntas en un CSV con una fila por respuesta, listo
+  para puntuar con la pauta.
+
+  NO HAY AVISO POR CORREO. El envío nativo de Cloudflare exige un
+  dominio propio dado de alta en su panel; sin dominio no es posible.
+  Si más adelante hay dominio, o se contrata un proveedor externo, se
+  puede agregar un aviso diario.
+
+  ANTES DE USARLO: esto cambia el flujo de datos declarado. Hasta aquí
+  nada salía del navegador. Conviene revisar con el comité de ética y
+  con el consentimiento del Anexo 3 antes de activarlo con
+  estudiantes reales.
+
 VOLVER AL ÍNDICE
   Cada módulo muestra abajo a la izquierda un botón "Volver al índice"
   cuando corre dentro de la aplicación. Guarda y vuelve a la portada

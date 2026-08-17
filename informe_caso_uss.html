@@ -45,6 +45,19 @@
     cursor:pointer; margin-bottom:7px; }
   .op input { width:15px; height:15px; accent-color:var(--accent); cursor:pointer; }
 
+  .envio { background:var(--surface); border:1px solid var(--border);
+    border-left:3px solid var(--accent-mid); border-radius:var(--radius); padding:18px 20px; margin-bottom:18px; }
+  .envio-t { font-size:15px; font-weight:600; margin-bottom:8px; }
+  .envio-p { font-size:12.5px; color:var(--text-2); line-height:1.6; margin-bottom:8px; }
+  .envio-datos { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 13px; font-size:12.5px; color:var(--text); line-height:1.6; margin:12px 0; }
+  .envio-datos .falta { color:var(--red); font-weight:500; }
+  .envio-ok { display:flex; align-items:flex-start; gap:8px; font-size:13px;
+    color:var(--text-2); cursor:pointer; line-height:1.5; }
+  .envio-ok input { width:15px; height:15px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; }
+  .envio-estado { font-size:12.5px; line-height:1.5; }
+  .envio-estado.ok { color:var(--green); }
+  .envio-estado.error { color:var(--red); }
   .sec { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
     padding:20px; margin-bottom:14px; }
   .sec-h { font-size:15px; font-weight:600; letter-spacing:-.01em; padding-bottom:10px;
@@ -78,6 +91,7 @@
   @media (max-width:700px) { .row { grid-template-columns:1fr; gap:2px; } .imgs { grid-template-columns:1fr 1fr; }
     header { padding:14px 16px; } main { padding:16px 14px 50px; } }
 </style>
+<script src="config-uss.js"></script>
 </head>
 <body>
 
@@ -93,6 +107,26 @@
     <button class="btn btn-outline" onclick="construir()">🔄 Actualizar</button>
     <button class="btn" id="btnMd" onclick="exportarMarkdown()">⬇ Markdown (.md)</button>
     <button class="btn" id="btnPptx" onclick="exportarPptx()">⬇ PowerPoint (.pptx)</button>
+  </div>
+
+  <div class="envio" id="envioCard">
+    <div class="envio-t">Enviar al docente</div>
+    <p class="envio-p">
+      Envía tu registro para que el docente lo revise, sin tener que mandarle un archivo. Se envía el texto
+      de la ficha y tu registro de razonamiento; <strong>las fotografías y radiografías no se envían</strong>,
+      quedan solo en este computador.
+    </p>
+    <p class="envio-p">
+      Revisa antes que el código del paciente y tu nombre estén correctos: es lo que identifica tu entrega.
+      Puedes enviar más de una vez; el docente verá la más reciente y también las anteriores.
+    </p>
+    <div class="envio-datos" id="envioDatos"></div>
+    <label class="envio-ok"><input type="checkbox" id="envioConfirmo">
+      <span>Confirmo que quiero enviar este registro al docente.</span></label>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn" id="btnEnviar" onclick="enviarAlDocente()">📨 Enviar al docente</button>
+      <span class="envio-estado" id="envioEstado"></span>
+    </div>
   </div>
 
   <div class="opciones">
@@ -288,6 +322,7 @@ async function construir() {
 
   CASO = { meta: m, secciones, generado: new Date() };
   render();
+  pintarDatosEnvio();
 }
 
 function render() {
@@ -425,6 +460,69 @@ async function exportarPptx() {
     toast('No se pudo generar el PowerPoint. Usa Markdown.', '#8B1A1A');
   } finally {
     btn.disabled = false; btn.textContent = '⬇ PowerPoint (.pptx)';
+  }
+}
+
+// ── Envío al docente ───────────────────────────────────────────────────
+/* Lo envía el estudiante, deliberadamente. No hay reporte automático:
+   el docente recibe lo que el estudiante decide entregar, y solo eso. */
+function pintarDatosEnvio() {
+  const c = document.getElementById('envioDatos');
+  if (!c || !CASO) return;
+  const m = CASO.meta;
+  const f = t => t ? esc(t) : '<span class="falta">falta completarlo en la portada del índice</span>';
+  c.innerHTML = 'Estudiante: ' + f(m.estudiante) + '<br>Código del paciente: ' + f(m.paciente);
+}
+
+async function enviarAlDocente() {
+  const estado = document.getElementById('envioEstado');
+  const btn = document.getElementById('btnEnviar');
+  const poner = (t, clase) => { estado.textContent = t; estado.className = 'envio-estado ' + (clase || ''); };
+
+  if (!CASO || !CASO.secciones.length) { poner('No hay nada que enviar todavía.', 'error'); return; }
+  const m = CASO.meta;
+  if (!m.estudiante || !m.paciente) {
+    poner('Completa tu nombre y el código del paciente en la portada del índice.', 'error');
+    return;
+  }
+  if (!document.getElementById('envioConfirmo').checked) {
+    poner('Marca la casilla de confirmación antes de enviar.', 'error');
+    return;
+  }
+  if (!window.FICHA_USS_API || window.FICHA_USS_API_CONFIGURADA === false) {
+    poner('El envío no está configurado todavía. Usa la descarga en Markdown.', 'error');
+    return;
+  }
+
+  // Se envía el texto, nunca las imágenes: reduce el tamaño y deja
+  // el material clínico fotográfico en el computador del estudiante.
+  const contenido = CASO.secciones.map(s => ({
+    seccion: s.titulo,
+    bloques: s.bloques.map(b => ({ bloque: b.titulo, campos: b.filas }))
+  }));
+
+  btn.disabled = true;
+  poner('Enviando…');
+  try {
+    const resp = await fetch(window.FICHA_USS_API.replace(/\/+$/, '') + '/entregas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        estudiante: m.estudiante,
+        caso: m.paciente,
+        asignatura: 'Introducción a la Clínica',
+        contenido,
+        markdown: generarMarkdown().replace(/!\[[^\]]*\]\(data:[^)]*\)/g, '_(imagen no incluida en el envío)_')
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) throw new Error(data.error || 'error');
+    poner('Entregado. Código de tu entrega: ' + data.id + '. Anótalo por si necesitas referirte a ella.', 'ok');
+    document.getElementById('envioConfirmo').checked = false;
+  } catch (e) {
+    poner('No se pudo enviar: ' + (e.message || 'sin conexión') + '. Descarga el Markdown y entrégalo por otra vía.', 'error');
+  } finally {
+    btn.disabled = false;
   }
 }
 
