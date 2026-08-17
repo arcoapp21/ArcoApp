@@ -207,17 +207,108 @@
     document.body.appendChild(b);
   }
 
+  // ── Registro de uso ────────────────────────────────────────────────────
+  /* Cuenta cuántas veces se abre cada módulo, cuánto tiempo se trabaja en él
+     y cuántas veces se consulta al asistente. Son solo contadores: no se
+     guarda nada de lo que el estudiante escribe ni a dónde navega. Viaja
+     junto con la entrega, para poder estudiar cómo se usa el asistente.
+     El estudiante lo ve declarado en la pantalla de cierre del caso. */
+  var USO_KEY = PREFIX + '_uso';
+  var MINUTO = 60000;
+
+  function leerUso() {
+    try { return JSON.parse(localStorage.getItem(USO_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  function anotarUso(cambiar) {
+    try {
+      var u = leerUso();
+      if (!u.inicio) u.inicio = new Date().toISOString();
+      u.ultima = new Date().toISOString();
+      u.porModulo = u.porModulo || {};
+      u.porModulo[MODULO] = u.porModulo[MODULO] || { aperturas: 0, consultasIA: 0, segundos: 0 };
+      cambiar(u.porModulo[MODULO], u);
+      localStorage.setItem(USO_KEY, JSON.stringify(u));
+    } catch (e) { /* sin espacio o sin permisos: el registro de uso es prescindible */ }
+  }
+
+  /* El único punto por donde los módulos hablan con la IA es window.fetch
+     contra la dirección del Worker. Se envuelve para contar, nunca para
+     interferir: pase lo que pase, la petición original sigue su curso. */
+  function contarConsultas() {
+    var original = window.fetch;
+    if (typeof original !== 'function' || original.__fichaUSS) return;
+    var envuelto = function (entrada, opciones) {
+      try {
+        var url = typeof entrada === 'string' ? entrada
+          : (entrada && entrada.url) ? entrada.url : '';
+        var api = String(window.FICHA_USS_API || '').replace(/\/+$/, '');
+        if (api && url.indexOf(api) === 0 && url.indexOf('/entregas') === -1 &&
+            url.indexOf('/correo-prueba') === -1) {
+          anotarUso(function (m, u) {
+            m.consultasIA++;
+            u.consultasIA = (u.consultasIA || 0) + 1;
+          });
+        }
+      } catch (e) {}
+      return original.apply(this, arguments);
+    };
+    envuelto.__fichaUSS = true;
+    window.fetch = envuelto;
+  }
+
+  /* Tiempo de trabajo: se suma medio minuto cada medio minuto, y solo
+     mientras la pestaña está a la vista. Es una estimación, no un reloj. */
+  function contarTiempo() {
+    var TRAMO = 30;
+    setInterval(function () {
+      if (document.hidden) return;
+      anotarUso(function (m, u) {
+        m.segundos += TRAMO;
+        u.segundos = (u.segundos || 0) + TRAMO;
+      });
+    }, TRAMO * 1000);
+  }
+
+  function resumenUso() {
+    var u = leerUso();
+    var porModulo = {};
+    var visitados = 0;
+    Object.keys(u.porModulo || {}).forEach(function (k) {
+      var m = u.porModulo[k];
+      visitados++;
+      porModulo[k] = {
+        aperturas: m.aperturas || 0,
+        consultasIA: m.consultasIA || 0,
+        minutos: Math.round((m.segundos || 0) / 60)
+      };
+    });
+    return {
+      consultasIA: u.consultasIA || 0,
+      minutos: Math.round((u.segundos || 0) / 60),
+      modulosVisitados: visitados,
+      primeraActividad: u.inicio || '',
+      ultimaActividad: u.ultima || '',
+      porModulo: porModulo
+    };
+  }
+
   // ── API pública ────────────────────────────────────────────────────────
   window.FichaUSS = {
     modulo: MODULO,
     guardar: guardar,
     leer: function () { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } },
-    borrar: function () { try { localStorage.removeItem(KEY); } catch (e) {} }
+    borrar: function () { try { localStorage.removeItem(KEY); } catch (e) {} },
+    uso: resumenUso,
+    borrarUso: function () { try { localStorage.removeItem(USO_KEY); } catch (e) {} }
   };
 
   // ── Arranque ───────────────────────────────────────────────────────────
   function iniciar() {
     restaurar();
+    anotarUso(function (m) { m.aperturas++; });
+    contarConsultas();
+    contarTiempo();
     document.addEventListener('input', guardarDiferido, true);
     document.addEventListener('change', guardarDiferido, true);
     window.addEventListener('beforeunload', guardar);

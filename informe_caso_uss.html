@@ -98,7 +98,7 @@
 <header>
   <div class="hl">📤</div>
   <div><h1>Informe del caso</h1><p>Exportación editable · Ficha Clínica Adulto 2026 · Universidad San Sebastián</p></div>
-  <span class="badge">Markdown y PowerPoint</span>
+  <span class="badge">Markdown, PDF y PowerPoint</span>
 </header>
 
 <main>
@@ -106,25 +106,32 @@
     <span class="bar-t">Reúne todo lo registrado en los módulos y lo exporta en un formato que puedas seguir editando.</span>
     <button class="btn btn-outline" onclick="construir()">🔄 Actualizar</button>
     <button class="btn" id="btnMd" onclick="exportarMarkdown()">⬇ Markdown (.md)</button>
+    <button class="btn" id="btnPdf" onclick="exportarPdf()">⬇ PDF (.pdf)</button>
     <button class="btn" id="btnPptx" onclick="exportarPptx()">⬇ PowerPoint (.pptx)</button>
   </div>
 
   <div class="envio" id="envioCard">
-    <div class="envio-t">Enviar al docente</div>
+    <div class="envio-t">Cerrar el caso y enviar al docente</div>
     <p class="envio-p">
-      Envía tu registro para que el docente lo revise, sin tener que mandarle un archivo. Se envía el texto
-      de la ficha y tu registro de razonamiento; <strong>las fotografías y radiografías no se envían</strong>,
-      quedan solo en este computador.
+      Al cerrar el caso se arma el informe en PDF con todo lo registrado, se envía al docente y queda
+      guardado como entrega. Se envía el texto de la ficha y tu registro de razonamiento;
+      <strong>las fotografías y radiografías no se envían</strong>, quedan solo en este computador.
     </p>
     <p class="envio-p">
       Revisa antes que el código del paciente y tu nombre estén correctos: es lo que identifica tu entrega.
-      Puedes enviar más de una vez; el docente verá la más reciente y también las anteriores.
+      Puedes cerrar el caso más de una vez; el docente verá la más reciente y también las anteriores.
+    </p>
+    <p class="envio-p">
+      Junto al informe va un resumen de cómo usaste la aplicación: cuántas veces consultaste al asistente,
+      en qué módulos y cuánto tiempo trabajaste. No incluye lo que escribiste fuera de la ficha ni tu
+      navegación. Es una copia interna del proyecto, para estudiar el aprendizaje con el asistente y
+      mejorar la aplicación, y su uso está aprobado por el comité de ética.
     </p>
     <div class="envio-datos" id="envioDatos"></div>
     <label class="envio-ok"><input type="checkbox" id="envioConfirmo">
-      <span>Confirmo que quiero enviar este registro al docente.</span></label>
+      <span>Confirmo que quiero cerrar el caso y enviar este registro al docente.</span></label>
     <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button class="btn" id="btnEnviar" onclick="enviarAlDocente()">📨 Enviar al docente</button>
+      <button class="btn" id="btnEnviar" onclick="enviarAlDocente()">📨 Cerrar caso y enviar</button>
       <span class="envio-estado" id="envioEstado"></span>
     </div>
   </div>
@@ -149,6 +156,7 @@
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const PREFIX = 'fichaUSS:v6:';
 
@@ -354,7 +362,9 @@ function render() {
 }
 
 // ── Markdown ───────────────────────────────────────────────────────────
-function generarMarkdown() {
+/* `anexo` es texto Markdown que se intercala antes del pie. Se usa para el
+   resumen de uso, que solo acompaña a la copia que se envía. */
+function generarMarkdown(anexo) {
   const m = CASO.meta;
   const L = [];
   L.push('# Ficha Clínica Adulto — Caso ' + (m.paciente || 'sin código'));
@@ -379,6 +389,7 @@ function generarMarkdown() {
       b.imagenes.forEach(i => { L.push('![' + i.titulo + '](' + i.src + ')'); L.push(''); L.push('*' + i.titulo + '*'); L.push(''); });
     });
   });
+  if (anexo) { L.push(anexo); L.push(''); }
   L.push('---');
   L.push('');
   L.push('*Generado desde la Ficha Clínica Digital con Asistencia de IA · Universidad San Sebastián.*');
@@ -389,6 +400,166 @@ function exportarMarkdown() {
   if (!CASO || !CASO.secciones.length) { toast('No hay datos que exportar.', '#8B1A1A'); return; }
   descargar(generarMarkdown(), 'text/markdown', '.md');
   toast('Markdown descargado.');
+}
+
+// ── PDF ────────────────────────────────────────────────────────────────
+/* El PDF no es un formato aparte: es el mismo Markdown, dibujado. Así el
+   informe que se descarga, el que se envía por correo y el que queda como
+   entrega dicen exactamente lo mismo. */
+
+/* Las fuentes base del PDF solo dibujan Latin-1: los emoji y la tipografía
+   fina se convierten o se descartan antes de escribir. */
+function limpioPdf(t) {
+  return String(t == null ? '' : t)
+    .replace(/\*\*/g, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/[\u2018\u2019\u201B]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/\u2026/g, '...')
+    .replace(/[\u2022\u25CF\u25AA]/g, '-')
+    .replace(/[\u2713\u2714]/g, 'OK')
+    .replace(/\u2192/g, '->')
+    .replace(/\u00A0/g, ' ')
+    .replace(/[^\x00-\xFF\n]/g, '');
+}
+
+function pdfDesdeMarkdown(md, m) {
+  const jsPDFctor = window.jspdf && window.jspdf.jsPDF;
+  if (!jsPDFctor) throw new Error('el generador de PDF no está disponible');
+
+  const doc = new jsPDFctor({ unit: 'pt', format: 'a4' });
+  doc.setLineHeightFactor(1.3);
+
+  const ANCHO = doc.internal.pageSize.getWidth();
+  const ALTO = doc.internal.pageSize.getHeight();
+  const M = 52, ARRIBA = 78, ABAJO = 58;
+  const TOTAL = ANCHO - M * 2;
+  const COL_K = 158, SEP = 14, COL_V = TOTAL - COL_K - SEP;
+
+  const AZUL = [29, 58, 107], NEGRO = [26, 24, 20], GRIS = [92, 88, 73],
+        SUAVE = [156, 150, 136], LINEA = [226, 222, 214];
+  const tinta = c => doc.setTextColor(c[0], c[1], c[2]);
+  const trazo = c => doc.setDrawColor(c[0], c[1], c[2]);
+
+  let y = ARRIBA;
+
+  function cabecera() {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tinta(SUAVE);
+    doc.text('Ficha Clínica Adulto 2026 · Universidad San Sebastián', M, 42);
+    doc.text('Caso ' + limpioPdf(m.paciente || 'sin código'), ANCHO - M, 42, { align: 'right' });
+    trazo(LINEA); doc.setLineWidth(0.5); doc.line(M, 50, ANCHO - M, 50);
+    y = ARRIBA;
+  }
+  function sitio(alto) {
+    if (y + alto > ALTO - ABAJO) { doc.addPage(); cabecera(); }
+  }
+  function bloque(texto, op) {
+    op = op || {};
+    const size = op.size || 10, lh = size * 1.3;
+    doc.setFont('helvetica', op.style || 'normal');
+    doc.setFontSize(size);
+    tinta(op.color || NEGRO);
+    const x = op.x == null ? M : op.x;
+    const lineas = doc.splitTextToSize(String(texto), op.ancho == null ? TOTAL : op.ancho);
+    sitio(lineas.length * lh + (op.despues || 0));
+    doc.text(lineas, x, y + size);
+    y += lineas.length * lh + (op.despues || 0);
+  }
+  function fila(clave, valor) {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+    const lk = doc.splitTextToSize(clave || '', COL_K);
+    const lv = doc.splitTextToSize(valor || '-', COL_V);
+    const alto = Math.max(lk.length, lv.length) * 12.4 + 8;
+    sitio(alto);
+    tinta(GRIS); doc.text(lk, M, y + 9.5);
+    tinta(NEGRO); doc.text(lv, M + COL_K + SEP, y + 9.5);
+    y += alto;
+    trazo(LINEA); doc.setLineWidth(0.4); doc.line(M, y - 4, ANCHO - M, y - 4);
+  }
+
+  cabecera();
+
+  String(md).split('\n').forEach(cruda => {
+    const linea = limpioPdf(cruda).trim();
+    if (/^!\[/.test(linea)) return;                    // las imágenes no van en el PDF
+    if (!linea) { y += 4; return; }
+
+    if (linea.charAt(0) === '|') {
+      const celdas = cruda.trim()
+        .replace(/\\\|/g, '\u0001')
+        .replace(/^\||\|$/g, '')
+        .split('|')
+        .map(c => limpioPdf(c.replace(/\u0001/g, '|')).trim());
+      if (celdas.every(c => /^:?-{2,}:?$/.test(c))) return;
+      if (celdas.length === 2 && celdas[0] === 'Campo' && celdas[1] === 'Registro') return;
+      fila(celdas[0], celdas.slice(1).join(' · '));
+      return;
+    }
+    if (/^# /.test(linea)) {
+      bloque(linea.slice(2), { size: 18, style: 'bold', color: AZUL, despues: 12 });
+      return;
+    }
+    if (/^## /.test(linea)) {
+      y += 14;
+      bloque(linea.slice(3), { size: 13, style: 'bold', color: AZUL, despues: 4 });
+      sitio(12); trazo(AZUL); doc.setLineWidth(1.2); doc.line(M, y, M + 44, y);
+      y += 12;
+      return;
+    }
+    if (/^### /.test(linea)) {
+      y += 9;
+      bloque(linea.slice(4), { size: 10.5, style: 'bold', color: AZUL, despues: 6 });
+      return;
+    }
+    if (/^-{3,}$/.test(linea)) {
+      sitio(16); trazo(LINEA); doc.setLineWidth(0.5); doc.line(M, y, ANCHO - M, y); y += 14;
+      return;
+    }
+    if (/^[-*]\s+/.test(linea)) {
+      const t = linea.replace(/^[-*]\s+/, '');
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); tinta(NEGRO);
+      const lineas = doc.splitTextToSize(t, TOTAL - 14);
+      sitio(lineas.length * 13 + 2);
+      doc.text('-', M, y + 10);
+      doc.text(lineas, M + 14, y + 10);
+      y += lineas.length * 13 + 2;
+      return;
+    }
+    const cursiva = /^\*[^*].*\*$/.test(linea);
+    bloque(cursiva ? linea.replace(/^\*|\*$/g, '') : linea, {
+      size: cursiva ? 8.5 : 10,
+      style: cursiva ? 'italic' : 'normal',
+      color: cursiva ? SUAVE : NEGRO,
+      despues: 4
+    });
+  });
+
+  const paginas = doc.internal.getNumberOfPages();
+  for (let p = 1; p <= paginas; p++) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); tinta(SUAVE);
+    doc.text('Ficha Clínica Digital con Asistencia de IA', M, ALTO - 30);
+    doc.text('Página ' + p + ' de ' + paginas, ANCHO - M, ALTO - 30, { align: 'right' });
+  }
+  return doc;
+}
+
+function nombreDelCaso(ext) {
+  const m = CASO.meta;
+  return 'caso_' + String(m.paciente || 'sin_codigo').normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '_') +
+    '_' + new Date().toISOString().slice(0, 10) + ext;
+}
+
+function exportarPdf() {
+  if (!CASO || !CASO.secciones.length) { toast('No hay datos que exportar.', '#8B1A1A'); return; }
+  try {
+    pdfDesdeMarkdown(generarMarkdown(), CASO.meta).save(nombreDelCaso('.pdf'));
+    toast('PDF descargado.');
+  } catch (e) {
+    toast('No se pudo generar el PDF: ' + (e.message || 'error') + '. Usa Markdown.', '#8B1A1A');
+  }
 }
 
 // ── PowerPoint ─────────────────────────────────────────────────────────
@@ -463,15 +634,92 @@ async function exportarPptx() {
   }
 }
 
-// ── Envío al docente ───────────────────────────────────────────────────
-/* Lo envía el estudiante, deliberadamente. No hay reporte automático:
-   el docente recibe lo que el estudiante decide entregar, y solo eso. */
+// ── Registro de uso ────────────────────────────────────────────────────
+/* Contadores, no contenido: cuántas veces se consultó al asistente, en qué
+   módulos y cuánto tiempo se trabajó. Se declara en pantalla antes de
+   enviarlo. Parte lo lleva ficha-uss.js; el resto se deduce aquí de lo que
+   ya está guardado. */
+function usoDelCaso() {
+  let base = {};
+  try { base = (window.FichaUSS && window.FichaUSS.uso()) || {}; } catch (e) { base = {}; }
+
+  const claves = MODULOS.map(x => x[0]);
+  let conDatos = 0, campos = 0, imagenes = 0, sellos = 0;
+
+  claves.forEach(mod => {
+    const d = datos(mod);
+    const ks = Object.keys(d).filter(k => k.indexOf('rows|') !== 0);
+    if (ks.length) conDatos++;
+    ks.forEach(k => { if (k.indexOf('img|') === 0) imagenes++; else campos++; });
+    if (selloParcial(mod)) sellos++;
+  });
+
+  const porModulo = {};
+  Object.keys(base.porModulo || {})
+    .filter(k => claves.indexOf(k) !== -1)
+    .forEach(k => { porModulo[k] = base.porModulo[k]; });
+
+  const si = selloIntegral();
+  return {
+    consultasIA: base.consultasIA || 0,
+    minutos: base.minutos || 0,
+    modulosVisitados: Object.keys(porModulo).length,
+    modulosConDatos: conDatos,
+    camposCompletados: campos,
+    imagenes,
+    sellosParciales: sellos,
+    selloIntegral: !!(si && si.sello),
+    primeraActividad: base.primeraActividad || '',
+    ultimaActividad: base.ultimaActividad || '',
+    navegador: navigator.userAgent,
+    porModulo
+  };
+}
+
+/* Anexo en Markdown, para que el PDF que llega por correo y la entrega
+   guardada digan lo mismo que el resumen que vio el estudiante. */
+function anexoUso(u) {
+  const tituloDe = mod => (MODULOS.find(x => x[0] === mod) || [mod, mod])[1];
+  const L = ['## Registro de uso de la aplicación', '',
+    '| Indicador | Valor |', '| --- | --- |',
+    '| Consultas al asistente | ' + u.consultasIA + ' |',
+    '| Tiempo estimado de trabajo | ' + u.minutos + ' min |',
+    '| Módulos abiertos | ' + u.modulosVisitados + ' de ' + MODULOS.length + ' |',
+    '| Módulos con datos | ' + u.modulosConDatos + ' de ' + MODULOS.length + ' |',
+    '| Campos completados | ' + u.camposCompletados + ' |',
+    '| Imágenes cargadas (no se envían) | ' + u.imagenes + ' |',
+    '| Fundamentaciones parciales selladas | ' + u.sellosParciales + ' |',
+    '| Fundamentación integral sellada | ' + (u.selloIntegral ? 'Sí' : 'No') + ' |',
+    ''];
+  const mods = Object.keys(u.porModulo).filter(k => u.porModulo[k].consultasIA || u.porModulo[k].minutos);
+  if (mods.length) {
+    L.push('### Por módulo', '', '| Módulo | Aperturas | Consultas | Minutos |', '| --- | --- | --- | --- |');
+    mods.sort((a, b) => u.porModulo[b].consultasIA - u.porModulo[a].consultasIA)
+      .forEach(k => {
+        const d = u.porModulo[k];
+        L.push('| ' + tituloDe(k) + ' | ' + d.aperturas + ' | ' + d.consultasIA + ' | ' + d.minutos + ' |');
+      });
+    L.push('');
+  }
+  return L.join('\n');
+}
+
+// ── Cierre del caso ────────────────────────────────────────────────────
+/* Lo cierra el estudiante, deliberadamente: no hay envío en segundo plano.
+   Al cerrarlo pasan tres cosas de una vez —informe en PDF por correo,
+   entrega guardada en el Worker y registro de uso— y las tres se le
+   anuncian antes de pulsar el botón. */
 function pintarDatosEnvio() {
   const c = document.getElementById('envioDatos');
   if (!c || !CASO) return;
   const m = CASO.meta;
   const f = t => t ? esc(t) : '<span class="falta">falta completarlo en la portada del índice</span>';
-  c.innerHTML = 'Estudiante: ' + f(m.estudiante) + '<br>Código del paciente: ' + f(m.paciente);
+  const u = usoDelCaso();
+  c.innerHTML = 'Estudiante: ' + f(m.estudiante) +
+    '<br>Código del paciente: ' + f(m.paciente) +
+    '<br>Módulos con datos: ' + u.modulosConDatos + ' de ' + MODULOS.length +
+    ' · Consultas al asistente: ' + u.consultasIA +
+    ' · Tiempo estimado: ' + u.minutos + ' min';
 }
 
 async function enviarAlDocente() {
@@ -490,7 +738,7 @@ async function enviarAlDocente() {
     return;
   }
   if (!window.FICHA_USS_API || window.FICHA_USS_API_CONFIGURADA === false) {
-    poner('El envío no está configurado todavía. Usa la descarga en Markdown.', 'error');
+    poner('El envío no está configurado todavía. Usa la descarga en PDF o Markdown.', 'error');
     return;
   }
 
@@ -502,6 +750,19 @@ async function enviarAlDocente() {
   }));
 
   btn.disabled = true;
+  poner('Armando el informe…');
+
+  const uso = usoDelCaso();
+  const markdown = generarMarkdown(anexoUso(uso))
+    .replace(/!\[[^\]]*\]\(data:[^)]*\)/g, '_(imagen no incluida en el envío)_');
+
+  let pdf = '';
+  try {
+    pdf = pdfDesdeMarkdown(markdown, m).output('datauristring').split(',')[1] || '';
+  } catch (e) {
+    pdf = '';   // sin PDF se envía igual: el Markdown va siempre
+  }
+
   poner('Enviando…');
   try {
     const resp = await fetch(window.FICHA_USS_API.replace(/\/+$/, '') + '/entregas', {
@@ -511,16 +772,29 @@ async function enviarAlDocente() {
         estudiante: m.estudiante,
         caso: m.paciente,
         asignatura: 'Introducción a la Clínica',
+        origen: 'cierre',
         contenido,
-        markdown: generarMarkdown().replace(/!\[[^\]]*\]\(data:[^)]*\)/g, '_(imagen no incluida en el envío)_')
+        markdown,
+        pdf,
+        uso
       })
     });
     const data = await resp.json();
     if (!resp.ok || !data.ok) throw new Error(data.error || 'error');
-    poner('Entregado. Código de tu entrega: ' + data.id + '. Anótalo por si necesitas referirte a ella.', 'ok');
+
+    const correo = data.correo || {};
+    let texto = 'Caso cerrado. Código de tu entrega: ' + data.id + '. Anótalo por si necesitas referirte a ella.';
+    if (correo.enviado) {
+      texto += pdf ? ' El informe en PDF quedó enviado.' : ' El informe quedó enviado en texto (no se pudo armar el PDF).';
+    } else {
+      texto += ' La entrega quedó guardada, pero el correo con el informe no salió (' +
+        (correo.error || 'sin detalle') + '). Avísale al docente y guarda el PDF con el botón de arriba.';
+    }
+    poner(texto, correo.enviado ? 'ok' : '');
     document.getElementById('envioConfirmo').checked = false;
   } catch (e) {
-    poner('No se pudo enviar: ' + (e.message || 'sin conexión') + '. Descarga el Markdown y entrégalo por otra vía.', 'error');
+    poner('No se pudo cerrar el caso: ' + (e.message || 'sin conexión') +
+      '. Descarga el PDF y entrégalo por otra vía.', 'error');
   } finally {
     btn.disabled = false;
   }
@@ -528,9 +802,7 @@ async function enviarAlDocente() {
 
 // ── Utilidades ─────────────────────────────────────────────────────────
 function descargar(texto, tipo, ext) {
-  const m = CASO.meta;
-  const nombre = 'caso_' + String(m.paciente || 'sin_codigo').replace(/[^\w\-]+/g, '_') +
-    '_' + new Date().toISOString().slice(0, 10) + ext;
+  const nombre = nombreDelCaso(ext);
   const blob = new Blob([texto], { type: tipo + ';charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);

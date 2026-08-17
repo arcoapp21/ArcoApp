@@ -4,8 +4,12 @@ Aplicación integrada · versión v6
 
 CONTENIDO
   index.html ................... índice navegable (abrir este)
+  informe_caso_uss.html ........ informe, PDF y cierre del caso
+  entregas_uss.html ............ entregas recibidas (uso docente)
   registro_razonamiento_uss.html  documento de corrección docente
-  ficha-uss.js ................. guardado automático compartido
+  worker.js .................... proxy de IA, entregas y correo
+  wrangler.toml ................ configuración del Worker
+  ficha-uss.js ................. guardado automático y registro de uso
   coherencia-uss.js ............ verificación de coherencia (editable)
   sello-uss.js ................. diagnósticos parciales bloqueados (editable)
   11 archivos *_uss.html ....... los módulos de la ficha
@@ -272,31 +276,65 @@ EL SELLO DE FUNDAMENTACIÓN
   previo a la intervención del asistente: no la borren ni la
   reemplacen si van a usar ese registro para la rúbrica.
 
-ENTREGA AL DOCENTE
-  En el informe del caso hay un botón "Enviar al docente". Lo pulsa el
-  estudiante: no hay reporte automático ni envío en segundo plano.
+CERRAR EL CASO: ENTREGA, PDF Y CORREO
+  El botón "Cerrar caso" de la barra superior abre el informe. Ahí,
+  al confirmar, ocurren tres cosas de una vez:
+
+   · se arma el informe en PDF con todo lo registrado;
+   · se envía por correo a arcoapp.21@gmail.com, con el caso y el
+     estudiante en el asunto;
+   · la entrega queda guardada en el Worker, igual que antes.
+
+  Lo pulsa el estudiante: no hay envío en segundo plano ni reporte
+  a sus espaldas. Todo lo que se manda se le anuncia antes en la
+  misma tarjeta.
 
   Se envía el texto de la ficha y el registro de razonamiento.
   Las fotografías y radiografías NO se envían: quedan en el
   computador del estudiante. Eso reduce el tamaño y mantiene el
-  material clínico fotográfico fuera del servidor.
+  material clínico fotográfico fuera del servidor. El PDF tampoco se
+  guarda en el KV: se adjunta al correo y se descarta, porque el
+  Markdown guardado dice lo mismo ocupando mucho menos.
+
+  Si el correo falla —falta la clave de Resend, se cae la red, el
+  servicio rechaza el destinatario— la entrega igual queda guardada
+  y el estudiante lo ve en pantalla. Un correo perdido no le puede
+  costar la entrega.
 
   Las entregas llegan al Worker y se guardan en un almacenamiento KV
   de Cloudflare, con borrado automático a los 240 días. El docente las
   ve en la página "Entregas recibidas", protegida por la clave
-  DOCENTE_TOKEN, donde puede leer cada una, bajarla en Markdown, o
-  descargar todas juntas en un CSV con una fila por respuesta, listo
-  para puntuar con la pauta.
+  DOCENTE_TOKEN, donde puede leer cada una, bajarla en Markdown, ver
+  si el correo salió, o descargar todas juntas en un CSV con una fila
+  por respuesta, listo para puntuar con la pauta.
 
-  NO HAY AVISO POR CORREO. El envío nativo de Cloudflare exige un
-  dominio propio dado de alta en su panel; sin dominio no es posible.
-  Si más adelante hay dominio, o se contrata un proveedor externo, se
-  puede agregar un aviso diario.
+  EL CORREO USA RESEND, no el envío nativo de Cloudflare (que exige
+  dominio propio). Mientras Resend no tenga un dominio verificado,
+  solo admite enviar desde onboarding@resend.dev y solo hacia el
+  correo con que se creó la cuenta. Por eso el destino es la misma
+  casilla arcoapp.21@gmail.com. La clave va como secreto del Worker
+  (RESEND_API_KEY): nunca en un archivo del repositorio, que es
+  público.
 
-  ANTES DE USARLO: esto cambia el flujo de datos declarado. Hasta aquí
-  nada salía del navegador. Conviene revisar con el comité de ética y
-  con el consentimiento del Anexo 3 antes de activarlo con
-  estudiantes reales.
+EL REGISTRO DE USO
+  Junto con la entrega viajan contadores de uso: cuántas veces se
+  consultó al asistente, en qué módulos, cuánto tiempo se trabajó,
+  cuántos campos se completaron y cuántas fundamentaciones se
+  sellaron.
+
+  Son contadores, no contenido: no se guarda qué se preguntó ni qué
+  se escribió fuera de la ficha, ni la navegación.
+
+  El estudiante ve el resumen en la tarjeta de cierre antes de
+  confirmar, y la portada del índice explica para qué es. El docente
+  lo baja como planilla con "Uso (.csv)", una fila por entrega, para
+  cruzar el apoyo del asistente contra el desempeño.
+
+  ANTES DE USARLO: esto cambia el flujo de datos declarado. Hasta la
+  versión anterior nada salía del navegador salvo la entrega que el
+  estudiante mandaba. Está aprobado por el comité de ética para uso
+  interno del proyecto; conviene igual que el consentimiento del
+  Anexo 3 diga lo mismo que dice la pantalla.
 
 VOLVER AL ÍNDICE
   Cada módulo muestra abajo a la izquierda un botón "Volver al índice"
@@ -310,6 +348,10 @@ EL INFORME DEL CASO (EXPORTACIÓN)
 
    · Markdown (.md): se abre en Word, Google Docs, Obsidian o
      cualquier editor. Es el más cómodo para seguir escribiendo.
+   · PDF (.pdf): el mismo Markdown, dibujado. Es el que se manda
+     por correo al cerrar el caso, así que lo que se descarga y lo
+     que recibe el docente dicen exactamente lo mismo. Se arma en el
+     navegador con jsPDF, cargado desde una CDN.
    · PowerPoint (.pptx): una diapositiva por bloque siguiendo el
      formato de presentación de caso, con las imágenes incrustadas.
      Punto de partida, no presentación terminada.
@@ -363,11 +405,19 @@ EL ASISTENTE DE IA — CONFIGURACIÓN OBLIGATORIA
        Si queda un origen incorrecto, el navegador bloquea las
        llamadas; si se deja '*', cualquiera podría gastar la cuota.
     2. Desplegar el Worker:  wrangler deploy
-    3. Cargar la clave:      wrangler secret put ANTHROPIC_API_KEY
-       Queda cifrada y no aparece en el código.
+    3. Cargar los secretos, que quedan cifrados y no aparecen en el
+       código:
+         wrangler secret put ANTHROPIC_API_KEY  (clave de Anthropic)
+         wrangler secret put DOCENTE_TOKEN      (clave de entregas)
+         wrangler secret put RESEND_API_KEY     (envío del informe)
     4. Editar config-uss.js: reemplazar la URL de ejemplo por la del
        Worker desplegado. Es el único archivo que hay que tocar; los
        módulos la leen desde ahí.
+
+    NINGUNA CLAVE VA EN UN ARCHIVO DEL REPOSITORIO. El sitio se
+    publica tal cual: cualquiera puede leer su código fuente. Para
+    probar en local está .dev.vars.ejemplo, que se copia como
+    .dev.vars y está excluido por .gitignore.
 
   El Worker además reconstruye la petición desde cero, de modo que
   nada que venga del navegador —modelo, herramientas, streaming—

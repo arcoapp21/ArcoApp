@@ -1,0 +1,16 @@
+# .dev.vars.ejemplo — plantilla de secretos para PROBAR EN LOCAL
+#
+# Cópialo como .dev.vars (sin ".ejemplo") y pon ahí las claves reales.
+# .dev.vars solo lo lee `wrangler dev` en tu computador: NO se sube al
+# repositorio y NO se despliega. En producción los mismos nombres se cargan
+# como secretos cifrados:
+#
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put DOCENTE_TOKEN
+#   wrangler secret put RESEND_API_KEY
+#
+# Antes de nada, comprueba que .dev.vars esté en .gitignore.
+
+ANTHROPIC_API_KEY = "sk-ant-..."
+DOCENTE_TOKEN = "la-clave-que-inventes-para-la-pagina-de-entregas"
+RESEND_API_KEY = "re_..."

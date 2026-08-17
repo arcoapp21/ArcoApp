@@ -106,6 +106,7 @@
     <div><h1>Ficha Clínica Adulto 2026</h1><p>Universidad San Sebastián · Odontología</p></div>
   </div>
   <div class="topbar-actions">
+    <button class="tb-btn" onclick="irACerrarCaso()">✅ <span>Cerrar caso</span></button>
     <button class="tb-btn" onclick="exportarCaso()">⬇ <span>Exportar caso</span></button>
     <button class="tb-btn" onclick="document.getElementById('importFile').click()">⬆ <span>Importar</span></button>
     <button class="tb-btn danger" onclick="borrarCaso()">🗑 <span>Borrar</span></button>
@@ -148,6 +149,12 @@
           <h3>Cómo funciona el guardado</h3>
           <p>Los datos quedan en este navegador y en este computador. No viajan a ningún servidor. Si abres la ficha en otro equipo, el caso no estará ahí.</p>
           <p>Al terminar la sesión clínica usa <strong>Exportar caso</strong>: descarga un archivo <code>.json</code> con todo el registro, incluidas las fotografías. Ese archivo se vuelve a cargar con <strong>Importar</strong> en cualquier equipo.</p>
+        </div>
+
+        <div class="w-card">
+          <h3>Qué pasa al cerrar el caso</h3>
+          <p><strong>Cerrar caso</strong> abre el informe y, cuando lo confirmas ahí, ocurren tres cosas: se arma el informe en PDF y se envía al docente, la entrega queda registrada con tu nombre y el código del paciente, y se adjunta un resumen de cómo usaste la aplicación (consultas al asistente, módulos y tiempo).</p>
+          <p>Las fotografías y radiografías no salen de este computador. El resumen de uso es una copia interna del proyecto, aprobada por el comité de ética, para estudiar el aprendizaje con el asistente y mejorar la aplicación.</p>
         </div>
 
         <div class="w-note">
@@ -233,6 +240,13 @@ function abrir(i) {
   document.getElementById('ni' + i).classList.add('active');
   actual = i;
   cerrarNav();
+}
+
+/* Cerrar el caso es abrir el informe: ahí está el botón que genera el PDF,
+   lo envía al docente y deja la entrega registrada. Se recarga el marco para
+   que el informe recoja lo último escrito en los módulos. */
+function irACerrarCaso() {
+  abrir(MODULOS.length);
 }
 
 /* Vuelve a la pantalla de inicio sin descargar los módulos: los iframes

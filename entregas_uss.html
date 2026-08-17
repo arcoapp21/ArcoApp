@@ -95,9 +95,12 @@
       <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-outline btn-sm" onclick="cargar()">🔄 Actualizar</button>
         <button class="btn btn-outline btn-sm" onclick="descargarTodo()">⬇ Descargar todo (.csv)</button>
+        <button class="btn btn-outline btn-sm" onclick="descargarUso()">⬇ Uso (.csv)</button>
+        <button class="btn btn-outline btn-sm" onclick="probarCorreo()">✉ Probar el correo</button>
         <button class="btn btn-outline btn-sm" onclick="salir()">Salir</button>
       </div>
     </div>
+    <div id="avisoPanel"></div>
     <div id="tabla"></div>
   </div>
 
@@ -163,11 +166,12 @@ function pintarTabla() {
       'Aparecerán aquí cuando los estudiantes usen «Enviar al docente» en el informe del caso.</div>';
     return;
   }
-  c.innerHTML = '<table><thead><tr><th>Estudiante</th><th>Caso</th><th>Recibida</th><th></th></tr></thead><tbody>' +
+  c.innerHTML = '<table><thead><tr><th>Estudiante</th><th>Caso</th><th>Recibida</th><th>Correo</th><th></th></tr></thead><tbody>' +
     ENTREGAS.map(e => '<tr>' +
       '<td>' + esc(e.estudiante) + '</td>' +
       '<td>' + esc(e.caso) + '</td>' +
       '<td class="mono">' + fecha(e.recibido) + '</td>' +
+      '<td class="mono">' + (e.correo === true ? '✓' : e.correo === false ? '—' : '') + '</td>' +
       '<td><div class="acc">' +
         '<button class="btn btn-outline btn-sm" onclick="ver(\'' + esc(e.id) + '\')">Ver</button>' +
         '<button class="btn btn-outline btn-sm" onclick="bajar(\'' + esc(e.id) + '\')">Markdown</button>' +
@@ -182,6 +186,41 @@ async function traer(id) {
   return d;
 }
 
+/* Estado del correo y contadores de uso: es lo que distingue una entrega
+   cerrada por el estudiante de un envío que se quedó a medias. */
+function bloqueCorreo(d) {
+  const c = d.correo;
+  if (!c) return '<div class="aviso info">Entrega anterior al envío por correo.</div>';
+  if (c.enviado) {
+    return '<div class="aviso ok">Informe enviado a ' + esc(c.destinatario || '—') +
+      (c.conPdf ? ' con el PDF adjunto.' : ' sin PDF (solo texto).') +
+      (c.idCorreo ? ' <span class="mono">' + esc(c.idCorreo) + '</span>' : '') + '</div>';
+  }
+  return '<div class="aviso error">El correo no salió: ' + esc(c.error || 'sin detalle') +
+    '. La entrega sí quedó guardada.</div>';
+}
+
+function bloqueUso(d) {
+  const u = d.uso;
+  if (!u) return '';
+  const mods = Object.keys(u.porModulo || {})
+    .filter(k => u.porModulo[k].consultasIA || u.porModulo[k].minutos)
+    .sort((a, b) => u.porModulo[b].consultasIA - u.porModulo[a].consultasIA);
+  return '<div class="det" style="margin-top:12px;">' +
+    '<div class="card-t" style="margin-bottom:8px;">Uso de la aplicación</div>' +
+    '<div style="font-size:13px;line-height:1.8;">' +
+      'Consultas al asistente: <strong>' + (u.consultasIA || 0) + '</strong> · ' +
+      'Tiempo estimado: <strong>' + (u.minutos || 0) + ' min</strong> · ' +
+      'Módulos con datos: <strong>' + (u.modulosConDatos || 0) + '</strong> · ' +
+      'Campos: <strong>' + (u.camposCompletados || 0) + '</strong> · ' +
+      'Sellos: <strong>' + (u.sellosParciales || 0) + (u.selloIntegral ? ' + integral' : '') + '</strong>' +
+    '</div>' +
+    (mods.length ? '<div class="mono" style="margin-top:8px;line-height:1.8;">' +
+      mods.map(k => esc(k) + ': ' + u.porModulo[k].consultasIA + ' consultas, ' +
+        u.porModulo[k].minutos + ' min').join('<br>') + '</div>' : '') +
+    '</div>';
+}
+
 async function ver(id) {
   const cont = document.getElementById('detalle');
   cont.innerHTML = '<div class="card"><div class="vacio">Cargando…</div></div>';
@@ -189,8 +228,11 @@ async function ver(id) {
     const d = await traer(id);
     cont.innerHTML = '<div class="card">' +
       '<div class="card-t">' + esc(d.estudiante) + ' · caso ' + esc(d.caso) +
-        ' · ' + fecha(d.recibido) + '</div>' +
-      '<div class="det"><pre>' + esc(d.markdown || '(la entrega no incluye texto)') + '</pre></div>' +
+        ' · ' + fecha(d.recibido) +
+        (d.origen === 'cierre' ? ' · cierre del caso' : ' · envío manual') + '</div>' +
+      bloqueCorreo(d) +
+      bloqueUso(d) +
+      '<div class="det" style="margin-top:12px;"><pre>' + esc(d.markdown || '(la entrega no incluye texto)') + '</pre></div>' +
       '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">' +
         '<button class="btn btn-outline btn-sm" onclick="bajar(\'' + esc(id) + '\')">⬇ Markdown</button>' +
         '<button class="btn btn-outline btn-sm" onclick="document.getElementById(\'detalle\').innerHTML=\'\'">Cerrar</button>' +
@@ -228,6 +270,45 @@ async function descargarTodo() {
     '"' + String(v == null ? '' : v).replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"').join(',')).join('\r\n');
   descargar('\ufeff' + csv, 'text/csv',
     'entregas_' + new Date().toISOString().slice(0, 10) + '.csv');
+}
+
+/* Una fila por entrega, con los contadores de uso: es la planilla del
+   estudio, no la de corrección. */
+async function descargarUso() {
+  if (!ENTREGAS.length) return;
+  const filas = [['estudiante', 'caso', 'recibida', 'origen', 'correo_enviado',
+    'consultas_ia', 'minutos', 'modulos_visitados', 'modulos_con_datos',
+    'campos', 'imagenes', 'sellos_parciales', 'sello_integral', 'navegador']];
+  for (const e of ENTREGAS) {
+    let d;
+    try { d = await traer(e.id); } catch (err) { continue; }
+    const u = d.uso || {};
+    filas.push([d.estudiante, d.caso, d.recibido, d.origen || '',
+      d.correo && d.correo.enviado ? 'sí' : 'no',
+      u.consultasIA || 0, u.minutos || 0, u.modulosVisitados || 0, u.modulosConDatos || 0,
+      u.camposCompletados || 0, u.imagenes || 0, u.sellosParciales || 0,
+      u.selloIntegral ? 'sí' : 'no', u.navegador || '']);
+  }
+  const csv = filas.map(f => f.map(v =>
+    '"' + String(v == null ? '' : v).replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"').join(',')).join('\r\n');
+  descargar('\ufeff' + csv, 'text/csv', 'uso_' + new Date().toISOString().slice(0, 10) + '.csv');
+}
+
+/* Comprueba que Resend esté bien configurado sin inventar una entrega. */
+async function probarCorreo() {
+  aviso('avisoPanel', 'Enviando correo de prueba…', 'info');
+  try {
+    const r = await fetch(base() + '/correo-prueba', {
+      method: 'POST',
+      headers: { 'X-Docente-Token': TOKEN }
+    });
+    const d = await r.json();
+    const c = d.correo || {};
+    if (d.ok) aviso('avisoPanel', 'Correo de prueba enviado a ' + (c.destinatario || '—') + '.', 'ok');
+    else aviso('avisoPanel', 'No salió: ' + (c.error || d.error || 'sin detalle'), 'error');
+  } catch (e) {
+    aviso('avisoPanel', 'No se pudo contactar el Worker: ' + (e.message || ''), 'error');
+  }
 }
 
 function descargar(texto, tipo, nombre) {

@@ -6,12 +6,25 @@
 #   wrangler deploy
 #   wrangler secret put ANTHROPIC_API_KEY      → la clave de Anthropic
 #   wrangler secret put DOCENTE_TOKEN          → la clave que inventes tú
+#   wrangler secret put RESEND_API_KEY         → la clave de Resend (envío del informe)
 #
 # Los secretos NO van en este archivo: quedan cifrados en Cloudflare.
+# La clave de Resend en particular NUNCA debe quedar en el repositorio: el
+# sitio se publica en GitHub Pages y todo lo que esté en un archivo es público.
 
 name = "ficha-uss-proxy"
 main = "worker.js"
 compatibility_date = "2026-01-01"
+
+# Correo del informe. No son secretos: son direcciones.
+#
+# REMITENTE_CORREO solo puede cambiarse cuando haya un dominio verificado en
+# Resend. Mientras no lo haya, el único remitente admitido es
+# onboarding@resend.dev y el único destinatario admitido es el correo con que
+# se creó la cuenta de Resend — que es justamente DESTINO_CORREO.
+[vars]
+DESTINO_CORREO = "arcoapp.21@gmail.com"
+REMITENTE_CORREO = "ArcoApp <onboarding@resend.dev>"
 
 # Almacenamiento de las entregas de los estudiantes.
 [[kv_namespaces]]

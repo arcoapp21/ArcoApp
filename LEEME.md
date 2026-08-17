@@ -17,8 +17,25 @@ navegador del estudiante  →  Cloudflare Worker (tiene la clave)  →  API de C
 3. **Settings › Variables and Secrets** → **Add** → tipo **Secret** →
    nombre `ANTHROPIC_API_KEY` → pegar la clave de la consola de Anthropic.
    Queda cifrada: no aparece en el código ni en el navegador.
-4. Copiar la URL que quedó, del tipo
+4. En el mismo lugar, agregar los otros dos secretos:
+   `DOCENTE_TOKEN` (la clave que se pide en la página de entregas) y
+   `RESEND_API_KEY` (la clave de <https://resend.com> → API Keys, para el
+   envío del informe al cerrar el caso).
+5. Y como **variables** normales, no como secretos, porque son direcciones y
+   no claves: `DESTINO_CORREO` = `arcoapp.21@gmail.com` y `REMITENTE_CORREO`
+   = `ArcoApp <onboarding@resend.dev>`.
+6. Copiar la URL que quedó, del tipo
    `https://ficha-uss-proxy.tu-cuenta.workers.dev`.
+
+> **La clave de Resend no puede ir en ningún archivo del repositorio.** El
+> sitio se publica en GitHub Pages: cualquiera puede leer el código fuente.
+> Va como secreto del Worker, que es el único que la conoce.
+
+> **Sobre el remitente.** Mientras no haya un dominio verificado en Resend, el
+> servicio solo permite enviar *desde* `onboarding@resend.dev` y solo *hacia*
+> el correo con que se creó la cuenta. Por eso el destino es
+> `arcoapp.21@gmail.com`: es la casilla de la cuenta. Cualquier otro
+> destinatario será rechazado hasta verificar un dominio propio.
 
 La clave se saca en <https://console.anthropic.com> → API Keys. Conviene crear
 una clave **exclusiva para este piloto**, para poder revocarla sin afectar nada
@@ -56,6 +73,54 @@ la consola del navegador (F12):
 | `403 Origen no autorizado` | igual que el anterior |
 | `500 Falta configurar ANTHROPIC_API_KEY` | el secreto no quedó guardado |
 | `404` en `config-uss.js` | falta ese archivo en la raíz del sitio |
+
+Para el correo hay una prueba aparte: entrar a **Entregas recibidas** con la
+clave docente y pulsar **✉ Probar el correo**. Manda un mensaje de prueba sin
+inventar una entrega falsa. Si falla, el motivo aparece en pantalla:
+
+| Mensaje | Causa |
+|---|---|
+| `RESEND_API_KEY no configurada` | falta el secreto en el Worker |
+| `You can only send testing emails to your own address` | el destino no es el correo de la cuenta de Resend, o el remitente no es `onboarding@resend.dev` |
+| `The gmail.com domain is not verified` | se puso un remitente propio sin verificar el dominio |
+
+---
+
+## Cierre del caso: PDF, correo y entrega
+
+Al pulsar **Cerrar caso** (barra superior) se abre el informe. Cuando el
+estudiante confirma ahí, en una sola acción:
+
+1. Se arma el Markdown del caso, con un anexo de uso al final.
+2. Ese mismo Markdown se dibuja como PDF en el navegador, con jsPDF.
+3. Se manda todo al Worker, que **guarda la entrega en KV** y **envía el PDF
+   por correo** a `arcoapp.21@gmail.com`, con el caso y el estudiante en el
+   asunto.
+
+El orden importa: el correo se intenta primero y su resultado se guarda dentro
+del registro KV, en una sola escritura. Si Resend falla, se cae la red o falta
+la clave, **la entrega igual queda guardada** y el estudiante ve en pantalla
+que el correo no salió. Un correo perdido no puede costarle la entrega.
+
+Las fotografías y radiografías no viajan, ni en el Markdown ni en el PDF. El
+PDF tampoco se guarda en KV: se adjunta al correo y se descarta, porque el
+Markdown ya contiene lo mismo ocupando veinte veces menos.
+
+### El registro de uso
+
+`ficha-uss.js` lleva tres contadores por módulo —aperturas, tiempo a la vista
+y consultas al asistente— envolviendo `window.fetch`. Son contadores, no
+contenido: no se guarda qué se preguntó ni qué se escribió fuera de la ficha.
+El informe les suma lo que ya está en el navegador (módulos con datos, campos,
+imágenes, fundamentaciones selladas).
+
+Ese resumen se le muestra al estudiante en la tarjeta de cierre antes de que
+confirme, viaja con la entrega, sale en el cuerpo del correo y queda en la
+página de entregas. El docente puede bajarlo como planilla con **⬇ Uso (.csv)**:
+una fila por entrega, para cruzar consultas al asistente contra desempeño.
+
+El Worker no confía en lo que llegue: acepta solo las claves conocidas y solo
+números. Cualquier campo inventado se descarta antes de guardar.
 
 ---
 

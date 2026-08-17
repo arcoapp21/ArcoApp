@@ -1,0 +1,14 @@
+# Secretos locales de wrangler. Nunca deben llegar al repositorio: el sitio
+# se publica en GitHub Pages y todo lo que esté aquí queda público.
+.dev.vars
+.dev.vars.*
+!.dev.vars.ejemplo
+
+# Wrangler y Node
+.wrangler/
+node_modules/
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
